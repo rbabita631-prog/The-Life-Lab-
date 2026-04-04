@@ -8,11 +8,11 @@ const navLinks = [
   { name: 'Paid Courses', href: '#courses', icon: GraduationCap },
   { name: 'Free Test Series', href: '#', icon: ClipboardList },
   { name: 'Free Quiz', href: '#', icon: Zap },
-  { name: 'Class Notes', href: '#', icon: FileText },
+  { name: 'Class Notes', href: '#study-materials', icon: FileText },
   { name: 'Test Series', href: '#', icon: ClipboardList },
   { name: 'Current Affairs', href: '#', icon: Zap },
   { name: 'Quick Links', href: '#', icon: LayoutGrid },
-  { name: 'Previous Year', href: '#', icon: BookOpen },
+  { name: 'Previous Year', href: '#study-materials', icon: BookOpen },
 ];
 
 interface NavbarProps {

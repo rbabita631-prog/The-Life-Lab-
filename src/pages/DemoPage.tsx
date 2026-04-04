@@ -28,38 +28,21 @@ const demoVideos = [
 
 export default function DemoPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors font-bold">
-            <ArrowLeft className="h-5 w-5" />
-            Back to Home
-          </Link>
-          <div className="flex items-center gap-2">
-            <div className="bg-red-600 p-2 rounded-lg">
-              <Youtube className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-black text-gray-900">The Life Lab</span>
-          </div>
-          <div className="w-24" /> {/* Spacer */}
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-sm">
             <Youtube className="h-4 w-4" />
             <span>@TheLifeLab111</span>
           </div>
-          <h1 className="text-4xl lg:text-6xl font-black text-gray-900 mb-6 tracking-tight">
+          <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
             Watch Our <span className="text-red-600">Latest Demos</span>
           </h1>
-          <p className="text-xl text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed">
+          <p className="text-xl text-gray-500 dark:text-gray-400 max-w-3xl mx-auto font-medium leading-relaxed">
             Get a glimpse of our teaching style and the quality of content we provide. Here are the latest 3 videos from our YouTube channel @TheLifeLab111.
           </p>
           <div className="mt-8">
@@ -83,7 +66,7 @@ export default function DemoPage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: idx * 0.1 }}
-              className="bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-gray-100 flex flex-col lg:flex-row"
+              className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row"
             >
               <div className="lg:w-2/3 aspect-video bg-black relative group">
                 <iframe
@@ -97,18 +80,18 @@ export default function DemoPage() {
               </div>
               
               <div className="lg:w-1/3 p-8 lg:p-12 flex flex-col justify-center">
-                <div className="inline-flex items-center gap-2 text-blue-600 font-bold uppercase tracking-widest text-xs mb-4">
+                <div className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest text-xs mb-4">
                   <Play className="h-4 w-4 fill-current" />
                   <span>Latest Video</span>
                 </div>
-                <h2 className="text-2xl lg:text-3xl font-black text-gray-900 mb-6 leading-tight">
+                <h2 className="text-2xl lg:text-3xl font-black text-gray-900 dark:text-white mb-6 leading-tight">
                   {video.title}
                 </h2>
-                <p className="text-gray-500 mb-8 font-medium leading-relaxed">
+                <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium leading-relaxed">
                   {video.description}
                 </p>
                 
-                <div className="flex items-center gap-6 mb-8 text-sm font-bold text-gray-400">
+                <div className="flex items-center gap-6 mb-8 text-sm font-bold text-gray-400 dark:text-gray-500">
                   <div className="flex items-center gap-1.5">
                     <Youtube className="h-4 w-4" />
                     {video.views} views
@@ -124,7 +107,7 @@ export default function DemoPage() {
                     <Share2 className="h-5 w-5" />
                     Share
                   </button>
-                  <button className="bg-gray-100 text-gray-700 p-4 rounded-2xl hover:bg-gray-200 transition-all">
+                  <button className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 p-4 rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all">
                     <MessageSquare className="h-6 w-6" />
                   </button>
                 </div>
@@ -137,7 +120,7 @@ export default function DemoPage() {
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="mt-24 bg-gray-900 rounded-[3rem] p-12 lg:p-20 text-center text-white relative overflow-hidden"
+          className="mt-24 bg-gray-900 dark:bg-blue-900/20 rounded-[3rem] p-12 lg:p-20 text-center text-white relative overflow-hidden border border-gray-800 dark:border-blue-500/20"
         >
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600 rounded-full blur-[100px] opacity-20 -mr-32 -mt-32" />
           <div className="relative z-10">
