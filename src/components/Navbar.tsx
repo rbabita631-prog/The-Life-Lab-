@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 
@@ -15,7 +15,12 @@ const navLinks = [
   { name: 'Previous Year', href: '#', icon: BookOpen },
 ];
 
-export default function Navbar() {
+interface NavbarProps {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
+
+export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleNavClick = (href: string) => {
@@ -29,21 +34,21 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+    <nav className="sticky top-0 z-50 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-100 dark:border-gray-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
-            <div className="bg-blue-600 p-2 rounded-lg group-hover:scale-110 transition-transform">
+            <div className="bg-blue-600 p-2 rounded-xl group-hover:rotate-12 transition-transform">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-gray-900 leading-none">Life Lab</span>
+              <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Life Lab</span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-6">
+          <div className="hidden lg:flex items-center space-x-1">
             {navLinks.slice(0, 5).map((link) => (
               <a
                 key={link.name}
@@ -54,29 +59,45 @@ export default function Navbar() {
                     handleNavClick(link.href);
                   }
                 }}
-                className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
+                className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-xl transition-all"
               >
                 {link.name}
               </a>
             ))}
-            <div className="h-6 w-px bg-gray-200 mx-2" />
-            <button className="p-2 text-gray-500 hover:text-blue-600 transition-colors">
-              <Search className="h-5 w-5" />
-            </button>
-            <button className="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95">
-              <User className="h-4 w-4" />
-              Login
-            </button>
+            
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-4" />
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleTheme}
+                className="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all active:scale-90"
+                aria-label="Toggle Theme"
+              >
+                {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              </button>
+              
+              <button className="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all">
+                <Search className="h-5 w-5" />
+              </button>
+              
+              <button className="ml-2 flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl text-sm font-black hover:scale-105 transition-all shadow-lg active:scale-95">
+                <User className="h-4 w-4" />
+                Login
+              </button>
+            </div>
           </div>
 
           {/* Mobile menu button */}
-          <div className="lg:hidden flex items-center gap-4">
-            <button className="p-2 text-gray-500">
-              <Search className="h-5 w-5" />
+          <div className="lg:hidden flex items-center gap-2">
+            <button 
+              onClick={toggleTheme}
+              className="p-2 text-gray-500 dark:text-gray-400"
+            >
+              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
             </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-md text-gray-600 hover:text-blue-600 hover:bg-gray-50 focus:outline-none"
+              className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 transition-all"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -88,17 +109,17 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-gray-100 overflow-hidden"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="lg:hidden bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800"
           >
-            <div className="px-4 pt-2 pb-6 space-y-1">
+            <div className="px-4 pt-4 pb-8 space-y-1">
               {navLinks.map((link) => (
                 <a
                   key={link.name}
                   href={link.href}
-                  className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all"
+                  className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-base font-bold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
                   onClick={(e) => {
                     if (link.href.startsWith('#')) {
                       e.preventDefault();
@@ -106,12 +127,14 @@ export default function Navbar() {
                     handleNavClick(link.href);
                   }}
                 >
-                  {link.icon && <link.icon className="h-5 w-5 text-blue-500" />}
+                  <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
+                    {link.icon ? <link.icon className="h-5 w-5 text-blue-600 dark:text-blue-400" /> : <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />}
+                  </div>
                   {link.name}
                 </a>
               ))}
-              <div className="pt-4 px-3">
-                <button className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-xl text-base font-semibold hover:bg-blue-700 transition-all shadow-md">
+              <div className="pt-6 px-2">
+                <button className="w-full flex items-center justify-center gap-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl text-base font-black shadow-xl">
                   <User className="h-5 w-5" />
                   Login / Register
                 </button>

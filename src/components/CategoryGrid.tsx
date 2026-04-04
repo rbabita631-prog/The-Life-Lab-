@@ -1,47 +1,50 @@
-import { GraduationCap, ClipboardList, Zap, FileText, LayoutGrid, BookOpen, Newspaper, HelpCircle } from 'lucide-react';
+import { GraduationCap, BookOpen, ClipboardList, Zap, LayoutGrid, FileText, Award, Star, Newspaper } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const categories = [
-  { name: 'Paid Courses', icon: GraduationCap, color: 'bg-blue-500', textColor: 'text-blue-500', bgColor: 'bg-blue-50' },
-  { name: 'Free Test Series', icon: ClipboardList, color: 'bg-green-500', textColor: 'text-green-500', bgColor: 'bg-green-50' },
-  { name: 'Free Quiz', icon: Zap, color: 'bg-yellow-500', textColor: 'text-yellow-500', bgColor: 'bg-yellow-50' },
-  { name: 'Class Notes', icon: FileText, color: 'bg-purple-500', textColor: 'text-purple-500', bgColor: 'bg-purple-50' },
-  { name: 'Test Series', icon: ClipboardList, color: 'bg-red-500', textColor: 'text-red-500', bgColor: 'bg-red-50' },
-  { name: 'Current Affairs', icon: Newspaper, color: 'bg-indigo-500', textColor: 'text-indigo-500', bgColor: 'bg-indigo-50' },
-  { name: 'Quick Links', icon: LayoutGrid, color: 'bg-pink-500', textColor: 'text-pink-500', bgColor: 'bg-pink-50' },
-  { name: 'Previous Year', icon: BookOpen, color: 'bg-orange-500', textColor: 'text-orange-500', bgColor: 'bg-orange-50' },
+  { name: 'Nursing Officer', icon: GraduationCap, color: 'blue', count: '12 Courses' },
+  { name: 'NORCET Special', icon: Award, color: 'indigo', count: '8 Courses' },
+  { name: 'NCLEX Prep', icon: Star, color: 'purple', count: '5 Courses' },
+  { name: 'Test Series', icon: ClipboardList, color: 'green', count: '50+ Tests' },
+  { name: 'Free Quiz', icon: Zap, color: 'orange', count: 'Daily Live' },
+  { name: 'Class Notes', icon: FileText, color: 'red', count: 'PDFs' },
 ];
 
 export default function CategoryGrid() {
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-white dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">Browse Our Resources</h2>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-            Access everything you need to excel in your professional journey. From premium courses to free study materials.
-          </p>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl lg:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+              Explore Our <span className="text-blue-600">Categories</span>
+            </h2>
+            <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">
+              Choose from a wide range of specialized courses designed to help you excel in your nursing career.
+            </p>
+          </div>
+          <button className="group flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black text-sm uppercase tracking-widest hover:gap-3 transition-all">
+            View All Categories
+            <LayoutGrid className="h-4 w-4" />
+          </button>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8">
-          {categories.map((cat, idx) => (
+        <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+          {categories.map((category, index) => (
             <motion.div
-              key={cat.name}
+              key={category.name}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              whileHover={{ scale: 1.05, translateY: -5 }}
-              className={`group relative p-8 rounded-3xl ${cat.bgColor} border border-transparent hover:border-gray-100 transition-all cursor-pointer shadow-sm hover:shadow-xl`}
+              transition={{ delay: index * 0.1 }}
+              whileHover={{ y: -5 }}
+              className="group p-6 bg-gray-50 dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 hover:bg-white dark:hover:bg-gray-800 hover:shadow-xl transition-all cursor-pointer"
             >
-              <div className={`w-16 h-16 rounded-2xl ${cat.color} flex items-center justify-center mb-6 shadow-lg group-hover:rotate-6 transition-transform`}>
-                <cat.icon className="h-8 w-8 text-white" />
+              <div className={`bg-${category.color}-100 dark:bg-${category.color}-900/30 w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+                <category.icon className={`h-6 w-6 text-${category.color}-600 dark:text-${category.color}-400`} />
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-2">{cat.name}</h3>
-              <div className="flex items-center gap-2 text-sm font-bold text-gray-500 group-hover:text-blue-600 transition-colors">
-                <span>Explore Now</span>
-                <Zap className="h-3 w-3 fill-current" />
-              </div>
+              <h3 className="font-black text-gray-900 dark:text-white mb-1 tracking-tight">{category.name}</h3>
+              <p className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{category.count}</p>
             </motion.div>
           ))}
         </div>

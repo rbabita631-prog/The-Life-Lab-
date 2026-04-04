@@ -1,90 +1,87 @@
-import { Star, Users, Clock, ArrowRight, ShieldCheck, X, CheckCircle2, BookOpen, GraduationCap, Award } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Star, Users, Clock, ArrowRight, X, CheckCircle2, Play, BookOpen, Award, GraduationCap } from 'lucide-react';
 
 const courses = [
   {
     id: 1,
-    title: 'Nursing Foundation',
-    price: 999,
-    originalPrice: 2500,
-    students: '8K+',
-    duration: '6 Months',
-    image: 'https://picsum.photos/seed/nursing/600/400',
-    tag: 'Bestseller',
+    title: 'NORCET 2024 Ultimate Prep',
     instructor: {
-      name: 'Dr. Sarah Johnson',
+      name: 'Dr. Amit Singh',
       role: 'Senior Nursing Educator',
-      image: 'https://i.pravatar.cc/150?u=sarah'
+      image: 'https://picsum.photos/seed/amit/200/200'
     },
+    rating: 4.9,
+    students: '2.5k+',
+    duration: '6 Months',
+    price: '₹4,999',
+    originalPrice: '₹9,999',
+    image: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2070',
+    category: 'NORCET',
     learningOutcomes: [
-      'Master fundamental nursing procedures',
-      'Understand patient care ethics and standards',
-      'Learn vital signs monitoring and documentation',
-      'Develop clinical reasoning skills'
+      'Master all nursing subjects with deep conceptual clarity',
+      'Learn time-management strategies for the actual exam',
+      'Access to 5000+ high-yield practice questions',
+      'Weekly live doubt clearing sessions with experts'
     ],
     curriculum: [
-      'Introduction to Nursing',
-      'Health Assessment & Physical Examination',
-      'Nursing Process & Critical Thinking',
-      'Pharmacology Basics for Nurses',
-      'Infection Control & Safety'
+      { title: 'Module 1: Anatomy & Physiology', topics: ['Cell Structure', 'Skeletal System', 'Muscular System'] },
+      { title: 'Module 2: Medical Surgical Nursing', topics: ['Cardiovascular', 'Respiratory', 'Endocrine'] },
+      { title: 'Module 3: Pharmacology', topics: ['Drug Calculations', 'Emergency Drugs', 'Antibiotics'] }
     ]
   },
   {
     id: 2,
-    title: 'NORCET 2026 Special',
-    price: 1999,
-    originalPrice: 6000,
-    students: '4K+',
-    duration: '12 Months',
-    image: 'https://picsum.photos/seed/norcet/600/400',
-    tag: 'New',
+    title: 'NCLEX-RN Mastery Program',
     instructor: {
-      name: 'Prof. Michael Chen',
-      role: 'Competitive Exam Specialist',
-      image: 'https://i.pravatar.cc/150?u=michael'
+      name: 'Ankita Sharma',
+      role: 'International Nursing Consultant',
+      image: 'https://picsum.photos/seed/ankita/200/200'
     },
+    rating: 4.8,
+    students: '1.8k+',
+    duration: '4 Months',
+    price: '₹7,499',
+    originalPrice: '₹14,999',
+    image: 'https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&q=80&w=2070',
+    category: 'NCLEX',
     learningOutcomes: [
-      'Complete coverage of NORCET syllabus',
-      'Advanced MCQ solving techniques',
-      'Time management strategies for exams',
-      'Regular mock tests and performance analysis'
+      'Understand the NCLEX-RN test plan and question types',
+      'Develop critical thinking and clinical judgment skills',
+      'Master the Next Generation NCLEX (NGN) format',
+      'Comprehensive review of all body systems'
     ],
     curriculum: [
-      'Anatomy & Physiology Deep Dive',
-      'Medical-Surgical Nursing Mastery',
-      'Psychiatric & Mental Health Nursing',
-      'Community Health Nursing',
-      'Previous Year Question Analysis'
+      { title: 'Module 1: Client Needs Categories', topics: ['Safe & Effective Care', 'Health Promotion'] },
+      { title: 'Module 2: Physiological Integrity', topics: ['Basic Care & Comfort', 'Pharmacological Therapies'] },
+      { title: 'Module 3: NGN Case Studies', topics: ['Clinical Judgment Model', 'Case Analysis'] }
     ]
   },
   {
     id: 3,
-    title: 'NCLEX Mastery Course',
-    price: 2499,
-    originalPrice: 8000,
-    students: '2K+',
-    duration: '8 Months',
-    image: 'https://picsum.photos/seed/nclex/600/400',
-    tag: 'Popular',
+    title: 'Nursing Officer Foundation',
     instructor: {
-      name: 'Dr. Emily White',
-      role: 'International Nursing Consultant',
-      image: 'https://i.pravatar.cc/150?u=emily'
+      name: 'Team Life Lab',
+      role: 'Expert Faculty Panel',
+      image: 'https://picsum.photos/seed/lifelab/200/200'
     },
+    rating: 4.7,
+    students: '3.2k+',
+    duration: '12 Months',
+    price: '₹2,999',
+    originalPrice: '₹5,999',
+    image: 'https://images.unsplash.com/photo-1516533075015-a3838414c3ca?auto=format&fit=crop&q=80&w=2070',
+    category: 'Foundation',
     learningOutcomes: [
-      'Prepare for the Next Generation NCLEX (NGN)',
-      'Master clinical judgment models',
-      'Understand US healthcare standards',
-      'Pass NCLEX-RN on your first attempt'
+      'Build a strong foundation in basic nursing concepts',
+      'Prepare for all state-level Nursing Officer exams',
+      'Regular mock tests and performance analysis',
+      'Comprehensive study material in PDF format'
     ],
     curriculum: [
-      'Safe and Effective Care Environment',
-      'Health Promotion and Maintenance',
-      'Psychosocial Integrity',
-      'Physiological Integrity',
-      'NGN Case Study Practice'
+      { title: 'Module 1: Fundamentals of Nursing', topics: ['Nursing Process', 'Vital Signs', 'First Aid'] },
+      { title: 'Module 2: Community Health Nursing', topics: ['Epidemiology', 'Immunization', 'Health Programs'] },
+      { title: 'Module 3: Nutrition & Biochemistry', topics: ['Balanced Diet', 'Metabolism', 'Vitamins'] }
     ]
   }
 ];
@@ -93,81 +90,98 @@ export default function FeaturedCourses() {
   const [selectedCourse, setSelectedCourse] = useState<typeof courses[0] | null>(null);
 
   return (
-    <section className="py-24 bg-gray-50">
+    <section className="py-20 bg-gray-50 dark:bg-gray-900/50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div className="text-left">
-            <div className="inline-flex items-center gap-2 text-blue-600 font-bold uppercase tracking-widest text-sm mb-4">
-              <ShieldCheck className="h-5 w-5" />
-              <span>Premium Learning</span>
-            </div>
-            <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">Featured Courses</h2>
-            <p className="text-lg text-gray-500 mt-4 max-w-xl">
-              Hand-picked courses designed to help you master your subjects and clear your exams with confidence at Life Lab.
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="max-w-2xl">
+            <h2 className="text-3xl lg:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
+              Featured <span className="text-blue-600">Courses</span>
+            </h2>
+            <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">
+              Handpicked premium courses to accelerate your learning and career growth.
             </p>
           </div>
-          <button className="group flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors">
-            View All Courses
-            <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-          </button>
+          <div className="flex gap-2">
+            {['All', 'NORCET', 'NCLEX', 'Foundation'].map((tab) => (
+              <button
+                key={tab}
+                className={`px-6 py-2.5 rounded-xl text-sm font-black transition-all ${
+                  tab === 'All' 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none' 
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 border border-gray-100 dark:border-gray-700'
+                }`}
+              >
+                {tab}
+              </button>
+            ))}
+          </div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-10">
-          {courses.map((course, idx) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {courses.map((course, index) => (
             <motion.div
               key={course.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
-              className="bg-white rounded-[2rem] overflow-hidden shadow-lg hover:shadow-2xl transition-all group border border-gray-100"
+              transition={{ delay: index * 0.1 }}
+              className="group bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 hover:shadow-2xl transition-all flex flex-col"
             >
               <div className="relative h-64 overflow-hidden">
                 <img
                   src={course.image}
                   alt={course.title}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute top-6 left-6 bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg">
-                  {course.tag}
+                <div className="absolute top-4 left-4">
+                  <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                    {course.category}
+                  </span>
                 </div>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                   <button 
                     onClick={() => setSelectedCourse(course)}
-                    className="w-full bg-white text-blue-600 py-3 rounded-xl font-bold text-sm shadow-xl hover:bg-blue-50 transition-colors"
+                    className="w-full bg-white text-gray-900 py-3 rounded-xl font-black text-sm flex items-center justify-center gap-2 hover:bg-blue-50 transition-colors"
                   >
-                    Quick View
+                    <Play className="h-4 w-4 fill-current" />
+                    Quick Preview
                   </button>
                 </div>
               </div>
 
-              <div className="p-8">
-                <h3 className="text-2xl font-extrabold text-gray-900 mb-6 group-hover:text-blue-600 transition-colors">
+              <div className="p-8 flex-1 flex flex-col">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="flex text-yellow-400">
+                    <Star className="h-4 w-4 fill-current" />
+                  </div>
+                  <span className="text-sm font-black text-gray-900 dark:text-white">{course.rating}</span>
+                  <span className="text-gray-300 dark:text-gray-700">•</span>
+                  <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{course.students} Students</span>
+                </div>
+
+                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4 leading-tight group-hover:text-blue-600 transition-colors">
                   {course.title}
                 </h3>
 
-                <div className="flex items-center gap-6 mb-8">
-                  <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium">
-                    <Users className="h-4 w-4" />
-                    {course.students}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-gray-500 text-sm font-medium">
-                    <Clock className="h-4 w-4" />
-                    {course.duration}
+                <div className="flex items-center gap-3 mb-6">
+                  <img src={course.instructor.image} alt={course.instructor.name} className="h-10 w-10 rounded-full object-cover border-2 border-blue-100 dark:border-gray-800" referrerPolicy="no-referrer" />
+                  <div>
+                    <p className="text-sm font-black text-gray-900 dark:text-white leading-none mb-1">{course.instructor.name}</p>
+                    <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{course.instructor.role}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-6 border-t border-gray-50">
-                  <div className="flex flex-col">
-                    <span className="text-3xl font-black text-gray-900">₹{course.price}</span>
-                    <span className="text-sm text-gray-400 line-through font-medium">₹{course.originalPrice}</span>
+                <div className="mt-auto pt-6 border-t border-gray-50 dark:border-gray-800 flex items-center justify-between">
+                  <div>
+                    <span className="text-2xl font-black text-gray-900 dark:text-white">{course.price}</span>
+                    <span className="ml-2 text-sm text-gray-400 line-through font-bold">{course.originalPrice}</span>
                   </div>
                   <button 
                     onClick={() => setSelectedCourse(course)}
-                    className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-sm hover:bg-blue-700 transition-all shadow-md hover:shadow-lg active:scale-95"
+                    className="bg-gray-900 dark:bg-white text-white dark:text-gray-900 p-3 rounded-xl hover:scale-110 transition-all active:scale-95 shadow-lg"
                   >
-                    Enroll Now
+                    <ArrowRight className="h-5 w-5" />
                   </button>
                 </div>
               </div>
@@ -176,7 +190,7 @@ export default function FeaturedCourses() {
         </div>
       </div>
 
-      {/* Course Details Modal */}
+      {/* Course Detail Modal */}
       <AnimatePresence>
         {selectedCourse && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
@@ -185,133 +199,113 @@ export default function FeaturedCourses() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedCourse(null)}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              className="absolute inset-0 bg-gray-950/80 backdrop-blur-sm"
             />
+            
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-4xl bg-white rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
+              className="relative w-full max-w-5xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col lg:flex-row max-h-[90vh]"
             >
-              {/* Modal Header */}
-              <div className="relative h-48 sm:h-64 flex-shrink-0">
+              <button
+                onClick={() => setSelectedCourse(null)}
+                className="absolute top-6 right-6 z-10 p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white lg:text-gray-500 lg:bg-gray-100 lg:hover:bg-gray-200 transition-all"
+              >
+                <X className="h-6 w-6" />
+              </button>
+
+              {/* Modal Left: Image & Quick Info */}
+              <div className="lg:w-2/5 relative">
                 <img
                   src={selectedCourse.image}
                   alt={selectedCourse.title}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover min-h-[300px]"
                   referrerPolicy="no-referrer"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <button
-                  onClick={() => setSelectedCourse(null)}
-                  className="absolute top-6 right-6 bg-white/20 hover:bg-white/40 backdrop-blur-md text-white p-2 rounded-full transition-colors"
-                >
-                  <X className="h-6 w-6" />
-                </button>
-                <div className="absolute bottom-8 left-8 right-8">
-                  <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider mb-3">
-                    {selectedCourse.tag}
-                  </div>
-                  <h3 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-8 flex flex-col justify-end">
+                  <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 self-start">
+                    {selectedCourse.category}
+                  </span>
+                  <h2 className="text-3xl font-black text-white mb-4 leading-tight">
                     {selectedCourse.title}
-                  </h3>
+                  </h2>
+                  <div className="flex items-center gap-6 text-white/90">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-blue-400" />
+                      <span className="text-sm font-bold">{selectedCourse.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-blue-400" />
+                      <span className="text-sm font-bold">{selectedCourse.students}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Modal Content */}
-              <div className="flex-1 overflow-y-auto p-8 sm:p-12 custom-scrollbar">
-                <div className="grid lg:grid-cols-3 gap-12">
-                  <div className="lg:col-span-2 space-y-12">
-                    {/* Learning Outcomes */}
+              {/* Modal Right: Details */}
+              <div className="lg:w-3/5 p-8 lg:p-12 overflow-y-auto custom-scrollbar">
+                <div className="space-y-10">
+                  {/* Instructor */}
+                  <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700">
+                    <img src={selectedCourse.instructor.image} alt={selectedCourse.instructor.name} className="h-16 w-16 rounded-2xl object-cover" referrerPolicy="no-referrer" />
                     <div>
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                          <Award className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <h4 className="text-xl font-black text-gray-900">What you'll learn</h4>
-                      </div>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        {selectedCourse.learningOutcomes.map((outcome, i) => (
-                          <div key={i} className="flex gap-3">
-                            <CheckCircle2 className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-gray-600 font-medium text-sm leading-relaxed">{outcome}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Curriculum */}
-                    <div>
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className="bg-blue-100 p-2 rounded-lg">
-                          <BookOpen className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <h4 className="text-xl font-black text-gray-900">Course Curriculum</h4>
-                      </div>
-                      <div className="space-y-3">
-                        {selectedCourse.curriculum.map((item, i) => (
-                          <div key={i} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 group hover:bg-white hover:border-blue-200 transition-all">
-                            <div className="flex items-center gap-4">
-                              <span className="w-8 h-8 flex items-center justify-center bg-white rounded-lg text-xs font-black text-blue-600 shadow-sm border border-gray-100">
-                                {i + 1}
-                              </span>
-                              <span className="text-gray-700 font-bold text-sm">{item}</span>
-                            </div>
-                            <Clock className="h-4 w-4 text-gray-400 group-hover:text-blue-500 transition-colors" />
-                          </div>
-                        ))}
-                      </div>
+                      <p className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Your Instructor</p>
+                      <p className="text-xl font-black text-gray-900 dark:text-white">{selectedCourse.instructor.name}</p>
+                      <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedCourse.instructor.role}</p>
                     </div>
                   </div>
 
-                  {/* Sidebar Info */}
-                  <div className="space-y-8">
-                    {/* Instructor */}
-                    <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
-                      <div className="flex items-center gap-3 mb-6">
-                        <GraduationCap className="h-5 w-5 text-blue-600" />
-                        <h4 className="text-lg font-black text-gray-900">Instructor</h4>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <img
-                          src={selectedCourse.instructor.image}
-                          alt={selectedCourse.instructor.name}
-                          className="w-16 h-16 rounded-2xl object-cover border-2 border-white shadow-md"
-                        />
-                        <div>
-                          <div className="font-black text-gray-900">{selectedCourse.instructor.name}</div>
-                          <div className="text-xs font-bold text-blue-600 uppercase tracking-wider">{selectedCourse.instructor.role}</div>
+                  {/* Learning Outcomes */}
+                  <div>
+                    <h4 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                      <Award className="h-5 w-5 text-blue-600" />
+                      What you'll learn
+                    </h4>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      {selectedCourse.learningOutcomes.map((outcome, i) => (
+                        <div key={i} className="flex gap-3">
+                          <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{outcome}</p>
                         </div>
-                      </div>
+                      ))}
                     </div>
+                  </div>
 
-                    {/* Pricing Card */}
-                    <div className="bg-blue-600 rounded-3xl p-8 text-white shadow-xl shadow-blue-200">
-                      <div className="mb-6">
-                        <div className="text-blue-100 text-sm font-bold uppercase tracking-widest mb-1">Full Course Access</div>
-                        <div className="flex items-baseline gap-2">
-                          <span className="text-4xl font-black">₹{selectedCourse.price}</span>
-                          <span className="text-blue-200 line-through text-sm font-bold">₹{selectedCourse.originalPrice}</span>
+                  {/* Curriculum */}
+                  <div>
+                    <h4 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                      <BookOpen className="h-5 w-5 text-blue-600" />
+                      Course Curriculum
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedCourse.curriculum.map((module, i) => (
+                        <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+                          <p className="font-black text-gray-900 dark:text-white text-sm mb-2">{module.title}</p>
+                          <div className="flex flex-wrap gap-2">
+                            {module.topics.map((topic, j) => (
+                              <span key={j} className="text-[10px] font-bold bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-100 dark:border-gray-600">
+                                {topic}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                      <ul className="space-y-3 mb-8">
-                        <li className="flex items-center gap-2 text-sm font-medium">
-                          <CheckCircle2 className="h-4 w-4 text-blue-200" />
-                          Lifetime Access
-                        </li>
-                        <li className="flex items-center gap-2 text-sm font-medium">
-                          <CheckCircle2 className="h-4 w-4 text-blue-200" />
-                          Certificate of Completion
-                        </li>
-                        <li className="flex items-center gap-2 text-sm font-medium">
-                          <CheckCircle2 className="h-4 w-4 text-blue-200" />
-                          24/7 Support
-                        </li>
-                      </ul>
-                      <button className="w-full bg-white text-blue-600 py-4 rounded-2xl font-black text-sm shadow-lg hover:bg-blue-50 transition-all active:scale-95">
-                        Enroll Now
-                      </button>
+                      ))}
                     </div>
+                  </div>
+
+                  {/* Footer Action */}
+                  <div className="pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div>
+                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Course Price</p>
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-4xl font-black text-gray-900 dark:text-white">{selectedCourse.price}</span>
+                        <span className="text-lg text-gray-400 line-through font-bold">{selectedCourse.originalPrice}</span>
+                      </div>
+                    </div>
+                    <button className="w-full sm:w-auto bg-blue-600 text-white px-12 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 active:scale-95">
+                      Enroll Now
+                    </button>
                   </div>
                 </div>
               </div>
