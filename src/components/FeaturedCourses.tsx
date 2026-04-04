@@ -4,38 +4,32 @@ import { motion } from 'motion/react';
 const courses = [
   {
     id: 1,
-    title: 'Assistant Superintendent',
-    price: 777,
-    originalPrice: 2000,
-    rating: 4.8,
-    reviews: 1240,
-    students: '5K+',
+    title: 'Nursing Foundation',
+    price: 999,
+    originalPrice: 2500,
+    students: '8K+',
     duration: '6 Months',
-    image: 'https://picsum.photos/seed/course1/600/400',
+    image: 'https://picsum.photos/seed/nursing/600/400',
     tag: 'Bestseller'
   },
   {
     id: 2,
-    title: 'UPSC Foundation 2026',
-    price: 1499,
-    originalPrice: 5000,
-    rating: 4.9,
-    reviews: 850,
-    students: '3K+',
+    title: 'NORCET 2026 Special',
+    price: 1999,
+    originalPrice: 6000,
+    students: '4K+',
     duration: '12 Months',
-    image: 'https://picsum.photos/seed/course2/600/400',
+    image: 'https://picsum.photos/seed/norcet/600/400',
     tag: 'New'
   },
   {
     id: 3,
-    title: 'SSC CGL Masterclass',
-    price: 499,
-    originalPrice: 1500,
-    rating: 4.7,
-    reviews: 2100,
-    students: '10K+',
-    duration: '4 Months',
-    image: 'https://picsum.photos/seed/course3/600/400',
+    title: 'NCLEX Mastery Course',
+    price: 2499,
+    originalPrice: 8000,
+    students: '2K+',
+    duration: '8 Months',
+    image: 'https://picsum.photos/seed/nclex/600/400',
     tag: 'Popular'
   }
 ];
@@ -52,7 +46,7 @@ export default function FeaturedCourses() {
             </div>
             <h2 className="text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight">Featured Courses</h2>
             <p className="text-lg text-gray-500 mt-4 max-w-xl">
-              Hand-picked courses designed by Amit & Ankita to help you master your subjects and clear your exams with confidence at Life Lab.
+              Hand-picked courses designed to help you master your subjects and clear your exams with confidence at Life Lab.
             </p>
           </div>
           <button className="group flex items-center gap-2 text-blue-600 font-bold text-lg hover:text-blue-700 transition-colors">
@@ -89,15 +83,7 @@ export default function FeaturedCourses() {
               </div>
 
               <div className="p-8">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="flex items-center text-yellow-400">
-                    <Star className="h-4 w-4 fill-current" />
-                    <span className="ml-1 text-sm font-bold text-gray-900">{course.rating}</span>
-                  </div>
-                  <span className="text-sm text-gray-400">({course.reviews} reviews)</span>
-                </div>
-
-                <h3 className="text-2xl font-extrabold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
+                <h3 className="text-2xl font-extrabold text-gray-900 mb-6 group-hover:text-blue-600 transition-colors">
                   {course.title}
                 </h3>
 

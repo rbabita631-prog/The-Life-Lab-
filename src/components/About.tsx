@@ -68,7 +68,7 @@ export default function About() {
 
             <div className="space-y-6 mb-12">
               {[
-                'Personalized Mentorship by Amit & Ankita',
+                'Personalized Mentorship',
                 'Comprehensive Study Materials & Notes',
                 'Real-time Doubt Clearing Sessions',
                 'Performance Tracking & Analytics'

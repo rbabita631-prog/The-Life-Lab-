@@ -13,7 +13,6 @@ export default function Footer() {
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tight">Life Lab</span>
-                <span className="text-xs text-blue-400 font-bold uppercase tracking-widest">Amit & Ankita</span>
               </div>
             </div>
             <p className="text-gray-400 leading-relaxed text-lg font-medium">
@@ -107,7 +106,7 @@ export default function Footer() {
         </div>
 
         <div className="pt-12 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-500 text-sm font-bold uppercase tracking-widest">
-          <p>© 2026 Life Lab : Amit & Ankita. All rights reserved.</p>
+          <p>© 2026 Life Lab. All rights reserved.</p>
           <p>Designed with ❤️ for Future Professionals</p>
         </div>
       </div>

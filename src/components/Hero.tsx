@@ -26,7 +26,7 @@ export default function Hero() {
               Empower Your <span className="text-blue-600">Future</span> with Expert Guidance
             </h1>
             <p className="text-lg text-gray-600 mb-8 max-w-xl leading-relaxed">
-              Invest Aaj For Kal: Initiate, enable and empower yourself to grow into an extraordinary professional. Join Amit & Ankita's mentorship program today.
+              Invest Aaj For Kal: Initiate, enable and empower yourself to grow into an extraordinary professional. Join our mentorship program today.
             </p>
             
             <div className="flex flex-wrap gap-4">
@@ -38,23 +38,6 @@ export default function Hero() {
                 <PlayCircle className="h-5 w-5 text-blue-600" />
                 Watch Demo
               </button>
-            </div>
-
-            <div className="mt-12 flex items-center gap-8">
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold text-gray-900">50K+</span>
-                <span className="text-sm text-gray-500 font-medium">Active Students</span>
-              </div>
-              <div className="h-10 w-px bg-gray-200" />
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold text-gray-900">200+</span>
-                <span className="text-sm text-gray-500 font-medium">Expert Mentors</span>
-              </div>
-              <div className="h-10 w-px bg-gray-200" />
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold text-gray-900">4.9/5</span>
-                <span className="text-sm text-gray-500 font-medium">Student Rating</span>
-              </div>
             </div>
           </motion.div>
 

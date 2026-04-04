@@ -28,7 +28,6 @@ export default function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-gray-900 leading-none">Life Lab</span>
-              <span className="text-xs text-blue-600 font-medium tracking-wider uppercase">Amit & Ankita</span>
             </div>
           </div>
 
