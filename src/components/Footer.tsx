@@ -19,11 +19,20 @@ export default function Footer() {
               India's Premier institution established with the sole aim to initiate, enable and empower individuals to grow up to be extraordinary professionals.
             </p>
             <div className="flex gap-4">
-              {[Facebook, Twitter, Instagram, Youtube].map((Icon, idx) => (
-                <a key={idx} href="#" className="bg-gray-800 p-3 rounded-xl hover:bg-blue-600 transition-all hover:-translate-y-1 shadow-md">
-                  <Icon className="h-6 w-6" />
-                </a>
-              ))}
+              <a href="https://www.youtube.com/@TheLifeLab111" target="_blank" rel="noopener noreferrer" className="bg-gray-800 p-3 rounded-xl hover:bg-red-600 transition-all hover:-translate-y-1 shadow-md">
+                <Youtube className="h-6 w-6" />
+              </a>
+              <a href="https://t.me/thelifelab1" target="_blank" rel="noopener noreferrer" className="bg-gray-800 p-3 rounded-xl hover:bg-blue-500 transition-all hover:-translate-y-1 shadow-md">
+                <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
+                  <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.14-.26.26-.526.26l.214-3.04 5.53-4.995c.24-.21-.054-.327-.37-.118l-6.84 4.305-2.94-.92c-.64-.2-.65-.64.134-.946l11.49-4.428c.53-.196.994.12.802.95z"/>
+                </svg>
+              </a>
+              <a href="https://instagram.com/thelife" target="_blank" rel="noopener noreferrer" className="bg-gray-800 p-3 rounded-xl hover:bg-pink-600 transition-all hover:-translate-y-1 shadow-md">
+                <Instagram className="h-6 w-6" />
+              </a>
+              <a href="#" className="bg-gray-800 p-3 rounded-xl hover:bg-blue-600 transition-all hover:-translate-y-1 shadow-md">
+                <Facebook className="h-6 w-6" />
+              </a>
             </div>
           </div>
 

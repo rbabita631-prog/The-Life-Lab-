@@ -7,6 +7,7 @@ import About from './components/About';
 import Footer from './components/Footer';
 import DemoPage from './pages/DemoPage';
 import { motion, useScroll, useSpring } from 'motion/react';
+import { Youtube, Instagram } from 'lucide-react';
 
 function HomePage() {
   const { scrollYProgress } = useScroll();
@@ -40,6 +41,72 @@ function HomePage() {
         <div id="about">
           <About />
         </div>
+
+        {/* Social Media Section */}
+        <section className="py-20 bg-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="bg-gray-50 rounded-[3rem] p-12 lg:p-20 relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-full h-full opacity-5 pointer-events-none">
+                <div className="absolute top-10 left-10 w-64 h-64 bg-blue-600 rounded-full blur-3xl" />
+                <div className="absolute bottom-10 right-10 w-64 h-64 bg-red-600 rounded-full blur-3xl" />
+              </div>
+
+              <div className="relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <h2 className="text-4xl lg:text-5xl font-black text-gray-900 mb-6 tracking-tight">
+                    Join Our <span className="text-blue-600">Community</span>
+                  </h2>
+                  <p className="text-xl text-gray-500 font-medium leading-relaxed">
+                    Stay connected with us across all platforms. Get daily updates, study materials, and expert guidance directly on your favorite social media.
+                  </p>
+                </div>
+
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <a 
+                    href="https://www.youtube.com/@TheLifeLab111?sub_confirmation=1" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-4 p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group border border-gray-100"
+                  >
+                    <div className="bg-red-100 p-4 rounded-2xl group-hover:bg-red-600 transition-colors">
+                      <Youtube className="h-8 w-8 text-red-600 group-hover:text-white transition-colors" />
+                    </div>
+                    <span className="font-black text-gray-900">YouTube</span>
+                    <span className="text-xs font-bold text-red-600 uppercase tracking-widest">Subscribe</span>
+                  </a>
+
+                  <a 
+                    href="https://t.me/thelifelab1" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-4 p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group border border-gray-100"
+                  >
+                    <div className="bg-blue-100 p-4 rounded-2xl group-hover:bg-blue-500 transition-colors">
+                      <svg className="h-8 w-8 text-blue-500 group-hover:text-white transition-colors fill-current" viewBox="0 0 24 24">
+                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 8.221l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.446 1.394c-.14.14-.26.26-.526.26l.214-3.04 5.53-4.995c.24-.21-.054-.327-.37-.118l-6.84 4.305-2.94-.92c-.64-.2-.65-.64.134-.946l11.49-4.428c.53-.196.994.12.802.95z"/>
+                      </svg>
+                    </div>
+                    <span className="font-black text-gray-900">Telegram</span>
+                    <span className="text-xs font-bold text-blue-500 uppercase tracking-widest">Join Group</span>
+                  </a>
+
+                  <a 
+                    href="https://instagram.com/thelife" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex flex-col items-center gap-4 p-8 bg-white rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all group border border-gray-100"
+                  >
+                    <div className="bg-pink-100 p-4 rounded-2xl group-hover:bg-pink-600 transition-colors">
+                      <Instagram className="h-8 w-8 text-pink-600 group-hover:text-white transition-colors" />
+                    </div>
+                    <span className="font-black text-gray-900">Instagram</span>
+                    <span className="text-xs font-bold text-pink-600 uppercase tracking-widest">Follow Us</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Newsletter Section */}
         <section className="py-24 bg-blue-600 relative overflow-hidden">

@@ -4,23 +4,23 @@ import { Link } from 'react-router-dom';
 
 const demoVideos = [
   {
-    id: 'y881t8ilMyc', // Nursing Process
-    title: 'Mastering the Nursing Process: ADPIE Explained',
-    description: 'A comprehensive guide to the Nursing Process (ADPIE). Essential for nursing students and professionals alike.',
+    id: 'y881t8ilMyc', // Example Nursing Process
+    title: 'Mastering the Nursing Process: ADPIE Explained | The Life Lab',
+    description: 'A comprehensive guide to the Nursing Process (ADPIE). Essential for nursing students and professionals alike. Join The Life Lab for more!',
     views: '25K+',
     date: '2 days ago'
   },
   {
-    id: 'X95lZ5n5_mI', // NORCET Preparation
-    title: 'NORCET 2026: 90 Days Preparation Strategy',
-    description: 'How to crack NORCET in 90 days. Detailed subject-wise plan and recommended resources for success.',
+    id: 'X95lZ5n5_mI', // Example NORCET
+    title: 'NORCET 2026: 90 Days Preparation Strategy | The Life Lab',
+    description: 'How to crack NORCET in 90 days. Detailed subject-wise plan and recommended resources for success from @TheLifeLab111.',
     views: '18K+',
     date: '5 days ago'
   },
   {
-    id: 'z0M2n0_2n0M', // NCLEX Tips (Generic ID)
-    title: 'NCLEX-RN: Top 10 Tips for Success',
-    description: 'Our top 10 tips to help you pass the NCLEX-RN on your first attempt. Proven strategies and common pitfalls.',
+    id: 'z0M2n0_2n0M', // Example NCLEX
+    title: 'NCLEX-RN: Top 10 Tips for Success | The Life Lab',
+    description: 'Our top 10 tips to help you pass the NCLEX-RN on your first attempt. Proven strategies and common pitfalls shared by @TheLifeLab111.',
     views: '30K+',
     date: '1 week ago'
   }
@@ -37,10 +37,10 @@ export default function DemoPage() {
             Back to Home
           </Link>
           <div className="flex items-center gap-2">
-            <div className="bg-blue-600 p-2 rounded-lg">
+            <div className="bg-red-600 p-2 rounded-lg">
               <Youtube className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-black text-gray-900">Life Lab Demo</span>
+            <span className="text-xl font-black text-gray-900">The Life Lab</span>
           </div>
           <div className="w-24" /> {/* Spacer */}
         </div>
@@ -52,12 +52,27 @@ export default function DemoPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-16"
         >
+          <div className="inline-flex items-center gap-2 bg-red-100 text-red-600 px-4 py-2 rounded-full text-sm font-bold mb-6 shadow-sm">
+            <Youtube className="h-4 w-4" />
+            <span>@TheLifeLab111</span>
+          </div>
           <h1 className="text-4xl lg:text-6xl font-black text-gray-900 mb-6 tracking-tight">
-            Watch Our <span className="text-blue-600">Latest Demos</span>
+            Watch Our <span className="text-red-600">Latest Demos</span>
           </h1>
           <p className="text-xl text-gray-500 max-w-3xl mx-auto font-medium leading-relaxed">
-            Get a glimpse of our teaching style and the quality of content we provide. Here are the latest 3 videos from our YouTube channel.
+            Get a glimpse of our teaching style and the quality of content we provide. Here are the latest 3 videos from our YouTube channel @TheLifeLab111.
           </p>
+          <div className="mt-8">
+            <a 
+              href="https://www.youtube.com/@TheLifeLab111?sub_confirmation=1" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 bg-red-600 text-white px-8 py-4 rounded-2xl text-lg font-black hover:bg-red-700 transition-all shadow-xl hover:-translate-y-1 active:scale-95"
+            >
+              <Youtube className="h-6 w-6" />
+              Subscribe to Channel
+            </a>
+          </div>
         </motion.div>
 
         <div className="grid gap-12">
