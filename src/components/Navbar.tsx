@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { Link } from 'react-router-dom';
 
 const navLinks = [
-  { name: 'Home', href: '#' },
-  { name: 'Paid Courses', href: '#', icon: GraduationCap },
+  { name: 'Home', href: '/' },
+  { name: 'Paid Courses', href: '#courses', icon: GraduationCap },
   { name: 'Free Test Series', href: '#', icon: ClipboardList },
   { name: 'Free Quiz', href: '#', icon: Zap },
   { name: 'Class Notes', href: '#', icon: FileText },
@@ -17,19 +18,29 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const handleNavClick = (href: string) => {
+    setIsOpen(false);
+    if (href.startsWith('#')) {
+      const element = document.getElementById(href.substring(1));
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-20 items-center">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-2">
-            <div className="bg-blue-600 p-2 rounded-lg">
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
+            <div className="bg-blue-600 p-2 rounded-lg group-hover:scale-110 transition-transform">
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-bold text-gray-900 leading-none">Life Lab</span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-6">
@@ -37,6 +48,12 @@ export default function Navbar() {
               <a
                 key={link.name}
                 href={link.href}
+                onClick={(e) => {
+                  if (link.href.startsWith('#')) {
+                    e.preventDefault();
+                    handleNavClick(link.href);
+                  }
+                }}
                 className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors"
               >
                 {link.name}
@@ -82,7 +99,12 @@ export default function Navbar() {
                   key={link.name}
                   href={link.href}
                   className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 transition-all"
-                  onClick={() => setIsOpen(false)}
+                  onClick={(e) => {
+                    if (link.href.startsWith('#')) {
+                      e.preventDefault();
+                    }
+                    handleNavClick(link.href);
+                  }}
                 >
                   {link.icon && <link.icon className="h-5 w-5 text-blue-500" />}
                   {link.name}

@@ -1,7 +1,15 @@
 import { motion } from 'motion/react';
 import { PlayCircle, ArrowRight, GraduationCap, Users, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Hero() {
+  const scrollToCourses = () => {
+    const element = document.getElementById('courses');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-indigo-50 py-16 lg:py-24">
       {/* Background patterns */}
@@ -30,14 +38,20 @@ export default function Hero() {
             </p>
             
             <div className="flex flex-wrap gap-4">
-              <button className="bg-blue-600 text-white px-8 py-4 rounded-2xl text-lg font-bold hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95 flex items-center gap-2">
+              <button 
+                onClick={scrollToCourses}
+                className="bg-blue-600 text-white px-8 py-4 rounded-2xl text-lg font-bold hover:bg-blue-700 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 active:scale-95 flex items-center gap-2"
+              >
                 Explore Courses
                 <ArrowRight className="h-5 w-5" />
               </button>
-              <button className="bg-white text-gray-700 border-2 border-gray-100 px-8 py-4 rounded-2xl text-lg font-bold hover:bg-gray-50 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2">
+              <Link 
+                to="/demo"
+                className="bg-white text-gray-700 border-2 border-gray-100 px-8 py-4 rounded-2xl text-lg font-bold hover:bg-gray-50 transition-all shadow-md hover:shadow-lg active:scale-95 flex items-center gap-2"
+              >
                 <PlayCircle className="h-5 w-5 text-blue-600" />
                 Watch Demo
-              </button>
+              </Link>
             </div>
           </motion.div>
 

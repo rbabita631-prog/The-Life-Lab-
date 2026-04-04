@@ -1,12 +1,14 @@
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import CategoryGrid from './components/CategoryGrid';
 import FeaturedCourses from './components/FeaturedCourses';
 import About from './components/About';
 import Footer from './components/Footer';
+import DemoPage from './pages/DemoPage';
 import { motion, useScroll, useSpring } from 'motion/react';
 
-export default function App() {
+function HomePage() {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -96,5 +98,16 @@ export default function App() {
         </span>
       </motion.button>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/demo" element={<DemoPage />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
