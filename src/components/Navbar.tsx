@@ -1,7 +1,9 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon } from 'lucide-react';
+import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon, LogIn, Mail, Lock, UserPlus, AlertCircle, RefreshCw } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { auth, loginWithGoogle, loginWithEmail, signupWithEmail, logout } from '../firebase';
+import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 const navLinks = [
   { name: 'Home', href: '/' },
@@ -22,10 +24,26 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+  const [isSignup, setIsSignup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  
+  // Form states
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const handleNavClick = (href: string) => {
     setIsOpen(false);
@@ -46,15 +64,52 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // In a real app, this would navigate to a search results page
       console.log('Searching for:', searchQuery);
     }
   };
 
-  const handleLogin = (e: FormEvent) => {
+  const handleAuth = async (e: FormEvent) => {
     e.preventDefault();
-    setIsLoggedIn(true);
-    setIsLoginOpen(false);
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      if (isSignup) {
+        await signupWithEmail(email, password, name);
+      } else {
+        await loginWithEmail(email, password);
+      }
+      setIsLoginOpen(false);
+      navigate('/');
+    } catch (error: any) {
+      console.error('Auth error:', error);
+      setAuthError(error.message || 'Authentication failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      await loginWithGoogle();
+      setIsLoginOpen(false);
+      navigate('/');
+    } catch (error: any) {
+      console.error('Google login error:', error);
+      setAuthError(error.message || 'Google login failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   const mockSearchResults = [
@@ -112,17 +167,20 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                   <Search className="h-5 w-5" />
                 </button>
                 
-                {isLoggedIn ? (
+                {user ? (
                   <button 
-                    onClick={() => setIsLoggedIn(false)}
+                    onClick={handleLogout}
                     className="ml-2 flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-black hover:scale-105 transition-all shadow-lg active:scale-95"
                   >
                     <User className="h-4 w-4" />
-                    Profile
+                    Logout
                   </button>
                 ) : (
                   <button 
-                    onClick={() => setIsLoginOpen(true)}
+                    onClick={() => {
+                      setIsSignup(false);
+                      setIsLoginOpen(true);
+                    }}
                     className="ml-2 flex items-center gap-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-2.5 rounded-xl text-sm font-black hover:scale-105 transition-all shadow-lg active:scale-95"
                   >
                     <User className="h-4 w-4" />
@@ -271,7 +329,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         )}
       </AnimatePresence>
 
-      {/* Login Modal */}
+      {/* Login / Signup Modal */}
       <AnimatePresence>
         {isLoginOpen && (
           <motion.div
@@ -290,7 +348,9 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             >
               <div className="p-8 lg:p-12">
                 <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Login</h2>
+                  <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
+                    {isSignup ? 'Sign Up' : 'Login'}
+                  </h2>
                   <button 
                     onClick={() => setIsLoginOpen(false)}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
@@ -298,37 +358,103 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     <X className="h-6 w-6 text-gray-400" />
                   </button>
                 </div>
+
+                {authError && (
+                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+                    <AlertCircle className="h-5 w-5" />
+                    <p className="text-xs font-bold">{authError}</p>
+                  </div>
+                )}
                 
-                <form className="space-y-6" onSubmit={handleLogin}>
+                <form className="space-y-6" onSubmit={handleAuth}>
+                  {isSignup && (
+                    <div>
+                      <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                      <div className="relative">
+                        <User className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <input
+                          required
+                          type="text"
+                          placeholder="John Doe"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                  )}
                   <div>
                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
-                    <input
-                      required
-                      type="email"
-                      placeholder="name@example.com"
-                      className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white px-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
-                    />
+                    <div className="relative">
+                      <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        required
+                        type="email"
+                        placeholder="name@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
+                      />
+                    </div>
                   </div>
                   <div>
                     <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Password</label>
-                    <input
-                      required
-                      type="password"
-                      placeholder="••••••••"
-                      className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white px-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
-                    />
+                    <div className="relative">
+                      <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                      <input
+                        required
+                        type="password"
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
+                      />
+                    </div>
                   </div>
                   <button 
+                    disabled={authLoading}
                     type="submit"
-                    className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95"
+                    className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    Sign In
+                    {authLoading ? (
+                      <RefreshCw className="h-5 w-5 animate-spin" />
+                    ) : (
+                      isSignup ? <UserPlus className="h-5 w-5" /> : <LogIn className="h-5 w-5" />
+                    )}
+                    {isSignup ? 'Create Account' : 'Sign In'}
                   </button>
                 </form>
+
+                <div className="mt-6">
+                  <div className="relative flex items-center justify-center mb-6">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-gray-100 dark:border-gray-800"></div>
+                    </div>
+                    <span className="relative px-4 bg-white dark:bg-gray-900 text-[10px] font-black text-gray-400 uppercase tracking-widest">Or continue with</span>
+                  </div>
+                  
+                  <button 
+                    onClick={handleGoogleLogin}
+                    disabled={authLoading}
+                    className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white py-4 rounded-2xl text-sm font-black hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
+                    Google
+                  </button>
+                </div>
                 
                 <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
                   <p className="text-center text-sm font-bold text-gray-500 dark:text-gray-400">
-                    Don't have an account? <button className="text-blue-600 hover:underline">Sign Up</button>
+                    {isSignup ? 'Already have an account?' : "Don't have an account?"} 
+                    <button 
+                      onClick={() => {
+                        setIsSignup(!isSignup);
+                        setAuthError(null);
+                      }}
+                      className="text-blue-600 hover:underline ml-1"
+                    >
+                      {isSignup ? 'Login' : 'Sign Up'}
+                    </button>
                   </p>
                 </div>
               </div>

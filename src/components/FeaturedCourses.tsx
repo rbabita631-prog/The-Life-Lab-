@@ -303,8 +303,11 @@ export default function FeaturedCourses() {
                         <span className="text-lg text-gray-400 line-through font-bold">{selectedCourse.originalPrice}</span>
                       </div>
                     </div>
-                    <button className="w-full sm:w-auto bg-blue-600 text-white px-12 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 active:scale-95">
-                      Enroll Now
+                    <button 
+                      onClick={() => handlePayment(selectedCourse)}
+                      className="w-full sm:w-auto bg-blue-600 text-white px-12 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 active:scale-95"
+                    >
+                      Buy Now
                     </button>
                   </div>
                 </div>
@@ -315,4 +318,60 @@ export default function FeaturedCourses() {
       </AnimatePresence>
     </section>
   );
+}
+
+// Razorpay type definition for window
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
+
+async function handlePayment(course: typeof courses[0]) {
+  try {
+    // 1. Create order on server
+    const amount = parseInt(course.price.replace(/[^\d]/g, ''));
+    const response = await fetch('/api/create-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        amount,
+        currency: 'INR',
+        receipt: `receipt_${course.id}_${Date.now()}`
+      })
+    });
+
+    if (!response.ok) throw new Error('Failed to create payment order');
+    const order = await response.json();
+
+    // 2. Initialize Razorpay
+    const options = {
+      key: (import.meta as any).env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+      amount: order.amount,
+      currency: order.currency,
+      name: 'Nursing Odyssey',
+      description: `Purchase: ${course.title}`,
+      image: 'https://cdn-icons-png.flaticon.com/512/3063/3063176.png',
+      order_id: order.id,
+      handler: function (response: any) {
+        alert(`Payment Successful! ID: ${response.razorpay_payment_id}`);
+        console.log('Payment success:', response);
+        // Here you would typically verify the payment on your server
+      },
+      prefill: {
+        name: '',
+        email: '',
+        contact: ''
+      },
+      theme: {
+        color: '#2563eb'
+      }
+    };
+
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (error: any) {
+    console.error('Payment error:', error);
+    alert(`Payment failed: ${error.message}`);
+  }
 }

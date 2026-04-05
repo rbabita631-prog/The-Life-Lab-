@@ -3,13 +3,57 @@ import { createServer as createViteServer } from "vite";
 import { XMLParser } from "fast-xml-parser";
 import path from "path";
 import { fileURLToPath } from "url";
+import Razorpay from "razorpay";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+let razorpay: Razorpay | null = null;
+
+function getRazorpay() {
+  if (!razorpay) {
+    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    if (!keyId || !keySecret) {
+      console.warn("Razorpay keys are missing. Payment features will not work.");
+      return null;
+    }
+    razorpay = new Razorpay({
+      key_id: keyId,
+      key_secret: keySecret,
+    });
+  }
+  return razorpay;
+}
+
 async function startServer() {
   const app = express();
   const PORT = 3000;
+
+  app.use(express.json());
+
+  // API route to create Razorpay order
+  app.post("/api/create-order", async (req, res) => {
+    try {
+      const { amount, currency = "INR", receipt } = req.body;
+      const rzp = getRazorpay();
+      
+      if (!rzp) {
+        return res.status(500).json({ error: "Razorpay is not configured on the server." });
+      }
+
+      const order = await rzp.orders.create({
+        amount: amount * 100, // Razorpay expects amount in paise
+        currency,
+        receipt,
+      });
+
+      res.json(order);
+    } catch (error: any) {
+      console.error("Error creating Razorpay order:", error);
+      res.status(500).json({ error: "Failed to create order", message: error.message });
+    }
+  });
 
   // API route to fetch latest YouTube videos
   app.get("/api/latest-videos", async (req, res) => {
