@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import CategoryGrid from './components/CategoryGrid';
 import FeaturedCourses from './components/FeaturedCourses';
 import StudyMaterials from './components/StudyMaterials';
 import Footer from './components/Footer';
@@ -61,10 +60,6 @@ function HomePage({ theme, toggleTheme }: ThemeProps) {
       <main>
         <Hero />
         
-        <div id="browse" className="bg-white dark:bg-gray-950">
-          <CategoryGrid />
-        </div>
-
         {/* Combined Community & Newsletter - More Aesthetic & Compact */}
         <section className="py-20 bg-white dark:bg-gray-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

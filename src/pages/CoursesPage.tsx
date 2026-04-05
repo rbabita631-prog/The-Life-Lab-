@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import FeaturedCourses from '../components/FeaturedCourses';
+import CategoryGrid from '../components/CategoryGrid';
 import { BookOpen, GraduationCap, Star, Users, ArrowRight } from 'lucide-react';
 
 export default function CoursesPage() {
@@ -23,6 +24,10 @@ export default function CoursesPage() {
               Invest in your future with our comprehensive, expert-led nursing programs. Designed to help you clear NORCET, NCLEX, and State Nursing Exams.
             </p>
           </motion.div>
+
+          <div className="mb-24">
+            <CategoryGrid />
+          </div>
 
           <FeaturedCourses />
 
