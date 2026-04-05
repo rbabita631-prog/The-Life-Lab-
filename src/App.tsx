@@ -11,6 +11,7 @@ import NotesPage from './pages/NotesPage';
 import PreviousPaperPage from './pages/PreviousPaperPage';
 import TestPage from './pages/TestPage';
 import QuizPage from './pages/QuizPage';
+import AdminPage from './pages/AdminPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
@@ -224,6 +225,7 @@ export default function App() {
             <QuizPage />
           </Layout>
         } />
+        <Route path="/admin" element={<AdminPage />} />
       </Routes>
     </BrowserRouter>
   );

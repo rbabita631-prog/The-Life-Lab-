@@ -25,12 +25,29 @@
         }
       },
       "required": ["name", "email", "message", "createdAt"]
+    },
+    "video": {
+      "title": "Video",
+      "description": "Cached YouTube video metadata.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "date": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "title", "date", "updatedAt"]
     }
   },
   "firestore": {
     "/inquiries/{inquiryId}": {
       "schema": "inquiry",
       "description": "Collection of user inquiries."
+    },
+    "/videos/{videoId}": {
+      "schema": "video",
+      "description": "Cached YouTube videos."
     }
   }
 }
