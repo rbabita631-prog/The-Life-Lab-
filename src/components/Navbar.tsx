@@ -218,17 +218,21 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               </div>
             </div>
 
-          {/* Mobile menu button */}
+            {/* Mobile menu button */}
           <div className="lg:hidden flex items-center gap-2">
             <button 
               onClick={toggleTheme}
               className="p-2 text-gray-500 dark:text-gray-400"
+              aria-label="Toggle Theme"
             >
               {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
             </button>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 transition-all"
+              aria-label="Toggle Menu"
+              aria-expanded={isOpen}
+              aria-controls="mobile-menu"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -241,6 +245,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}

@@ -25,11 +25,13 @@ import {
   Star,
   Users,
   Sun,
-  Moon
+  Moon,
+  BarChart
 } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import AdminAnalyticsPage from './AdminAnalyticsPage';
 import { 
   collection, 
   query, 
@@ -45,7 +47,7 @@ import {
 
 const ADMIN_EMAIL = "rbabita631@gmail.com";
 
-type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries';
+type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics';
 
 export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) {
   const [user, setUser] = useState<User | null>(null);
@@ -196,6 +198,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               { id: 'notes', label: 'Notes & Papers', icon: BookOpen },
               { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
               { id: 'testSeries', label: 'Test Series', icon: FileText },
+              { id: 'analytics', label: 'Analytics', icon: BarChart },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -526,6 +529,9 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
             </div>
           </div>
         )}
+
+        {/* Analytics Tab */}
+        {activeTab === 'analytics' && <AdminAnalyticsPage />}
       </main>
 
       {/* Add Modals */}

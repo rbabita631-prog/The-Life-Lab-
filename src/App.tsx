@@ -168,16 +168,29 @@ function HomePage({ theme, toggleTheme }: ThemeProps) {
 export default function App() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window !== 'undefined') {
-      return localStorage.getItem('theme') as 'light' | 'dark' || 'light';
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) return savedTheme as 'light' | 'dark';
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
     return 'light';
   });
 
   useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (!localStorage.getItem('theme')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    
     const root = window.document.documentElement;
     root.classList.remove('light', 'dark');
     root.classList.add(theme);
     localStorage.setItem('theme', theme);
+
+    return () => mediaQuery.removeEventListener('change', handleChange);
   }, [theme]);
 
   const toggleTheme = () => {

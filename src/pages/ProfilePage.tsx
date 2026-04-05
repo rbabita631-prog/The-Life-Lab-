@@ -102,6 +102,7 @@ export default function ProfilePage() {
           </div>
           <button 
             onClick={handleLogout}
+            aria-label="Logout"
             className="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-6 py-3 rounded-xl text-sm font-black hover:bg-red-100 dark:hover:bg-red-900/40 transition-all flex items-center gap-2"
           >
             <LogOut className="h-4 w-4" />
@@ -112,7 +113,7 @@ export default function ProfilePage() {
         {/* Performance Chart */}
         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-gray-100 dark:border-gray-800 mb-8">
           <div className="flex items-center gap-3 mb-8">
-            <TrendingUp className="h-6 w-6 text-blue-600" />
+            <TrendingUp className="h-6 w-6 text-blue-600" aria-hidden="true" />
             <h2 className="text-xl font-black text-gray-900 dark:text-white">Performance Trend</h2>
           </div>
           <div className="h-64 w-full">
@@ -138,13 +139,15 @@ export default function ProfilePage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
+              aria-label={`View ${tab.label}`}
+              aria-selected={activeTab === tab.id}
               className={`flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap transition-all ${
                 activeTab === tab.id 
                   ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
                   : 'bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 border border-gray-100 dark:border-gray-800'
               }`}
             >
-              <tab.icon className="h-4 w-4" />
+              <tab.icon className="h-4 w-4" aria-hidden="true" />
               {tab.label}
             </button>
           ))}
