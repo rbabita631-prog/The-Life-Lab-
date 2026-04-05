@@ -9,6 +9,7 @@ import Footer from './components/Footer';
 import DemoPage from './pages/DemoPage';
 import CoursesPage from './pages/CoursesPage';
 import AboutPage from './pages/AboutPage';
+import NotesPage from './pages/NotesPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
@@ -61,14 +62,6 @@ function HomePage({ theme, toggleTheme }: ThemeProps) {
         
         <div id="browse" className="bg-white dark:bg-gray-950">
           <CategoryGrid />
-        </div>
-
-        <div id="study-materials" className="bg-white dark:bg-gray-950">
-          <StudyMaterials />
-        </div>
-
-        <div id="about" className="bg-white dark:bg-gray-950">
-          <About />
         </div>
 
         {/* Combined Community & Newsletter - More Aesthetic & Compact */}
@@ -212,6 +205,11 @@ export default function App() {
         <Route path="/about" element={
           <Layout theme={theme} toggleTheme={toggleTheme}>
             <AboutPage />
+          </Layout>
+        } />
+        <Route path="/notes" element={
+          <Layout theme={theme} toggleTheme={toggleTheme}>
+            <NotesPage />
           </Layout>
         } />
       </Routes>
