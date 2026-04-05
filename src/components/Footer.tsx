@@ -8,7 +8,7 @@ export default function Footer() {
     { name: 'Test', href: '/test' },
     { name: 'Daily Quiz', href: '/quiz' },
     { name: 'Notes', href: '/notes' },
-    { name: 'Previous Paper', href: '/notes' },
+    { name: 'Previous Paper', href: '/previous-paper' },
     { name: 'About Us', href: '/about' },
   ];
 

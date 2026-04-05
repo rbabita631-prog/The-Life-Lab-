@@ -9,7 +9,7 @@ const navLinks = [
   { name: 'Test', href: '/test', icon: ClipboardList },
   { name: 'Daily Quiz', href: '/quiz', icon: Zap },
   { name: 'Notes', href: '/notes', icon: FileText },
-  { name: 'Previous Paper', href: '/notes', icon: BookOpen },
+  { name: 'Previous Paper', href: '/previous-paper', icon: BookOpen },
   { name: 'About Us', href: '/about', icon: LayoutGrid },
 ];
 

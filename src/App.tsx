@@ -8,6 +8,7 @@ import DemoPage from './pages/DemoPage';
 import CoursesPage from './pages/CoursesPage';
 import AboutPage from './pages/AboutPage';
 import NotesPage from './pages/NotesPage';
+import PreviousPaperPage from './pages/PreviousPaperPage';
 import TestPage from './pages/TestPage';
 import QuizPage from './pages/QuizPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
@@ -206,6 +207,11 @@ export default function App() {
         <Route path="/notes" element={
           <Layout theme={theme} toggleTheme={toggleTheme}>
             <NotesPage />
+          </Layout>
+        } />
+        <Route path="/previous-paper" element={
+          <Layout theme={theme} toggleTheme={toggleTheme}>
+            <PreviousPaperPage />
           </Layout>
         } />
         <Route path="/test" element={
