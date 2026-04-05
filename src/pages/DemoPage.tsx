@@ -12,15 +12,15 @@ interface Video {
 
 export default function DemoPage() {
   const [videos, setVideos] = useState<Video[]>([]);
+  const [subscriberCount, setSubscriberCount] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchVideos = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch videos
         let data = null;
-        
-        // 1. Try to fetch from our Express backend first
         try {
           const response = await fetch('/api/latest-videos');
           const contentType = response.headers.get("content-type");
@@ -31,48 +31,43 @@ export default function DemoPage() {
           console.warn("Backend fetch failed, will try fallback API", e);
         }
 
-        // 2. Fallback for static deployments (like Vercel) where /api doesn't exist
+        // Fallback for static deployments
         if (!data) {
-          console.log("Using fallback RSS to JSON API...");
           const rssUrl = encodeURIComponent('https://www.youtube.com/feeds/videos.xml?channel_id=UCnKc0J80BfZJVNYFjbMyJOQ');
           const fallbackResponse = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
-          
-          if (!fallbackResponse.ok) {
-            throw new Error('Failed to fetch videos from fallback API');
+          if (fallbackResponse.ok) {
+            const fallbackData = await fallbackResponse.json();
+            if (fallbackData.status === 'ok') {
+              data = fallbackData.items.slice(0, 3).map((item: any) => {
+                const videoId = item.guid ? item.guid.replace('yt:video:', '') : item.link.split('v=')[1];
+                const cleanDescription = item.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
+                return { id: videoId, title: item.title, description: cleanDescription, views: "Live", date: new Date(item.pubDate).toLocaleDateString() };
+              });
+            }
           }
-          
-          const fallbackData = await fallbackResponse.json();
-          if (fallbackData.status !== 'ok') {
-            throw new Error('Invalid RSS feed response');
+        }
+        setVideos(data || []);
+
+        // Fetch subscriber count
+        try {
+          const subResponse = await fetch('/api/youtube-stats');
+          if (subResponse.ok) {
+            const subData = await subResponse.json();
+            setSubscriberCount(subData.subscriberCount);
           }
-          
-          data = fallbackData.items.slice(0, 3).map((item: any) => {
-            // Extract video ID from guid (yt:video:VIDEO_ID) or link
-            const videoId = item.guid ? item.guid.replace('yt:video:', '') : item.link.split('v=')[1];
-            
-            // Clean up description (rss2json sometimes includes HTML)
-            const cleanDescription = item.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
-            
-            return {
-              id: videoId,
-              title: item.title,
-              description: cleanDescription,
-              views: "Live",
-              date: new Date(item.pubDate).toLocaleDateString()
-            };
-          });
+        } catch (e) {
+          console.warn("Subscriber count fetch failed", e);
         }
 
-        setVideos(data);
       } catch (err: any) {
-        console.error('Error fetching videos:', err);
-        setError(err.message || 'Failed to load videos');
+        console.error('Error fetching data:', err);
+        setError(err.message || 'Failed to load data');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchVideos();
+    fetchData();
   }, []);
 
   return (
@@ -89,6 +84,11 @@ export default function DemoPage() {
             <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-black mb-6 uppercase tracking-widest">
               <Youtube className="h-4 w-4" />
               Free Demo Classes
+              {subscriberCount && (
+                <span className="ml-2 pl-2 border-l border-white/30">
+                  {subscriberCount} Subscribers
+                </span>
+              )}
             </div>
             <h1 className="text-4xl lg:text-6xl font-black mb-6 tracking-tight">
               Latest <span className="text-red-200">Videos</span>

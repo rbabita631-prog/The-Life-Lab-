@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { User, BookOpen, FileText, Zap, LogOut, Loader2, Trophy, Bookmark, Clock } from 'lucide-react';
+import { User, BookOpen, FileText, Zap, LogOut, Loader2, Trophy, Bookmark, Clock, TrendingUp } from 'lucide-react';
 import { auth, db, logout } from '../firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -25,8 +26,10 @@ export default function ProfilePage() {
         // In a real app, we would fetch the user's specific data here
         // For now, we'll just use some mock data to demonstrate the UI
         setQuizHistory([
-          { id: '1', title: 'Daily Anatomy Quiz', score: 8, total: 10, date: new Date().toISOString() },
-          { id: '2', title: 'Pharmacology Basics', score: 10, total: 10, date: new Date(Date.now() - 86400000).toISOString() }
+          { id: '1', title: 'Daily Anatomy Quiz', score: 8, total: 10, date: '2026-04-06' },
+          { id: '2', title: 'Pharmacology Basics', score: 10, total: 10, date: '2026-04-05' },
+          { id: '3', title: 'Pediatrics', score: 7, total: 10, date: '2026-04-04' },
+          { id: '4', title: 'OBG', score: 9, total: 10, date: '2026-04-03' }
         ]);
         setSavedNotes([
           { id: '1', title: 'Cardiovascular System Notes', category: 'Anatomy' },
@@ -63,31 +66,39 @@ export default function ProfilePage() {
 
   if (!user) return null;
 
+  const chartData = quizHistory.map(q => ({
+    name: new Date(q.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    score: (q.score / q.total) * 100
+  })).reverse();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 px-4 transition-colors duration-300">
       <div className="max-w-5xl mx-auto">
         {/* Profile Header */}
         <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-gray-100 dark:border-gray-800 mb-8 flex flex-col md:flex-row items-center gap-8">
-          <div className="w-32 h-32 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-32 h-32 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0 relative">
             {user.photoURL ? (
               <img src={user.photoURL} alt={user.displayName || 'User'} className="w-full h-full rounded-full object-cover" />
             ) : (
               <User className="h-16 w-16 text-blue-600 dark:text-blue-400" />
             )}
+            <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg">
+              LVL 5
+            </div>
           </div>
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-3xl font-black text-gray-900 dark:text-white mb-2">{user.displayName || 'Student'}</h1>
             <p className="text-gray-500 dark:text-gray-400 font-medium mb-6">{user.email}</p>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4">
-              <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-xl flex items-center gap-2">
-                <Trophy className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">Level 5</span>
-              </div>
-              <div className="bg-gray-100 dark:bg-gray-800 px-4 py-2 rounded-xl flex items-center gap-2">
-                <Zap className="h-4 w-4 text-amber-500" />
-                <span className="text-sm font-bold text-gray-700 dark:text-gray-300">12 Day Streak</span>
-              </div>
+            
+            {/* Progress Bar */}
+            <div className="w-full max-w-md bg-gray-100 dark:bg-gray-800 h-3 rounded-full overflow-hidden">
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: '65%' }}
+                className="h-full bg-blue-600 rounded-full"
+              />
             </div>
+            <p className="text-xs font-bold text-gray-400 mt-2">65% to Level 6</p>
           </div>
           <button 
             onClick={handleLogout}
@@ -96,6 +107,25 @@ export default function ProfilePage() {
             <LogOut className="h-4 w-4" />
             Logout
           </button>
+        </div>
+
+        {/* Performance Chart */}
+        <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] p-8 shadow-xl border border-gray-100 dark:border-gray-800 mb-8">
+          <div className="flex items-center gap-3 mb-8">
+            <TrendingUp className="h-6 w-6 text-blue-600" />
+            <h2 className="text-xl font-black text-gray-900 dark:text-white">Performance Trend</h2>
+          </div>
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                <XAxis dataKey="name" stroke="#9CA3AF" />
+                <YAxis stroke="#9CA3AF" />
+                <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '1rem' }} />
+                <Line type="monotone" dataKey="score" stroke="#2563EB" strokeWidth={4} dot={{ r: 6 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
         {/* Tabs */}
@@ -128,7 +158,7 @@ export default function ProfilePage() {
               {quizHistory.length > 0 ? (
                 <div className="space-y-4">
                   {quizHistory.map((quiz) => (
-                    <div key={quiz.id} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
+                    <motion.div key={quiz.id} whileHover={{ scale: 1.02 }} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                       <div className="flex items-center gap-4">
                         <div className="bg-amber-100 dark:bg-amber-900/30 p-3 rounded-xl">
                           <Zap className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -142,7 +172,7 @@ export default function ProfilePage() {
                         <p className="text-lg font-black text-blue-600">{quiz.score}/{quiz.total}</p>
                         <p className="text-xs font-bold text-gray-400 uppercase">Score</p>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (
@@ -157,13 +187,13 @@ export default function ProfilePage() {
               {savedNotes.length > 0 ? (
                 <div className="grid md:grid-cols-2 gap-4">
                   {savedNotes.map((note) => (
-                    <div key={note.id} className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 group hover:border-blue-500 transition-colors cursor-pointer">
+                    <motion.div key={note.id} whileHover={{ scale: 1.02 }} className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 group hover:border-blue-500 transition-colors cursor-pointer">
                       <div className="flex items-center gap-3 mb-4">
                         <FileText className="h-5 w-5 text-blue-600" />
                         <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{note.category}</span>
                       </div>
                       <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{note.title}</h3>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (
@@ -178,13 +208,13 @@ export default function ProfilePage() {
               {bookmarks.length > 0 ? (
                 <div className="grid md:grid-cols-2 gap-4">
                   {bookmarks.map((bookmark) => (
-                    <div key={bookmark.id} className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 group hover:border-blue-500 transition-colors cursor-pointer">
+                    <motion.div key={bookmark.id} whileHover={{ scale: 1.02 }} className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 group hover:border-blue-500 transition-colors cursor-pointer">
                       <div className="flex items-center gap-3 mb-4">
                         <BookOpen className="h-5 w-5 text-blue-600" />
                         <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{bookmark.type}</span>
                       </div>
                       <h3 className="font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{bookmark.title}</h3>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (

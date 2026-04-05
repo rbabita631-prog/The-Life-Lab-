@@ -23,7 +23,9 @@ import {
   FileText,
   Clock,
   Star,
-  Users
+  Users,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -43,18 +45,20 @@ import {
 
 const ADMIN_EMAIL = "rbabita631@gmail.com";
 
-type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes';
+type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries';
 
-export default function AdminPage() {
+export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   
   // Data states
   const [inquiries, setInquiries] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
   const [notes, setNotes] = useState<any[]>([]);
   const [quizzes, setQuizzes] = useState<any[]>([]);
+  const [testSeries, setTestSeries] = useState<any[]>([]);
   
   // UI states
   const [syncing, setSyncing] = useState(false);
@@ -88,6 +92,11 @@ export default function AdminPage() {
       }
     );
 
+    const unsubUsers = onSnapshot(collection(db, 'users'), 
+      (s) => setUsers(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => console.error('Users error:', e)
+    );
+
     const unsubCourses = onSnapshot(query(collection(db, 'courses'), orderBy('createdAt', 'desc')), 
       (s) => setCourses(s.docs.map(d => ({ id: d.id, ...d.data() }))),
       (e) => console.error('Courses error:', e)
@@ -103,11 +112,18 @@ export default function AdminPage() {
       (e) => console.error('Quizzes error:', e)
     );
 
+    const unsubTestSeries = onSnapshot(query(collection(db, 'testSeries'), orderBy('createdAt', 'desc')), 
+      (s) => setTestSeries(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => console.error('Test Series error:', e)
+    );
+
     return () => {
       unsubInquiries();
+      unsubUsers();
       unsubCourses();
       unsubNotes();
       unsubQuizzes();
+      unsubTestSeries();
     };
   }, [user]);
 
@@ -155,7 +171,7 @@ export default function AdminPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020817] transition-colors duration-300 relative overflow-hidden">
+    <div className={`min-h-screen bg-[#f8fafc] dark:bg-[#020817] transition-colors duration-300 relative overflow-hidden ${theme === 'dark' ? 'dark' : ''}`}>
       {/* Background Gradients */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-[120px]" />
@@ -179,6 +195,7 @@ export default function AdminPage() {
               { id: 'courses', label: 'Courses', icon: GraduationCap },
               { id: 'notes', label: 'Notes & Papers', icon: BookOpen },
               { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
+              { id: 'testSeries', label: 'Test Series', icon: FileText },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -206,6 +223,13 @@ export default function AdminPage() {
             >
               <LogOut className="h-5 w-5" />
             </button>
+            <button 
+              onClick={toggleTheme}
+              className="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all active:scale-90"
+              aria-label="Toggle Theme"
+            >
+              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+            </button>
           </div>
         </div>
       </header>
@@ -230,64 +254,85 @@ export default function AdminPage() {
 
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div className="grid lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 space-y-8">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <Youtube className="h-6 w-6 text-red-600" />
-                  <h2 className="text-xl font-black text-gray-900 dark:text-white">Content Sync</h2>
-                </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-8 leading-relaxed">
-                  Sync the latest videos from your YouTube channel.
-                </p>
-                <button
-                  disabled={syncing}
-                  onClick={handleSyncVideos}
-                  className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-xl shadow-red-200 dark:shadow-none flex items-center justify-center gap-3 disabled:opacity-50"
-                >
-                  {syncing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
-                  Sync YouTube
-                </button>
-              </motion.div>
+          <div className="space-y-8">
+            {/* Metrics Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { label: 'Total Users', value: users.length, icon: Users, color: 'text-blue-600' },
+                { label: 'Previous Papers', value: notes.filter(n => n.type === 'paper').length, icon: FileText, color: 'text-purple-600' },
+                { label: 'Tests/Quizzes', value: quizzes.length, icon: ClipboardList, color: 'text-orange-600' },
+                { label: 'Test Series', value: testSeries.length, icon: BookOpen, color: 'text-pink-600' },
+                { label: 'Total Courses', value: courses.length, icon: GraduationCap, color: 'text-green-600' },
+              ].map((metric, idx) => (
+                <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50">
+                  <div className={`mb-4 ${metric.color}`}>
+                    <metric.icon className="h-8 w-8" />
+                  </div>
+                  <p className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{metric.label}</p>
+                  <p className="text-4xl font-black text-gray-900 dark:text-white mt-2">{metric.value}</p>
+                </motion.div>
+              ))}
             </div>
 
-            <div className="lg:col-span-2">
-              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
-                <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <MessageSquare className="h-6 w-6 text-blue-600" />
-                    <h2 className="text-xl font-black text-gray-900 dark:text-white">User Inquiries</h2>
+            <div className="grid lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-1 space-y-8">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50">
+                  <div className="flex items-center gap-3 mb-6">
+                    <Youtube className="h-6 w-6 text-red-600" />
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white">Content Sync</h2>
                   </div>
-                  <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black">
-                    {inquiries.length} Total
-                  </span>
-                </div>
-                <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {inquiries.length === 0 ? (
-                    <div className="p-20 text-center text-gray-400 font-bold">No inquiries found.</div>
-                  ) : (
-                    inquiries.map((inquiry) => (
-                      <div key={inquiry.id} className="p-8 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{inquiry.name}</h4>
-                            <p className="text-sm font-bold text-blue-600">{inquiry.email}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-8 leading-relaxed">
+                    Sync the latest videos from your YouTube channel.
+                  </p>
+                  <button
+                    disabled={syncing}
+                    onClick={handleSyncVideos}
+                    className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-xl shadow-red-200 dark:shadow-none flex items-center justify-center gap-3 disabled:opacity-50"
+                  >
+                    {syncing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
+                    Sync YouTube
+                  </button>
+                </motion.div>
+              </div>
+
+              <div className="lg:col-span-2">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
+                  <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <MessageSquare className="h-6 w-6 text-blue-600" />
+                      <h2 className="text-xl font-black text-gray-900 dark:text-white">User Inquiries</h2>
+                    </div>
+                    <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black">
+                      {inquiries.length} Total
+                    </span>
+                  </div>
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {inquiries.length === 0 ? (
+                      <div className="p-20 text-center text-gray-400 font-bold">No inquiries found.</div>
+                    ) : (
+                      inquiries.map((inquiry) => (
+                        <div key={inquiry.id} className="p-8 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{inquiry.name}</h4>
+                              <p className="text-sm font-bold text-blue-600">{inquiry.email}</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                                {inquiry.createdAt?.toDate().toLocaleDateString()}
+                              </span>
+                              <button onClick={() => handleDelete('inquiries', inquiry.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                                <Trash2 className="h-5 w-5" />
+                              </button>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                              {inquiry.createdAt?.toDate().toLocaleDateString()}
-                            </span>
-                            <button onClick={() => handleDelete('inquiries', inquiry.id)} className="text-gray-400 hover:text-red-600 transition-colors">
-                              <Trash2 className="h-5 w-5" />
-                            </button>
-                          </div>
+                          <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{inquiry.message}</p>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{inquiry.message}</p>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </motion.div>
+                      ))
+                    )}
+                  </div>
+                </motion.div>
+              </div>
             </div>
           </div>
         )}
@@ -436,6 +481,51 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* Test Series Tab */}
+        {activeTab === 'testSeries' && (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Test Series</h2>
+              <button 
+                onClick={() => setShowAddModal('testSeries')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none"
+              >
+                <Plus className="h-5 w-5" />
+                Create Test Series
+              </button>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              {testSeries.map((ts) => (
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} key={ts.id} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="bg-pink-100 dark:bg-pink-900/30 p-4 rounded-2xl">
+                      <FileText className="h-6 w-6 text-pink-600" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setEditingItem({ type: 'testSeries', data: ts })}
+                        className="text-gray-400 hover:text-pink-600 transition-colors"
+                      >
+                        <Edit className="h-5 w-5" />
+                      </button>
+                      <button onClick={() => handleDelete('testSeries', ts.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">{ts.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-6 line-clamp-2">{ts.description}</p>
+                  <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-800">
+                    <span className="text-xs font-black text-pink-600 uppercase tracking-widest">{ts.price}</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{ts.category}</span>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Add Modals */}
@@ -452,6 +542,7 @@ export default function AdminPage() {
                 {showAddModal === 'courses' && <AddCourseForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Course created successfully!' }); }} />}
                 {showAddModal === 'notes' && <AddNoteForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Document added successfully!' }); }} />}
                 {showAddModal === 'quizzes' && <AddQuizForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Quiz created successfully!' }); }} />}
+                {showAddModal === 'testSeries' && <AddTestSeriesForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Test Series created successfully!' }); }} />}
               </div>
             </motion.div>
           </div>
@@ -472,6 +563,7 @@ export default function AdminPage() {
                 {editingItem.type === 'courses' && <AddCourseForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Course updated successfully!' }); }} />}
                 {editingItem.type === 'notes' && <AddNoteForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Document updated successfully!' }); }} />}
                 {editingItem.type === 'quizzes' && <AddQuizForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Quiz updated successfully!' }); }} />}
+                {editingItem.type === 'testSeries' && <AddTestSeriesForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Test Series updated successfully!' }); }} />}
               </div>
             </motion.div>
           </div>
@@ -790,6 +882,83 @@ function AddQuizForm({ onComplete, initialData }: { onComplete: () => void, init
       </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
         {loading ? 'Saving...' : initialData ? 'Update Quiz' : 'Create Quiz'}
+      </button>
+    </form>
+  );
+}
+
+function AddTestSeriesForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    
+    const tsData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      category: formData.get('category'),
+      price: `₹${formData.get('price')}`,
+      updatedAt: serverTimestamp()
+    };
+
+    try {
+      if (initialData) {
+        await updateDoc(doc(db, 'testSeries', initialData.id), tsData);
+      } else {
+        await addDoc(collection(db, 'testSeries'), {
+          ...tsData,
+          createdAt: serverTimestamp()
+        });
+      }
+      onComplete();
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to save test series');
+      handleFirestoreError(err, OperationType.WRITE, 'testSeries');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+          <AlertCircle className="h-5 w-5" />
+          <p className="text-xs font-bold">{error}</p>
+        </div>
+      )}
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Title</label>
+          <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
+          <select name="category" defaultValue={initialData?.category || 'Anatomy'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+            <option>Anatomy</option>
+            <option>Pharmacology</option>
+            <option>Medical Surgical</option>
+            <option>Pediatrics</option>
+            <option>OBG</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
+        <input name="price" type="number" required defaultValue={initialData?.price?.replace('₹', '')} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
+        <textarea name="description" defaultValue={initialData?.description} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all min-h-[100px]" />
+      </div>
+      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
+        {loading ? 'Saving...' : initialData ? 'Update Test Series' : 'Create Test Series'}
       </button>
     </form>
   );

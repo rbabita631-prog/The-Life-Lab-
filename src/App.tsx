@@ -29,7 +29,7 @@ interface LayoutProps extends ThemeProps {
 
 function Layout({ children, theme, toggleTheme }: LayoutProps) {
   return (
-    <div className={`min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300 ${theme}`}>
+    <div className="min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       {children}
       <Footer />
@@ -232,7 +232,7 @@ export default function App() {
             <DemoPage />
           </Layout>
         } />
-        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/admin" element={<AdminPage theme={theme} toggleTheme={toggleTheme} />} />
         <Route path="/admin/login" element={<AdminLoginPage />} />
       </Routes>
     </BrowserRouter>

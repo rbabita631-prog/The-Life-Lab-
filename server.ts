@@ -92,6 +92,42 @@ async function startServer() {
     }
   });
 
+  // API route to fetch YouTube channel statistics
+  app.get("/api/youtube-stats", async (req, res) => {
+    try {
+      const apiKey = process.env.YOUTUBE_API_KEY;
+      const channelId = "UCnKc0J80BfZJVNYFjbMyJOQ";
+      
+      if (!apiKey) {
+        console.warn("YouTube API key missing, returning mock stats.");
+        return res.json({ subscriberCount: "10K+" });
+      }
+
+      const response = await fetch(`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${channelId}&key=${apiKey}`);
+      
+      if (!response.ok) {
+        throw new Error(`YouTube API returned status ${response.status}`);
+      }
+      
+      const data = await response.json();
+      if (!data.items || data.items.length === 0) {
+        throw new Error("Channel not found");
+      }
+      
+      const subscriberCount = parseInt(data.items[0].statistics.subscriberCount);
+      const formattedCount = subscriberCount >= 1000000 
+        ? (subscriberCount / 1000000).toFixed(1) + 'M'
+        : subscriberCount >= 1000 
+        ? (subscriberCount / 1000).toFixed(1) + 'K'
+        : subscriberCount.toString();
+        
+      res.json({ subscriberCount: formattedCount });
+    } catch (error: any) {
+      console.error("Error fetching YouTube stats:", error.message);
+      res.status(500).json({ error: "Failed to fetch stats", message: error.message });
+    }
+  });
+
   // API route to fetch latest YouTube videos
   app.get("/api/latest-videos", async (req, res) => {
     try {
