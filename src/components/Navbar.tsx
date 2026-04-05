@@ -2,7 +2,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon, LogIn, Mail, Lock, UserPlus, AlertCircle, RefreshCw, Youtube } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { auth, loginWithGoogle, loginWithEmail, signupWithEmail, logout } from '../firebase';
+import { auth, loginWithGoogle, loginWithEmail, signupWithEmail, logout, resetPassword } from '../firebase';
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 
 const navLinks = [
@@ -26,6 +26,8 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [user, setUser] = useState<FirebaseUser | null>(null);
@@ -85,6 +87,25 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     } catch (error: any) {
       console.error('Auth error:', error);
       setAuthError(error.message || 'Authentication failed');
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      setAuthError('Please enter your email address to reset password.');
+      return;
+    }
+    setAuthLoading(true);
+    setAuthError(null);
+    try {
+      await resetPassword(email);
+      setResetEmailSent(true);
+    } catch (error: any) {
+      console.error('Reset password error:', error);
+      setAuthError(error.message || 'Failed to send reset email');
     } finally {
       setAuthLoading(false);
     }
@@ -384,10 +405,14 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               <div className="p-8 lg:p-12">
                 <div className="flex justify-between items-center mb-8">
                   <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">
-                    {isSignup ? 'Sign Up' : 'Login'}
+                    {isForgotPassword ? 'Reset Password' : isSignup ? 'Sign Up' : 'Login'}
                   </h2>
                   <button 
-                    onClick={() => setIsLoginOpen(false)}
+                    onClick={() => {
+                      setIsLoginOpen(false);
+                      setIsForgotPassword(false);
+                      setResetEmailSent(false);
+                    }}
                     className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"
                   >
                     <X className="h-6 w-6 text-gray-400" />
@@ -401,97 +426,154 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                   </div>
                 )}
                 
-                <form className="space-y-6" onSubmit={handleAuth}>
-                  {isSignup && (
+                {resetEmailSent ? (
+                  <div className="text-center space-y-6">
+                    <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Mail className="h-8 w-8" />
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 font-medium">
+                      We've sent a password reset link to <span className="font-bold text-gray-900 dark:text-white">{email}</span>.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setIsForgotPassword(false);
+                        setResetEmailSent(false);
+                      }}
+                      className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95"
+                    >
+                      Back to Login
+                    </button>
+                  </div>
+                ) : (
+                  <form className="space-y-6" onSubmit={isForgotPassword ? handleResetPassword : handleAuth}>
+                    {!isForgotPassword && isSignup && (
+                      <div>
+                        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                        <div className="relative">
+                          <User className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                          <input
+                            required
+                            type="text"
+                            placeholder="John Doe"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div>
-                      <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Full Name</label>
+                      <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
                       <div className="relative">
-                        <User className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                        <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
                         <input
                           required
-                          type="text"
-                          placeholder="John Doe"
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
+                          type="email"
+                          placeholder="name@example.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
                         />
                       </div>
                     </div>
-                  )}
-                  <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Email Address</label>
-                    <div className="relative">
-                      <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        required
-                        type="email"
-                        placeholder="name@example.com"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                      <input
-                        required
-                        type="password"
-                        placeholder="••••••••"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
-                      />
-                    </div>
-                  </div>
-                  <button 
-                    disabled={authLoading}
-                    type="submit"
-                    className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
-                  >
-                    {authLoading ? (
-                      <RefreshCw className="h-5 w-5 animate-spin" />
-                    ) : (
-                      isSignup ? <UserPlus className="h-5 w-5" /> : <LogIn className="h-5 w-5" />
+                    {!isForgotPassword && (
+                      <div>
+                        <div className="flex justify-between items-center mb-2 ml-1">
+                          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest">Password</label>
+                          {!isSignup && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsForgotPassword(true);
+                                setAuthError(null);
+                              }}
+                              className="text-xs font-bold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+                            >
+                              Forgot Password?
+                            </button>
+                          )}
+                        </div>
+                        <div className="relative">
+                          <Lock className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                          <input
+                            required
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            className="w-full bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800 focus:border-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
+                          />
+                        </div>
+                      </div>
                     )}
-                    {isSignup ? 'Create Account' : 'Sign In'}
-                  </button>
-                </form>
-
-                <div className="mt-6">
-                  <div className="relative flex items-center justify-center mb-6">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-100 dark:border-gray-800"></div>
-                    </div>
-                    <span className="relative px-4 bg-white dark:bg-gray-900 text-[10px] font-black text-gray-400 uppercase tracking-widest">Or continue with</span>
-                  </div>
-                  
-                  <button 
-                    onClick={handleGoogleLogin}
-                    disabled={authLoading}
-                    className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white py-4 rounded-2xl text-sm font-black hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
-                  >
-                    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
-                    Google
-                  </button>
-                </div>
-                
-                <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
-                  <p className="text-center text-sm font-bold text-gray-500 dark:text-gray-400">
-                    {isSignup ? 'Already have an account?' : "Don't have an account?"} 
                     <button 
-                      onClick={() => {
-                        setIsSignup(!isSignup);
-                        setAuthError(null);
-                      }}
-                      className="text-blue-600 hover:underline ml-1"
+                      disabled={authLoading}
+                      type="submit"
+                      className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      {isSignup ? 'Login' : 'Sign Up'}
+                      {authLoading ? (
+                        <RefreshCw className="h-5 w-5 animate-spin" />
+                      ) : (
+                        isForgotPassword ? <Mail className="h-5 w-5" /> : isSignup ? <UserPlus className="h-5 w-5" /> : <LogIn className="h-5 w-5" />
+                      )}
+                      {isForgotPassword ? 'Send Reset Link' : isSignup ? 'Create Account' : 'Sign In'}
                     </button>
-                  </p>
-                </div>
+                  </form>
+                )}
+
+                {!isForgotPassword && !resetEmailSent && (
+                  <>
+                    <div className="mt-6">
+                      <div className="relative flex items-center justify-center mb-6">
+                        <div className="absolute inset-0 flex items-center">
+                          <div className="w-full border-t border-gray-100 dark:border-gray-800"></div>
+                        </div>
+                        <span className="relative px-4 bg-white dark:bg-gray-900 text-[10px] font-black text-gray-400 uppercase tracking-widest">Or continue with</span>
+                      </div>
+                      
+                      <button 
+                        onClick={handleGoogleLogin}
+                        disabled={authLoading}
+                        className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white py-4 rounded-2xl text-sm font-black hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                      >
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
+                        Google
+                      </button>
+                    </div>
+                    
+                    <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
+                      <p className="text-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                        {isSignup ? 'Already have an account?' : "Don't have an account?"} 
+                        <button 
+                          onClick={() => {
+                            setIsSignup(!isSignup);
+                            setAuthError(null);
+                          }}
+                          className="text-blue-600 hover:underline ml-1"
+                        >
+                          {isSignup ? 'Login' : 'Sign Up'}
+                        </button>
+                      </p>
+                    </div>
+                  </>
+                )}
+                
+                {isForgotPassword && !resetEmailSent && (
+                  <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
+                    <p className="text-center text-sm font-bold text-gray-500 dark:text-gray-400">
+                      Remember your password? 
+                      <button 
+                        onClick={() => {
+                          setIsForgotPassword(false);
+                          setAuthError(null);
+                        }}
+                        className="text-blue-600 hover:underline ml-1"
+                      >
+                        Back to Login
+                      </button>
+                    </p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </motion.div>

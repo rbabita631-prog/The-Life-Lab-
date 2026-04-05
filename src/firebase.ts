@@ -7,7 +7,8 @@ import {
   signOut,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  updateProfile
+  updateProfile,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { getFirestore, collection, addDoc, serverTimestamp, getDocFromServer, doc } from 'firebase/firestore';
 
@@ -99,3 +100,4 @@ export const signupWithEmail = async (email: string, pass: string, name: string)
   return userCredential;
 };
 export const logout = () => signOut(auth);
+export const resetPassword = (email: string) => sendPasswordResetEmail(auth, email);
