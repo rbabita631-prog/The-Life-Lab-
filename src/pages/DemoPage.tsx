@@ -20,12 +20,20 @@ export default function DemoPage() {
     const fetchVideos = async () => {
       try {
         const response = await fetch('/api/latest-videos');
-        if (!response.ok) throw new Error('Failed to fetch videos');
-        const data = await response.json();
+        let data;
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          data = await response.json();
+        } else {
+          const text = await response.text();
+          throw new Error(text || `Server returned status ${response.status}`);
+        }
+        
+        if (!response.ok) throw new Error(data.message || 'Failed to fetch videos');
         setVideos(data);
-      } catch (err) {
+      } catch (err: any) {
         console.error('Error fetching videos:', err);
-        setError('Could not load latest videos. Please try again later.');
+        setError(err.message || 'Could not load latest videos. Please try again later.');
       } finally {
         setLoading(false);
       }

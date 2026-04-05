@@ -18,26 +18,56 @@ async function startServer() {
       const channelId = "UCnKc0J80BfZJVNYFjbMyJOQ";
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       
-      const response = await axios.get(rssUrl);
+      console.log(`Fetching RSS from: ${rssUrl}`);
+      const response = await fetch(rssUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`YouTube RSS returned status ${response.status}`);
+      }
+      
+      const xmlData = await response.text();
       const parser = new XMLParser({
         ignoreAttributes: false,
         attributeNamePrefix: "@_"
       });
-      const jsonObj = parser.parse(response.data);
+      const jsonObj = parser.parse(xmlData);
+      console.log("RSS Feed Keys:", Object.keys(jsonObj));
+      if (jsonObj.feed) console.log("Feed Keys:", Object.keys(jsonObj.feed));
       
-      const entries = jsonObj.feed.entry;
-      const latestVideos = (Array.isArray(entries) ? entries : [entries]).slice(0, 3).map((entry: any) => ({
-        id: entry["yt:videoId"],
-        title: entry.title,
-        description: entry["media:group"]?.["media:description"] || "",
-        views: "Live", // RSS doesn't provide view count easily
-        date: new Date(entry.published).toLocaleDateString()
-      }));
+      if (!jsonObj.feed || !jsonObj.feed.entry) {
+        console.log("No entries found in RSS feed");
+        return res.json([]);
+      }
 
+      const entries = jsonObj.feed.entry;
+      const latestVideos = (Array.isArray(entries) ? entries : [entries]).slice(0, 3).map((entry: any) => {
+        const videoId = entry["yt:videoId"] || entry["videoId"];
+        const title = entry.title || "Untitled Video";
+        const description = entry["media:group"]?.["media:description"] || "";
+        const published = entry.published || new Date().toISOString();
+
+        return {
+          id: videoId,
+          title: typeof title === 'object' ? title['#text'] || title : title,
+          description: typeof description === 'object' ? description['#text'] || description : description,
+          views: "Live",
+          date: new Date(published).toLocaleDateString()
+        };
+      });
+
+      console.log(`Successfully fetched ${latestVideos.length} videos`);
       res.json(latestVideos);
-    } catch (error) {
-      console.error("Error fetching YouTube videos:", error);
-      res.status(500).json({ error: "Failed to fetch videos" });
+    } catch (error: any) {
+      console.error("Error fetching YouTube videos:", error.message);
+      res.status(500).json({ 
+        error: "Failed to fetch videos", 
+        message: error.message,
+        timestamp: new Date().toISOString()
+      });
     }
   });
 
