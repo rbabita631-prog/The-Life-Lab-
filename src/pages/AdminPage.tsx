@@ -37,6 +37,7 @@ import {
   doc, 
   setDoc,
   addDoc,
+  updateDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 
@@ -58,7 +59,7 @@ export default function AdminPage() {
   // UI states
   const [syncing, setSyncing] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-  const [isEditing, setIsEditing] = useState<string | null>(null); // ID of item being edited
+  const [editingItem, setEditingItem] = useState<{ type: Tab; data: any } | null>(null);
   const [showAddModal, setShowAddModal] = useState<Tab | null>(null);
   
   const navigate = useNavigate();
@@ -305,6 +306,12 @@ export default function AdminPage() {
                   <div className="relative h-48">
                     <img src={course.image} alt={course.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     <div className="absolute top-4 right-4 flex gap-2">
+                      <button 
+                        onClick={() => setEditingItem({ type: 'courses', data: course })}
+                        className="bg-white/90 p-2 rounded-xl text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-lg"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </button>
                       <button onClick={() => handleDelete('courses', course.id)} className="bg-white/90 p-2 rounded-xl text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-lg">
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -359,6 +366,12 @@ export default function AdminPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4">
+                      <button 
+                        onClick={() => setEditingItem({ type: 'notes', data: note })}
+                        className="text-gray-400 hover:text-blue-600 transition-colors"
+                      >
+                        <Edit className="h-5 w-5" />
+                      </button>
                       <a href={note.pdfUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">
                         <ChevronRight className="h-6 w-6" />
                       </a>
@@ -394,9 +407,17 @@ export default function AdminPage() {
                     <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
                       <ClipboardList className="h-6 w-6 text-blue-600" />
                     </div>
-                    <button onClick={() => handleDelete('quizzes', quiz.id)} className="text-gray-400 hover:text-red-600 transition-colors">
-                      <Trash2 className="h-5 w-5" />
-                    </button>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => setEditingItem({ type: 'quizzes', data: quiz })}
+                        className="text-gray-400 hover:text-blue-600 transition-colors"
+                      >
+                        <Edit className="h-5 w-5" />
+                      </button>
+                      <button onClick={() => handleDelete('quizzes', quiz.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
                   </div>
                   <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">{quiz.title}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-6 line-clamp-2">{quiz.description}</p>
@@ -430,12 +451,32 @@ export default function AdminPage() {
           </div>
         )}
       </AnimatePresence>
+
+      {/* Edit Modals */}
+      <AnimatePresence>
+        {editingItem && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingItem(null)} className="absolute inset-0 bg-gray-950/80 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+              <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <h3 className="text-2xl font-black text-gray-900 dark:text-white">Edit {editingItem.type.slice(0, -1)}</h3>
+                <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
+              </div>
+              <div className="p-8 overflow-y-auto custom-scrollbar">
+                {editingItem.type === 'courses' && <AddCourseForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Course updated successfully!' }); }} />}
+                {editingItem.type === 'notes' && <AddNoteForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Document updated successfully!' }); }} />}
+                {editingItem.type === 'quizzes' && <AddQuizForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Quiz updated successfully!' }); }} />}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
 // Form Components
-function AddCourseForm({ onComplete }: { onComplete: () => void }) {
+function AddCourseForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -444,32 +485,41 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
+    const courseData = {
+      title: formData.get('title'),
+      category: formData.get('category'),
+      price: `₹${formData.get('price')}`,
+      originalPrice: `₹${formData.get('originalPrice')}`,
+      image: formData.get('image') || 'https://picsum.photos/seed/course/800/600',
+      students: initialData?.students || '0',
+      rating: initialData?.rating || 5.0,
+      duration: formData.get('duration') || '10+ Hours',
+      instructor: {
+        name: formData.get('instructorName') || 'Expert Faculty',
+        role: formData.get('instructorRole') || 'Nursing Specialist',
+        image: 'https://picsum.photos/seed/instructor/200/200'
+      },
+      learningOutcomes: [
+        formData.get('outcome1') || 'Comprehensive coverage of topics',
+        formData.get('outcome2') || 'Practice questions and mock tests'
+      ],
+      curriculum: initialData?.curriculum || [{ title: 'Introduction', topics: ['Welcome to the course'] }],
+      updatedAt: serverTimestamp()
+    };
+
     try {
-      await addDoc(collection(db, 'courses'), {
-        title: formData.get('title'),
-        category: formData.get('category'),
-        price: `₹${formData.get('price')}`,
-        originalPrice: `₹${formData.get('originalPrice')}`,
-        image: formData.get('image') || 'https://picsum.photos/seed/course/800/600',
-        students: '0',
-        rating: 5.0,
-        duration: formData.get('duration') || '10+ Hours',
-        instructor: {
-          name: formData.get('instructorName') || 'Expert Faculty',
-          role: formData.get('instructorRole') || 'Nursing Specialist',
-          image: 'https://picsum.photos/seed/instructor/200/200'
-        },
-        learningOutcomes: [
-          formData.get('outcome1') || 'Comprehensive coverage of topics',
-          formData.get('outcome2') || 'Practice questions and mock tests'
-        ],
-        curriculum: [{ title: 'Introduction', topics: ['Welcome to the course'] }],
-        createdAt: serverTimestamp()
-      });
+      if (initialData) {
+        await updateDoc(doc(db, 'courses', initialData.id), courseData);
+      } else {
+        await addDoc(collection(db, 'courses'), {
+          ...courseData,
+          createdAt: serverTimestamp()
+        });
+      }
       onComplete();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to create course');
+      setError(err.message || 'Failed to save course');
       handleFirestoreError(err, OperationType.WRITE, 'courses');
     } finally {
       setLoading(false);
@@ -487,11 +537,11 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Course Title</label>
-          <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+          <select name="category" defaultValue={initialData?.category || 'NORCET'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
             <option>NORCET</option>
             <option>NCLEX</option>
             <option>Foundation</option>
@@ -502,51 +552,51 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
-          <input name="price" type="number" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="price" type="number" required defaultValue={initialData?.price?.replace('₹', '')} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Original Price (₹)</label>
-          <input name="originalPrice" type="number" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="originalPrice" type="number" required defaultValue={initialData?.originalPrice?.replace('₹', '')} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Instructor Name</label>
-          <input name="instructorName" placeholder="e.g. Dr. Smith" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="instructorName" defaultValue={initialData?.instructor?.name} placeholder="e.g. Dr. Smith" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Instructor Role</label>
-          <input name="instructorRole" placeholder="e.g. Senior Faculty" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="instructorRole" defaultValue={initialData?.instructor?.role} placeholder="e.g. Senior Faculty" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Duration</label>
-          <input name="duration" placeholder="e.g. 45+ Hours" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="duration" defaultValue={initialData?.duration} placeholder="e.g. 45+ Hours" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Image URL (Optional)</label>
-          <input name="image" placeholder="https://picsum.photos/seed/course/800/600" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="image" defaultValue={initialData?.image} placeholder="https://picsum.photos/seed/course/800/600" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Learning Outcome 1</label>
-          <input name="outcome1" placeholder="e.g. Master Anatomy" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="outcome1" defaultValue={initialData?.learningOutcomes?.[0]} placeholder="e.g. Master Anatomy" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Learning Outcome 2</label>
-          <input name="outcome2" placeholder="e.g. Practice MCQs" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="outcome2" defaultValue={initialData?.learningOutcomes?.[1]} placeholder="e.g. Practice MCQs" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
       </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Creating...' : 'Create Course'}
+        {loading ? 'Saving...' : initialData ? 'Update Course' : 'Create Course'}
       </button>
     </form>
   );
 }
 
-function AddNoteForm({ onComplete }: { onComplete: () => void }) {
+function AddNoteForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -555,19 +605,28 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
+    const noteData = {
+      title: formData.get('title'),
+      type: formData.get('type'),
+      category: formData.get('category'),
+      pdfUrl: formData.get('pdfUrl'),
+      isPremium: formData.get('isPremium') === 'on',
+      updatedAt: serverTimestamp()
+    };
+
     try {
-      await addDoc(collection(db, 'notes'), {
-        title: formData.get('title'),
-        type: formData.get('type'),
-        category: formData.get('category'),
-        pdfUrl: formData.get('pdfUrl'),
-        isPremium: formData.get('isPremium') === 'on',
-        createdAt: serverTimestamp()
-      });
+      if (initialData) {
+        await updateDoc(doc(db, 'notes', initialData.id), noteData);
+      } else {
+        await addDoc(collection(db, 'notes'), {
+          ...noteData,
+          createdAt: serverTimestamp()
+        });
+      }
       onComplete();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to add document');
+      setError(err.message || 'Failed to save document');
       handleFirestoreError(err, OperationType.WRITE, 'notes');
     } finally {
       setLoading(false);
@@ -584,19 +643,19 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
       )}
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Document Title</label>
-        <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
       </div>
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Type</label>
-          <select name="type" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+          <select name="type" defaultValue={initialData?.type || 'note'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
             <option value="note">Study Note</option>
             <option value="paper">Previous Paper</option>
           </select>
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+          <select name="category" defaultValue={initialData?.category || 'NORCET'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
             <option>NORCET</option>
             <option>DSSSB</option>
             <option>State Wise</option>
@@ -608,20 +667,20 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
       </div>
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">PDF URL</label>
-        <input name="pdfUrl" required placeholder="https://example.com/file.pdf" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        <input name="pdfUrl" required defaultValue={initialData?.pdfUrl} placeholder="https://example.com/file.pdf" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
       </div>
       <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-        <input type="checkbox" name="isPremium" id="isPremium" className="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" />
+        <input type="checkbox" name="isPremium" id="isPremium" defaultChecked={initialData?.isPremium} className="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" />
         <label htmlFor="isPremium" className="text-sm font-bold text-gray-700 dark:text-gray-300">Mark as Premium (Paid)</label>
       </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Adding...' : 'Add Document'}
+        {loading ? 'Saving...' : initialData ? 'Update Document' : 'Add Document'}
       </button>
     </form>
   );
 }
 
-function AddQuizForm({ onComplete }: { onComplete: () => void }) {
+function AddQuizForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -630,30 +689,42 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
     setLoading(true);
     setError(null);
     const formData = new FormData(e.currentTarget);
+    
+    const quizData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      category: formData.get('category'),
+      questions: [
+        {
+          question: formData.get('q1'),
+          options: [formData.get('o1a'), formData.get('o1b'), formData.get('o1c'), formData.get('o1d')],
+          correctAnswer: parseInt(formData.get('c1') as string),
+          explanation: formData.get('e1') || 'No explanation provided.'
+        }
+      ],
+      updatedAt: serverTimestamp()
+    };
+
     try {
-      await addDoc(collection(db, 'quizzes'), {
-        title: formData.get('title'),
-        description: formData.get('description'),
-        category: formData.get('category'),
-        questions: [
-          {
-            question: formData.get('q1'),
-            options: [formData.get('o1a'), formData.get('o1b'), formData.get('o1c'), formData.get('o1d')],
-            correctAnswer: parseInt(formData.get('c1') as string),
-            explanation: formData.get('e1') || 'No explanation provided.'
-          }
-        ],
-        createdAt: serverTimestamp()
-      });
+      if (initialData) {
+        await updateDoc(doc(db, 'quizzes', initialData.id), quizData);
+      } else {
+        await addDoc(collection(db, 'quizzes'), {
+          ...quizData,
+          createdAt: serverTimestamp()
+        });
+      }
       onComplete();
     } catch (err: any) {
       console.error(err);
-      setError(err.message || 'Failed to create quiz');
+      setError(err.message || 'Failed to save quiz');
       handleFirestoreError(err, OperationType.WRITE, 'quizzes');
     } finally {
       setLoading(false);
     }
   };
+
+  const firstQuestion = initialData?.questions?.[0] || {};
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -666,11 +737,11 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Quiz Title</label>
-          <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+          <select name="category" defaultValue={initialData?.category || 'Anatomy'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
             <option>Anatomy</option>
             <option>Pharmacology</option>
             <option>Medical Surgical</option>
@@ -682,22 +753,22 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
       </div>
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
-        <textarea name="description" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all min-h-[100px]" />
+        <textarea name="description" defaultValue={initialData?.description} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all min-h-[100px]" />
       </div>
       <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800">
         <h4 className="text-sm font-black text-blue-600 mb-4">Sample Question</h4>
         <div className="space-y-4">
-          <input name="q1" required placeholder="Question text" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="q1" required defaultValue={firstQuestion.question} placeholder="Question text" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
           <div className="grid grid-cols-2 gap-4">
-            <input name="o1a" required placeholder="Option 1" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1b" required placeholder="Option 2" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1c" required placeholder="Option 3" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1d" required placeholder="Option 4" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1a" required defaultValue={firstQuestion.options?.[0]} placeholder="Option 1" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1b" required defaultValue={firstQuestion.options?.[1]} placeholder="Option 2" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1c" required defaultValue={firstQuestion.options?.[2]} placeholder="Option 3" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1d" required defaultValue={firstQuestion.options?.[3]} placeholder="Option 4" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
           </div>
           <div className="grid sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Correct Answer</label>
-              <select name="c1" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold">
+              <select name="c1" defaultValue={firstQuestion.correctAnswer || '0'} className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold">
                 <option value="0">Option 1</option>
                 <option value="1">Option 2</option>
                 <option value="2">Option 3</option>
@@ -706,13 +777,13 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
             </div>
             <div>
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Explanation</label>
-              <input name="e1" placeholder="Why is this correct?" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold" />
+              <input name="e1" defaultValue={firstQuestion.explanation} placeholder="Why is this correct?" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold" />
             </div>
           </div>
         </div>
       </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Creating...' : 'Create Quiz'}
+        {loading ? 'Saving...' : initialData ? 'Update Quiz' : 'Create Quiz'}
       </button>
     </form>
   );
