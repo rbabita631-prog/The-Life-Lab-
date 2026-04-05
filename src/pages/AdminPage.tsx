@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 import { 
   collection, 
   query, 
@@ -34,14 +35,19 @@ export default function AdminPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [syncing, setSyncing] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+      if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+        navigate('/admin/login');
+      } else {
+        setUser(currentUser);
+        setLoading(false);
+      }
     });
     return () => unsubscribe();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (user?.email === ADMIN_EMAIL) {
@@ -95,34 +101,7 @@ export default function AdminPage() {
     );
   }
 
-  if (!user || user.email !== ADMIN_EMAIL) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 p-4">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-md w-full bg-white dark:bg-gray-900 p-12 rounded-[3rem] shadow-2xl text-center border border-gray-100 dark:border-gray-800"
-        >
-          <div className="bg-blue-100 dark:bg-blue-900/30 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8">
-            <ShieldCheck className="h-10 w-10 text-blue-600" />
-          </div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">Admin Portal</h2>
-          <p className="text-gray-500 dark:text-gray-400 font-medium mb-10 leading-relaxed">
-            Please sign in with your authorized admin account to access the dashboard.
-          </p>
-          <div className="space-y-4">
-            <button
-              onClick={loginWithGoogle}
-              className="w-full bg-blue-600 text-white py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none flex items-center justify-center gap-3"
-            >
-              <LogIn className="h-6 w-6" />
-              Sign in with Google
-            </button>
-          </div>
-        </motion.div>
-      </div>
-    );
-  }
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
