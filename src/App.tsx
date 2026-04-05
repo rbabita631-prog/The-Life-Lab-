@@ -7,6 +7,7 @@ import StudyMaterials from './components/StudyMaterials';
 import About from './components/About';
 import Footer from './components/Footer';
 import DemoPage from './pages/DemoPage';
+import CoursesPage from './pages/CoursesPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
@@ -22,7 +23,7 @@ interface LayoutProps extends ThemeProps {
 
 function Layout({ children, theme, toggleTheme }: LayoutProps) {
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
+    <div className={`min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300 ${theme}`}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       {children}
       <Footer />
@@ -59,10 +60,6 @@ function HomePage({ theme, toggleTheme }: ThemeProps) {
         
         <div id="browse" className="bg-white dark:bg-gray-950">
           <CategoryGrid />
-        </div>
-
-        <div id="courses" className="bg-gray-50 dark:bg-gray-900/50">
-          <FeaturedCourses />
         </div>
 
         <div id="study-materials" className="bg-white dark:bg-gray-950">
@@ -199,6 +196,11 @@ export default function App() {
         <Route path="/" element={
           <Layout theme={theme} toggleTheme={toggleTheme}>
             <HomePage theme={theme} toggleTheme={toggleTheme} />
+          </Layout>
+        } />
+        <Route path="/courses" element={
+          <Layout theme={theme} toggleTheme={toggleTheme}>
+            <CoursesPage />
           </Layout>
         } />
         <Route path="/demo" element={

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { name: 'Home', href: '/' },
-  { name: 'Paid Courses', href: '#courses', icon: GraduationCap },
+  { name: 'Paid Courses', href: '/courses', icon: GraduationCap },
   { name: 'Free Test Series', href: '#', icon: ClipboardList },
   { name: 'Free Quiz', href: '#', icon: Zap },
   { name: 'Class Notes', href: '#study-materials', icon: FileText },
@@ -22,14 +22,22 @@ interface NavbarProps {
 
 export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleNavClick = (href: string) => {
     setIsOpen(false);
     if (href.startsWith('#')) {
-      const element = document.getElementById(href.substring(1));
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
+      if (location.pathname !== '/') {
+        navigate('/' + href);
+      } else {
+        const element = document.getElementById(href.substring(1));
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
       }
+    } else {
+      navigate(href);
     }
   };
 
@@ -50,19 +58,13 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
             {navLinks.slice(0, 5).map((link) => (
-              <a
+              <button
                 key={link.name}
-                href={link.href}
-                onClick={(e) => {
-                  if (link.href.startsWith('#')) {
-                    e.preventDefault();
-                    handleNavClick(link.href);
-                  }
-                }}
+                onClick={() => handleNavClick(link.href)}
                 className="px-4 py-2 text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-xl transition-all"
               >
                 {link.name}
-              </a>
+              </button>
             ))}
             
             <div className="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-4" />
@@ -116,22 +118,16 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
           >
             <div className="px-4 pt-4 pb-8 space-y-1">
               {navLinks.map((link) => (
-                <a
+                <button
                   key={link.name}
-                  href={link.href}
-                  className="flex items-center gap-4 px-4 py-3.5 rounded-2xl text-base font-bold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
-                  onClick={(e) => {
-                    if (link.href.startsWith('#')) {
-                      e.preventDefault();
-                    }
-                    handleNavClick(link.href);
-                  }}
+                  onClick={() => handleNavClick(link.href)}
+                  className="w-full flex items-center gap-4 px-4 py-3.5 rounded-2xl text-base font-bold text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-all"
                 >
                   <div className="bg-gray-100 dark:bg-gray-800 p-2 rounded-lg">
                     {link.icon ? <link.icon className="h-5 w-5 text-blue-600 dark:text-blue-400" /> : <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />}
                   </div>
                   {link.name}
-                </a>
+                </button>
               ))}
               <div className="pt-6 px-2">
                 <button className="w-full flex items-center justify-center gap-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl text-base font-black shadow-xl">
