@@ -48,6 +48,10 @@ async function startServer() {
   app.post("/api/create-order", async (req, res) => {
     try {
       const { amount, currency = "INR", receipt } = req.body;
+      
+      // Truncate receipt to 40 characters to comply with Razorpay limits
+      const truncatedReceipt = receipt ? String(receipt).substring(0, 40) : undefined;
+      
       const rzp = getRazorpay();
       
       let order;
@@ -58,7 +62,7 @@ async function startServer() {
           id: `order_mock_${Date.now()}`,
           amount: amount * 100,
           currency,
-          receipt
+          receipt: truncatedReceipt
         };
         return res.json(order);
       }
@@ -67,7 +71,7 @@ async function startServer() {
         order = await rzp.orders.create({
           amount: amount * 100, // Razorpay expects amount in paise
           currency,
-          receipt,
+          receipt: truncatedReceipt,
         });
       } catch (rzpError: any) {
         // In preview environment, if Razorpay fails for any reason (auth, network, etc.)
@@ -77,7 +81,7 @@ async function startServer() {
           id: `order_mock_${Date.now()}`,
           amount: amount * 100,
           currency,
-          receipt
+          receipt: truncatedReceipt
         };
       }
 
