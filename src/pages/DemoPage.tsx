@@ -19,11 +19,20 @@ export default function DemoPage() {
     const fetchVideos = async () => {
       try {
         const response = await fetch('/api/latest-videos');
-        if (!response.ok) {
-          throw new Error('Failed to fetch videos');
+        
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.error || 'Failed to fetch videos');
+          }
+          const data = await response.json();
+          setVideos(data);
+        } else {
+          const text = await response.text();
+          console.error("Received non-JSON response:", text.substring(0, 100));
+          throw new Error("Received invalid response from server. Please try again later.");
         }
-        const data = await response.json();
-        setVideos(data);
       } catch (err: any) {
         console.error('Error fetching videos:', err);
         setError(err.message || 'Failed to load videos');
