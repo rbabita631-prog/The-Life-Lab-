@@ -6,11 +6,10 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Courses', href: '/courses', icon: GraduationCap },
-  { name: 'Test', href: '#', icon: ClipboardList },
-  { name: 'Daily Quiz', href: '#', icon: Zap },
+  { name: 'Test', href: '/test', icon: ClipboardList },
+  { name: 'Daily Quiz', href: '/quiz', icon: Zap },
   { name: 'Notes', href: '/notes', icon: FileText },
   { name: 'About Us', href: '/about', icon: LayoutGrid },
-  { name: 'Current Affairs', href: '#', icon: Zap },
   { name: 'Previous Year', href: '/notes', icon: BookOpen },
 ];
 
