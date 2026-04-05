@@ -36,14 +36,14 @@ export default function Hero() {
             </div>
             
             <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
-              Master Your <br />
+              Your Nursing <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                Nursing Career
+                Odyssey
               </span>
             </h1>
             
             <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium max-w-lg">
-              Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams. Expert-led courses designed for your success.
+              Your Voyage to AIIMS & Beyond. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.
             </p>
 
             <div className="flex flex-wrap gap-4">

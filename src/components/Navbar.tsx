@@ -43,7 +43,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
               <GraduationCap className="h-6 w-6 text-white" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Life Lab</span>
+              <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Your Nursing Odyssey</span>
             </div>
           </Link>
 

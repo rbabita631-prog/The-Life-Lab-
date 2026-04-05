@@ -12,11 +12,11 @@ export default function Footer() {
                 <GraduationCap className="h-8 w-8 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight">Life Lab</span>
+                <span className="text-2xl font-black tracking-tight">Your Nursing Odyssey</span>
               </div>
             </div>
             <p className="text-gray-400 leading-relaxed text-lg font-medium">
-              India's Premier institution established with the sole aim to initiate, enable and empower individuals to grow up to be extraordinary professionals.
+              Your Voyage to AIIMS & Beyond. India's Premier institution established with the sole aim to initiate, enable and empower individuals to grow up to be extraordinary professionals.
             </p>
             <div className="flex gap-4">
               <a href="https://www.youtube.com/@TheLifeLab111" target="_blank" rel="noopener noreferrer" className="bg-gray-800 p-3 rounded-xl hover:bg-red-600 transition-all hover:-translate-y-1 shadow-md">
@@ -87,7 +87,7 @@ export default function Footer() {
                   <div className="bg-blue-600/10 p-2 rounded-lg">
                     <Mail className="h-5 w-5 text-blue-500" />
                   </div>
-                  <p className="text-gray-400 font-medium">support@lifelab.com</p>
+                  <p className="text-gray-400 font-medium">support@nursingodyssey.com</p>
                 </div>
               </div>
             </div>
@@ -115,8 +115,8 @@ export default function Footer() {
         </div>
 
         <div className="pt-12 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-6 text-gray-500 text-sm font-bold uppercase tracking-widest">
-          <p>© 2026 Life Lab. All rights reserved.</p>
-          <p>Designed with ❤️ for Future Professionals</p>
+          <p>© 2026 Your Nursing Odyssey. All rights reserved.</p>
+          <p>Your Voyage to AIIMS & Beyond</p>
         </div>
       </div>
     </footer>
