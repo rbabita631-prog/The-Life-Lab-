@@ -81,22 +81,25 @@ export default function AdminPage() {
 
     const unsubInquiries = onSnapshot(query(collection(db, 'inquiries'), orderBy('createdAt', 'desc')), 
       (s) => setInquiries(s.docs.map(d => ({ id: d.id, ...d.data() }))),
-      (e) => handleFirestoreError(e, OperationType.LIST, 'inquiries')
+      (e) => {
+        console.error('Inquiries permission error:', e);
+        setStatus({ type: 'error', message: 'Permission Denied: You do not have access to view inquiries.' });
+      }
     );
 
     const unsubCourses = onSnapshot(query(collection(db, 'courses'), orderBy('createdAt', 'desc')), 
       (s) => setCourses(s.docs.map(d => ({ id: d.id, ...d.data() }))),
-      (e) => handleFirestoreError(e, OperationType.LIST, 'courses')
+      (e) => console.error('Courses error:', e)
     );
 
     const unsubNotes = onSnapshot(query(collection(db, 'notes'), orderBy('createdAt', 'desc')), 
       (s) => setNotes(s.docs.map(d => ({ id: d.id, ...d.data() }))),
-      (e) => handleFirestoreError(e, OperationType.LIST, 'notes')
+      (e) => console.error('Notes error:', e)
     );
 
     const unsubQuizzes = onSnapshot(query(collection(db, 'quizzes'), orderBy('createdAt', 'desc')), 
       (s) => setQuizzes(s.docs.map(d => ({ id: d.id, ...d.data() }))),
-      (e) => handleFirestoreError(e, OperationType.LIST, 'quizzes')
+      (e) => console.error('Quizzes error:', e)
     );
 
     return () => {

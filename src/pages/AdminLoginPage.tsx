@@ -32,6 +32,20 @@ export default function AdminLoginPage() {
       if (result.user.email !== ADMIN_EMAIL) {
         setAuthError("Access Denied: This account is not authorized to access the Admin Dashboard.");
       } else {
+        // Ensure the user document exists with admin role
+        try {
+          const { doc, setDoc, serverTimestamp } = await import('firebase/firestore');
+          const { db } = await import('../firebase');
+          await setDoc(doc(db, 'users', result.user.uid), {
+            email: result.user.email,
+            displayName: result.user.displayName,
+            role: 'admin',
+            lastLogin: serverTimestamp()
+          }, { merge: true });
+        } catch (docErr) {
+          console.error('Error updating user document:', docErr);
+          // We don't block navigation if this fails, but it might cause permission issues later
+        }
         navigate('/admin');
       }
     } catch (error: any) {
