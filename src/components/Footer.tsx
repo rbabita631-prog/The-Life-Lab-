@@ -40,7 +40,7 @@ export default function Footer() {
           <div>
             <h4 className="text-xl font-black mb-8 tracking-tight">Quick Links</h4>
             <ul className="space-y-4">
-              {['Paid Courses', 'Free Test Series', 'Free Quiz', 'Class Notes', 'Current Affairs', 'Previous Year'].map((link) => (
+              {['Courses', 'Test', 'Daily Quiz', 'Notes', 'Current Affairs', 'Previous Year'].map((link) => (
                 <li key={link}>
                   <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />

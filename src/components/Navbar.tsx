@@ -5,13 +5,12 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 const navLinks = [
   { name: 'Home', href: '/' },
-  { name: 'Paid Courses', href: '/courses', icon: GraduationCap },
-  { name: 'Free Test Series', href: '#', icon: ClipboardList },
-  { name: 'Free Quiz', href: '#', icon: Zap },
-  { name: 'Class Notes', href: '#study-materials', icon: FileText },
-  { name: 'Test Series', href: '#', icon: ClipboardList },
+  { name: 'Courses', href: '/courses', icon: GraduationCap },
+  { name: 'Test', href: '#', icon: ClipboardList },
+  { name: 'Daily Quiz', href: '#', icon: Zap },
+  { name: 'Notes', href: '#study-materials', icon: FileText },
+  { name: 'About Us', href: '/about', icon: LayoutGrid },
   { name: 'Current Affairs', href: '#', icon: Zap },
-  { name: 'Quick Links', href: '#', icon: LayoutGrid },
   { name: 'Previous Year', href: '#study-materials', icon: BookOpen },
 ];
 

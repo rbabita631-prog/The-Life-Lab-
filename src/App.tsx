@@ -8,6 +8,7 @@ import About from './components/About';
 import Footer from './components/Footer';
 import DemoPage from './pages/DemoPage';
 import CoursesPage from './pages/CoursesPage';
+import AboutPage from './pages/AboutPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
@@ -206,6 +207,11 @@ export default function App() {
         <Route path="/demo" element={
           <Layout theme={theme} toggleTheme={toggleTheme}>
             <DemoPage />
+          </Layout>
+        } />
+        <Route path="/about" element={
+          <Layout theme={theme} toggleTheme={toggleTheme}>
+            <AboutPage />
           </Layout>
         } />
       </Routes>
