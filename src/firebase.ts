@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from "firebase/analytics";
 import { 
   getAuth, 
   GoogleAuthProvider, 
@@ -15,6 +16,7 @@ import firebaseConfig from '../firebase-applet-config.json';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
+export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 
 // Initialize Services
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
