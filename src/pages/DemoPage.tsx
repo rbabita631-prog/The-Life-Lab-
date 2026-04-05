@@ -18,21 +18,52 @@ export default function DemoPage() {
   useEffect(() => {
     const fetchVideos = async () => {
       try {
-        const response = await fetch('/api/latest-videos');
+        let data = null;
         
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.indexOf("application/json") !== -1) {
-          if (!response.ok) {
-            const errData = await response.json();
-            throw new Error(errData.error || 'Failed to fetch videos');
+        // 1. Try to fetch from our Express backend first
+        try {
+          const response = await fetch('/api/latest-videos');
+          const contentType = response.headers.get("content-type");
+          if (response.ok && contentType && contentType.indexOf("application/json") !== -1) {
+            data = await response.json();
           }
-          const data = await response.json();
-          setVideos(data);
-        } else {
-          const text = await response.text();
-          console.error("Received non-JSON response:", text.substring(0, 100));
-          throw new Error("Received invalid response from server. Please try again later.");
+        } catch (e) {
+          console.warn("Backend fetch failed, will try fallback API", e);
         }
+
+        // 2. Fallback for static deployments (like Vercel) where /api doesn't exist
+        if (!data) {
+          console.log("Using fallback RSS to JSON API...");
+          const rssUrl = encodeURIComponent('https://www.youtube.com/feeds/videos.xml?channel_id=UCnKc0J80BfZJVNYFjbMyJOQ');
+          const fallbackResponse = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+          
+          if (!fallbackResponse.ok) {
+            throw new Error('Failed to fetch videos from fallback API');
+          }
+          
+          const fallbackData = await fallbackResponse.json();
+          if (fallbackData.status !== 'ok') {
+            throw new Error('Invalid RSS feed response');
+          }
+          
+          data = fallbackData.items.slice(0, 3).map((item: any) => {
+            // Extract video ID from guid (yt:video:VIDEO_ID) or link
+            const videoId = item.guid ? item.guid.replace('yt:video:', '') : item.link.split('v=')[1];
+            
+            // Clean up description (rss2json sometimes includes HTML)
+            const cleanDescription = item.description.replace(/<[^>]*>?/gm, '').substring(0, 150) + '...';
+            
+            return {
+              id: videoId,
+              title: item.title,
+              description: cleanDescription,
+              views: "Live",
+              date: new Date(item.pubDate).toLocaleDateString()
+            };
+          });
+        }
+
+        setVideos(data);
       } catch (err: any) {
         console.error('Error fetching videos:', err);
         setError(err.message || 'Failed to load videos');

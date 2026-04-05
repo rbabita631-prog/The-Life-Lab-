@@ -27,6 +27,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignup, setIsSignup] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -65,7 +66,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
   const handleSearch = (e: FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      console.log('Searching for:', searchQuery);
+      setSubmittedQuery(searchQuery);
     }
   };
 
@@ -122,7 +123,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
     { title: 'NORCET 6.0 Crash Course', type: 'Course', href: '/courses' },
     { title: 'Pharmacology Notes', type: 'Note', href: '/notes' },
     { title: 'Daily Anatomy Quiz', type: 'Quiz', href: '/quiz' },
-  ].filter(item => item.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  ].filter(item => item.title.toLowerCase().includes(submittedQuery.toLowerCase()));
 
   return (
     <>
@@ -291,10 +292,22 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     autoFocus
                     type="text"
                     placeholder="Search courses, tests, notes..."
-                    className="w-full bg-gray-50 dark:bg-gray-800/50 border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white pl-14 pr-6 py-4 rounded-2xl text-lg font-medium outline-none transition-all"
+                    className="w-full bg-gray-50 dark:bg-gray-800/50 border-none focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white pl-14 pr-12 py-4 rounded-2xl text-lg font-medium outline-none transition-all"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (e.target.value === '') {
+                        setSubmittedQuery('');
+                      }
+                    }}
                   />
+                  <button 
+                    type="button" 
+                    onClick={() => setIsSearchOpen(false)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  >
+                    <X className="h-6 w-6" />
+                  </button>
                 </div>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <p className="w-full text-xs font-black text-gray-400 uppercase tracking-widest mb-2">Popular Searches</p>
@@ -302,7 +315,10 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                     <button
                       key={tag}
                       type="button"
-                      onClick={() => setSearchQuery(tag)}
+                      onClick={() => {
+                        setSearchQuery(tag);
+                        setSubmittedQuery(tag);
+                      }}
                       className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-xl text-sm font-bold hover:bg-blue-600 hover:text-white transition-all"
                     >
                       {tag}
@@ -310,7 +326,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                   ))}
                 </div>
 
-                {searchQuery && (
+                {submittedQuery && (
                   <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-800">
                     <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Results</p>
                     <div className="space-y-2">
@@ -337,7 +353,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                           </button>
                         ))
                       ) : (
-                        <p className="text-sm font-medium text-gray-500 py-4 text-center">No results found for "{searchQuery}"</p>
+                        <p className="text-sm font-medium text-gray-500 py-4 text-center">No results found for "{submittedQuery}"</p>
                       )}
                     </div>
                   </div>
