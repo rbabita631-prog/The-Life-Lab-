@@ -51,16 +51,6 @@ export default function Hero() {
                 Explore Courses
                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </button>
-              
-              <button 
-                onClick={() => navigate('/demo')}
-                className="group bg-white dark:bg-gray-900 text-gray-900 dark:text-white border-2 border-gray-100 dark:border-gray-800 px-8 py-4 rounded-2xl text-base font-black hover:bg-gray-50 dark:hover:bg-gray-800 transition-all flex items-center gap-3 hover:-translate-y-1 active:scale-95"
-              >
-                <div className="bg-red-100 dark:bg-red-900/30 p-1.5 rounded-full group-hover:scale-110 transition-transform">
-                  <Play className="h-4 w-4 text-red-600 fill-current" />
-                </div>
-                Watch Demo
-              </button>
             </div>
 
             <div className="mt-12 flex items-center gap-6 border-t border-gray-100 dark:border-gray-800 pt-8">

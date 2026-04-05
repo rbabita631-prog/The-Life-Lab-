@@ -4,7 +4,6 @@ import Hero from './components/Hero';
 import FeaturedCourses from './components/FeaturedCourses';
 import StudyMaterials from './components/StudyMaterials';
 import Footer from './components/Footer';
-import DemoPage from './pages/DemoPage';
 import CoursesPage from './pages/CoursesPage';
 import AboutPage from './pages/AboutPage';
 import NotesPage from './pages/NotesPage';
@@ -194,11 +193,6 @@ export default function App() {
         <Route path="/courses" element={
           <Layout theme={theme} toggleTheme={toggleTheme}>
             <CoursesPage />
-          </Layout>
-        } />
-        <Route path="/demo" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <DemoPage />
           </Layout>
         } />
         <Route path="/about" element={
