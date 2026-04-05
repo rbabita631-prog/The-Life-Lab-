@@ -419,9 +419,9 @@ export default function AdminPage() {
                 <button onClick={() => setShowAddModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
               </div>
               <div className="p-8 overflow-y-auto custom-scrollbar">
-                {showAddModal === 'courses' && <AddCourseForm onComplete={() => setShowAddModal(null)} />}
-                {showAddModal === 'notes' && <AddNoteForm onComplete={() => setShowAddModal(null)} />}
-                {showAddModal === 'quizzes' && <AddQuizForm onComplete={() => setShowAddModal(null)} />}
+                {showAddModal === 'courses' && <AddCourseForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Course created successfully!' }); }} />}
+                {showAddModal === 'notes' && <AddNoteForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Document added successfully!' }); }} />}
+                {showAddModal === 'quizzes' && <AddQuizForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Quiz created successfully!' }); }} />}
               </div>
             </motion.div>
           </div>
@@ -434,9 +434,12 @@ export default function AdminPage() {
 // Form Components
 function AddCourseForm({ onComplete }: { onComplete: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     const formData = new FormData(e.currentTarget);
     try {
       await addDoc(collection(db, 'courses'), {
@@ -447,19 +450,24 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
         image: formData.get('image') || 'https://picsum.photos/seed/course/800/600',
         students: '0',
         rating: 5.0,
-        duration: formData.get('duration'),
+        duration: formData.get('duration') || '10+ Hours',
         instructor: {
-          name: formData.get('instructorName'),
-          role: formData.get('instructorRole'),
+          name: formData.get('instructorName') || 'Expert Faculty',
+          role: formData.get('instructorRole') || 'Nursing Specialist',
           image: 'https://picsum.photos/seed/instructor/200/200'
         },
-        learningOutcomes: [formData.get('outcome1'), formData.get('outcome2')],
-        curriculum: [{ title: 'Introduction', topics: ['Welcome'] }],
+        learningOutcomes: [
+          formData.get('outcome1') || 'Comprehensive coverage of topics',
+          formData.get('outcome2') || 'Practice questions and mock tests'
+        ],
+        curriculum: [{ title: 'Introduction', topics: ['Welcome to the course'] }],
         createdAt: serverTimestamp()
       });
       onComplete();
-    } catch (e) {
-      console.error(e);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to create course');
+      handleFirestoreError(err, OperationType.WRITE, 'courses');
     } finally {
       setLoading(false);
     }
@@ -467,6 +475,12 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+          <AlertCircle className="h-5 w-5" />
+          <p className="text-xs font-bold">{error}</p>
+        </div>
+      )}
       <div className="grid sm:grid-cols-2 gap-6">
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Course Title</label>
@@ -492,6 +506,36 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
           <input name="originalPrice" type="number" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
         </div>
       </div>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Instructor Name</label>
+          <input name="instructorName" placeholder="e.g. Dr. Smith" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Instructor Role</label>
+          <input name="instructorRole" placeholder="e.g. Senior Faculty" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Duration</label>
+          <input name="duration" placeholder="e.g. 45+ Hours" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Image URL (Optional)</label>
+          <input name="image" placeholder="https://picsum.photos/seed/course/800/600" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Learning Outcome 1</label>
+          <input name="outcome1" placeholder="e.g. Master Anatomy" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Learning Outcome 2</label>
+          <input name="outcome2" placeholder="e.g. Practice MCQs" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+      </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
         {loading ? 'Creating...' : 'Create Course'}
       </button>
@@ -501,9 +545,12 @@ function AddCourseForm({ onComplete }: { onComplete: () => void }) {
 
 function AddNoteForm({ onComplete }: { onComplete: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     const formData = new FormData(e.currentTarget);
     try {
       await addDoc(collection(db, 'notes'), {
@@ -515,8 +562,10 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
         createdAt: serverTimestamp()
       });
       onComplete();
-    } catch (e) {
-      console.error(e);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to add document');
+      handleFirestoreError(err, OperationType.WRITE, 'notes');
     } finally {
       setLoading(false);
     }
@@ -524,6 +573,12 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+          <AlertCircle className="h-5 w-5" />
+          <p className="text-xs font-bold">{error}</p>
+        </div>
+      )}
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Document Title</label>
         <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
@@ -538,12 +593,23 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
         </div>
         <div>
           <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <input name="category" required placeholder="e.g. Pharmacology" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <select name="category" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+            <option>NORCET</option>
+            <option>DSSSB</option>
+            <option>State Wise</option>
+            <option>Pharmacology</option>
+            <option>Anatomy</option>
+            <option>Other</option>
+          </select>
         </div>
       </div>
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">PDF URL</label>
         <input name="pdfUrl" required placeholder="https://example.com/file.pdf" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+        <input type="checkbox" name="isPremium" id="isPremium" className="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" />
+        <label htmlFor="isPremium" className="text-sm font-bold text-gray-700 dark:text-gray-300">Mark as Premium (Paid)</label>
       </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
         {loading ? 'Adding...' : 'Add Document'}
@@ -554,9 +620,12 @@ function AddNoteForm({ onComplete }: { onComplete: () => void }) {
 
 function AddQuizForm({ onComplete }: { onComplete: () => void }) {
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
     const formData = new FormData(e.currentTarget);
     try {
       await addDoc(collection(db, 'quizzes'), {
@@ -568,14 +637,16 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
             question: formData.get('q1'),
             options: [formData.get('o1a'), formData.get('o1b'), formData.get('o1c'), formData.get('o1d')],
             correctAnswer: parseInt(formData.get('c1') as string),
-            explanation: formData.get('e1')
+            explanation: formData.get('e1') || 'No explanation provided.'
           }
         ],
         createdAt: serverTimestamp()
       });
       onComplete();
-    } catch (e) {
-      console.error(e);
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Failed to create quiz');
+      handleFirestoreError(err, OperationType.WRITE, 'quizzes');
     } finally {
       setLoading(false);
     }
@@ -583,9 +654,28 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Quiz Title</label>
-        <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+      {error && (
+        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
+          <AlertCircle className="h-5 w-5" />
+          <p className="text-xs font-bold">{error}</p>
+        </div>
+      )}
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Quiz Title</label>
+          <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
+          <select name="category" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+            <option>Anatomy</option>
+            <option>Pharmacology</option>
+            <option>Medical Surgical</option>
+            <option>Pediatrics</option>
+            <option>OBG</option>
+            <option>Other</option>
+          </select>
+        </div>
       </div>
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
@@ -594,19 +684,28 @@ function AddQuizForm({ onComplete }: { onComplete: () => void }) {
       <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800">
         <h4 className="text-sm font-black text-blue-600 mb-4">Sample Question</h4>
         <div className="space-y-4">
-          <input name="q1" placeholder="Question text" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <input name="q1" required placeholder="Question text" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
           <div className="grid grid-cols-2 gap-4">
-            <input name="o1a" placeholder="Option 1" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1b" placeholder="Option 2" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1c" placeholder="Option 3" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1d" placeholder="Option 4" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1a" required placeholder="Option 1" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1b" required placeholder="Option 2" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1c" required placeholder="Option 3" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1d" required placeholder="Option 4" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
           </div>
-          <select name="c1" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold">
-            <option value="0">Option 1 is correct</option>
-            <option value="1">Option 2 is correct</option>
-            <option value="2">Option 3 is correct</option>
-            <option value="3">Option 4 is correct</option>
-          </select>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Correct Answer</label>
+              <select name="c1" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold">
+                <option value="0">Option 1</option>
+                <option value="1">Option 2</option>
+                <option value="2">Option 3</option>
+                <option value="3">Option 4</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Explanation</label>
+              <input name="e1" placeholder="Why is this correct?" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold" />
+            </div>
+          </div>
         </div>
       </div>
       <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
