@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, GithubAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, collection, addDoc, serverTimestamp, getDocFromServer, doc } from 'firebase/firestore';
 
 // Import the Firebase configuration from the auto-generated file
@@ -12,7 +12,6 @@ const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
-export const githubProvider = new GithubAuthProvider();
 
 // Error Handling
 export enum OperationType {
@@ -83,5 +82,4 @@ testConnection();
 
 // Auth Helpers
 export const loginWithGoogle = () => signInWithPopup(auth, googleProvider);
-export const loginWithGithub = () => signInWithPopup(auth, githubProvider);
 export const logout = () => signOut(auth);

@@ -4,7 +4,6 @@ import {
   LayoutDashboard, 
   MessageSquare, 
   Youtube, 
-  Github,
   LogOut, 
   LogIn, 
   RefreshCw, 
@@ -14,7 +13,7 @@ import {
   Loader2,
   ShieldCheck
 } from 'lucide-react';
-import { auth, db, loginWithGoogle, loginWithGithub, logout, handleFirestoreError, OperationType } from '../firebase';
+import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { 
   collection, 
@@ -118,13 +117,6 @@ export default function AdminPage() {
             >
               <LogIn className="h-6 w-6" />
               Sign in with Google
-            </button>
-            <button
-              onClick={loginWithGithub}
-              className="w-full bg-gray-800 text-white py-5 rounded-2xl text-lg font-black hover:bg-gray-900 transition-all shadow-xl shadow-gray-200 dark:shadow-none flex items-center justify-center gap-3"
-            >
-              <Github className="h-6 w-6" />
-              Sign in with GitHub
             </button>
           </div>
         </motion.div>
