@@ -4,26 +4,38 @@ import { XMLParser } from "fast-xml-parser";
 import path from "path";
 import { fileURLToPath } from "url";
 import Razorpay from "razorpay";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-let razorpay: Razorpay | null = null;
+let razorpayInstance: any = null;
 
 function getRazorpay() {
-  if (!razorpay) {
+  if (!razorpayInstance) {
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
+    
     if (!keyId || !keySecret) {
       console.warn("Razorpay keys are missing. Payment features will not work.");
       return null;
     }
-    razorpay = new Razorpay({
-      key_id: keyId,
-      key_secret: keySecret,
-    });
+
+    try {
+      // Handle potential ESM/CJS import differences
+      const RZP = (Razorpay as any).default || Razorpay;
+      razorpayInstance = new RZP({
+        key_id: keyId,
+        key_secret: keySecret,
+      });
+    } catch (error) {
+      console.error("Failed to initialize Razorpay:", error);
+      return null;
+    }
   }
-  return razorpay;
+  return razorpayInstance;
 }
 
 async function startServer() {

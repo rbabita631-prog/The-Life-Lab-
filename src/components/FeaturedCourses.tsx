@@ -284,7 +284,14 @@ declare global {
 async function handlePayment(course: any) {
   try {
     // 1. Create order on server
-    const amount = parseInt(course.price.replace(/[^\d]/g, ''));
+    const amountStr = course.price.replace(/[^\d]/g, '');
+    const amount = parseInt(amountStr);
+    
+    if (isNaN(amount) || amount <= 0) {
+      alert('This course is not available for purchase or has an invalid price.');
+      return;
+    }
+
     const response = await fetch('/api/create-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -295,7 +302,10 @@ async function handlePayment(course: any) {
       })
     });
 
-    if (!response.ok) throw new Error('Failed to create payment order');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || errorData.error || 'Failed to create payment order');
+    }
     const order = await response.json();
 
     // 2. Initialize Razorpay
