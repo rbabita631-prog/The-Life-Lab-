@@ -39,11 +39,11 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
         <div className="flex justify-between h-20 items-center">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
-            <div className="bg-blue-600 p-2 rounded-xl group-hover:rotate-12 transition-transform">
-              <GraduationCap className="h-6 w-6 text-white" />
+            <div className="bg-blue-600 p-1 rounded-xl group-hover:rotate-12 transition-transform overflow-hidden">
+              <img src="/logo.png" alt="Nursing Odyssey Logo" className="h-10 w-10 object-contain" />
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-none">Your Nursing Odyssey</span>
+              <span className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-none uppercase">Nursing Odyssey</span>
             </div>
           </Link>
 

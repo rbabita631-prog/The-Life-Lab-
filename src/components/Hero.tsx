@@ -43,7 +43,7 @@ export default function Hero() {
             </h1>
             
             <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium max-w-lg">
-              Your Voyage to AIIMS & Beyond. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.
+              Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.
             </p>
 
             <div className="flex flex-wrap gap-4">
