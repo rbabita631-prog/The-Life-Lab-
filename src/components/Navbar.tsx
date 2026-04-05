@@ -8,7 +8,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Courses', href: '/courses', icon: GraduationCap },
-  { name: 'Demo Videos', href: '/demo', icon: Youtube },
+  { name: 'Demo', href: '/demo', icon: Youtube },
   { name: 'Test', href: '/test', icon: ClipboardList },
   { name: 'Daily Quiz', href: '/quiz', icon: Zap },
   { name: 'Notes', href: '/notes', icon: FileText },

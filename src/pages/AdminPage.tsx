@@ -155,9 +155,15 @@ export default function AdminPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+    <div className="min-h-screen bg-[#f8fafc] dark:bg-[#020817] transition-colors duration-300 relative overflow-hidden">
+      {/* Background Gradients */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-400/10 dark:bg-blue-600/10 blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-purple-400/10 dark:bg-purple-600/10 blur-[120px]" />
+      </div>
+
       {/* Admin Header */}
-      <header className="bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800 sticky top-0 z-50">
+      <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="bg-blue-600 p-2 rounded-xl">
@@ -210,10 +216,10 @@ export default function AdminPage() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`mb-8 p-6 rounded-2xl flex items-center gap-4 border ${
+            className={`mb-8 p-6 rounded-2xl flex items-center gap-4 border backdrop-blur-xl shadow-lg ${
               status.type === 'success' 
-                ? 'bg-green-50 dark:bg-green-900/20 border-green-100 dark:border-green-800 text-green-700 dark:text-green-400' 
-                : 'bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-800 text-red-700 dark:text-red-400'
+                ? 'bg-green-50/80 dark:bg-green-900/30 border-green-200/50 dark:border-green-800/50 text-green-700 dark:text-green-400' 
+                : 'bg-red-50/80 dark:bg-red-900/30 border-red-200/50 dark:border-red-800/50 text-red-700 dark:text-red-400'
             }`}
           >
             {status.type === 'success' ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
@@ -226,7 +232,7 @@ export default function AdminPage() {
         {activeTab === 'dashboard' && (
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1 space-y-8">
-              <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50">
                 <div className="flex items-center gap-3 mb-6">
                   <Youtube className="h-6 w-6 text-red-600" />
                   <h2 className="text-xl font-black text-gray-900 dark:text-white">Content Sync</h2>
@@ -242,11 +248,11 @@ export default function AdminPage() {
                   {syncing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
                   Sync YouTube
                 </button>
-              </div>
+              </motion.div>
             </div>
 
             <div className="lg:col-span-2">
-              <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
                 <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <MessageSquare className="h-6 w-6 text-blue-600" />
@@ -281,7 +287,7 @@ export default function AdminPage() {
                     ))
                   )}
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         )}
@@ -302,7 +308,7 @@ export default function AdminPage() {
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {courses.map((course) => (
-                <div key={course.id} className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl group">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} key={course.id} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-white/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] group hover:-translate-y-1 transition-all duration-300">
                   <div className="relative h-48">
                     <img src={course.image} alt={course.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     <div className="absolute top-4 right-4 flex gap-2">
@@ -328,7 +334,7 @@ export default function AdminPage() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -348,7 +354,7 @@ export default function AdminPage() {
               </button>
             </div>
             
-            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {notes.map((note) => (
                   <div key={note.id} className="p-8 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
@@ -382,7 +388,7 @@ export default function AdminPage() {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         )}
 
@@ -402,7 +408,7 @@ export default function AdminPage() {
             
             <div className="grid md:grid-cols-2 gap-8">
               {quizzes.map((quiz) => (
-                <div key={quiz.id} className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} key={quiz.id} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] hover:-translate-y-1 transition-all duration-300">
                   <div className="flex justify-between items-start mb-6">
                     <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
                       <ClipboardList className="h-6 w-6 text-blue-600" />
@@ -425,7 +431,7 @@ export default function AdminPage() {
                     <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{quiz.questions.length} Questions</span>
                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{quiz.category}</span>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -437,7 +443,7 @@ export default function AdminPage() {
         {showAddModal && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddModal(null)} className="absolute inset-0 bg-gray-950/80 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", bounce: 0.3, duration: 0.6 }} className="relative w-full max-w-2xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col border border-white/20 dark:border-gray-800/50">
               <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
                 <h3 className="text-2xl font-black text-gray-900 dark:text-white">Add {showAddModal.slice(0, -1)}</h3>
                 <button onClick={() => setShowAddModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
@@ -457,7 +463,7 @@ export default function AdminPage() {
         {editingItem && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setEditingItem(null)} className="absolute inset-0 bg-gray-950/80 backdrop-blur-sm" />
-            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }} transition={{ type: "spring", bounce: 0.3, duration: 0.6 }} className="relative w-full max-w-2xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col border border-white/20 dark:border-gray-800/50">
               <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
                 <h3 className="text-2xl font-black text-gray-900 dark:text-white">Edit {editingItem.type.slice(0, -1)}</h3>
                 <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
