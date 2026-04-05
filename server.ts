@@ -1,6 +1,5 @@
 import express from "express";
 import { createServer as createViteServer } from "vite";
-import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import path from "path";
 import { fileURLToPath } from "url";
