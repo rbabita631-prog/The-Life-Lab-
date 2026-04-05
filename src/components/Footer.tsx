@@ -3,18 +3,19 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
   const quickLinks = [
+    { name: 'Home', href: '/' },
     { name: 'Courses', href: '/courses' },
     { name: 'Test', href: '/test' },
     { name: 'Daily Quiz', href: '/quiz' },
     { name: 'Notes', href: '/notes' },
-    { name: 'Previous Year', href: '/notes' },
+    { name: 'Previous Paper', href: '/notes' },
+    { name: 'About Us', href: '/about' },
   ];
 
   const legalLinks = [
     { name: 'Terms & Conditions', href: '#' },
     { name: 'Privacy Policy', href: '#' },
     { name: 'Refunds & Cancellation Policy', href: '#' },
-    { name: 'About Us', href: '/about' },
     { name: 'Contact Us', href: '#' },
   ];
 
@@ -26,7 +27,11 @@ export default function Footer() {
           <div className="space-y-8">
             <div className="flex items-center gap-3">
               <div className="bg-blue-600 p-1 rounded-2xl shadow-lg overflow-hidden">
-                <img src="/logo.png" alt="Nursing Odyssey Logo" className="h-12 w-12 object-contain" />
+                <img 
+                  src="https://cdn-icons-png.flaticon.com/512/3063/3063176.png" 
+                  alt="Nursing Odyssey Logo" 
+                  className="h-12 w-12 object-contain brightness-0 invert" 
+                />
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-black tracking-tight uppercase">Nursing Odyssey</span>
