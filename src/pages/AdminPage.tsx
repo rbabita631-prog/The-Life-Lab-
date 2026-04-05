@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import React, { useState, useEffect, FormEvent } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, 
   MessageSquare, 
@@ -11,7 +11,19 @@ import {
   CheckCircle2, 
   AlertCircle,
   Loader2,
-  ShieldCheck
+  ShieldCheck,
+  BookOpen,
+  GraduationCap,
+  ClipboardList,
+  Plus,
+  Edit,
+  Save,
+  X,
+  ChevronRight,
+  FileText,
+  Clock,
+  Star,
+  Users
 } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
@@ -24,17 +36,31 @@ import {
   deleteDoc, 
   doc, 
   setDoc,
+  addDoc,
   serverTimestamp 
 } from 'firebase/firestore';
 
 const ADMIN_EMAIL = "rbabita631@gmail.com";
 
+type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes';
+
 export default function AdminPage() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
+  
+  // Data states
   const [inquiries, setInquiries] = useState<any[]>([]);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [quizzes, setQuizzes] = useState<any[]>([]);
+  
+  // UI states
   const [syncing, setSyncing] = useState(false);
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  const [isEditing, setIsEditing] = useState<string | null>(null); // ID of item being edited
+  const [showAddModal, setShowAddModal] = useState<Tab | null>(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -49,16 +75,36 @@ export default function AdminPage() {
     return () => unsubscribe();
   }, [navigate]);
 
+  // Real-time listeners
   useEffect(() => {
-    if (user?.email === ADMIN_EMAIL) {
-      const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        setInquiries(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-      }, (error) => {
-        handleFirestoreError(error, OperationType.LIST, 'inquiries');
-      });
-      return () => unsubscribe();
-    }
+    if (!user) return;
+
+    const unsubInquiries = onSnapshot(query(collection(db, 'inquiries'), orderBy('createdAt', 'desc')), 
+      (s) => setInquiries(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => handleFirestoreError(e, OperationType.LIST, 'inquiries')
+    );
+
+    const unsubCourses = onSnapshot(query(collection(db, 'courses'), orderBy('createdAt', 'desc')), 
+      (s) => setCourses(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => handleFirestoreError(e, OperationType.LIST, 'courses')
+    );
+
+    const unsubNotes = onSnapshot(query(collection(db, 'notes'), orderBy('createdAt', 'desc')), 
+      (s) => setNotes(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => handleFirestoreError(e, OperationType.LIST, 'notes')
+    );
+
+    const unsubQuizzes = onSnapshot(query(collection(db, 'quizzes'), orderBy('createdAt', 'desc')), 
+      (s) => setQuizzes(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => handleFirestoreError(e, OperationType.LIST, 'quizzes')
+    );
+
+    return () => {
+      unsubInquiries();
+      unsubCourses();
+      unsubNotes();
+      unsubQuizzes();
+    };
   }, [user]);
 
   const handleSyncVideos = async () => {
@@ -84,12 +130,13 @@ export default function AdminPage() {
     }
   };
 
-  const handleDeleteInquiry = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this inquiry?')) return;
+  const handleDelete = async (coll: string, id: string) => {
+    if (!window.confirm(`Are you sure you want to delete this ${coll.slice(0, -1)}?`)) return;
     try {
-      await deleteDoc(doc(db, 'inquiries', id));
+      await deleteDoc(doc(db, coll, id));
+      setStatus({ type: 'success', message: 'Deleted successfully' });
     } catch (error) {
-      handleFirestoreError(error, OperationType.DELETE, `inquiries/${id}`);
+      handleFirestoreError(error, OperationType.DELETE, `${coll}/${id}`);
     }
   };
 
@@ -114,6 +161,30 @@ export default function AdminPage() {
             </div>
             <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Admin Dashboard</h1>
           </div>
+          
+          {/* Desktop Tabs */}
+          <nav className="hidden lg:flex items-center gap-2">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+              { id: 'courses', label: 'Courses', icon: GraduationCap },
+              { id: 'notes', label: 'Notes & Papers', icon: BookOpen },
+              { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as Tab)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                  activeTab === tab.id 
+                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none' 
+                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+
           <div className="flex items-center gap-6">
             <div className="hidden md:block text-right">
               <p className="text-sm font-black text-gray-900 dark:text-white">{user.displayName}</p>
@@ -143,80 +214,404 @@ export default function AdminPage() {
           >
             {status.type === 'success' ? <CheckCircle2 className="h-6 w-6" /> : <AlertCircle className="h-6 w-6" />}
             <p className="font-bold">{status.message}</p>
+            <button onClick={() => setStatus(null)} className="ml-auto"><X className="h-4 w-4" /></button>
           </motion.div>
         )}
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Controls Panel */}
-          <div className="lg:col-span-1 space-y-8">
-            <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800">
-              <div className="flex items-center gap-3 mb-6">
-                <Youtube className="h-6 w-6 text-red-600" />
-                <h2 className="text-xl font-black text-gray-900 dark:text-white">Content Sync</h2>
+        {/* Dashboard Tab */}
+        {activeTab === 'dashboard' && (
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1 space-y-8">
+              <div className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800">
+                <div className="flex items-center gap-3 mb-6">
+                  <Youtube className="h-6 w-6 text-red-600" />
+                  <h2 className="text-xl font-black text-gray-900 dark:text-white">Content Sync</h2>
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-8 leading-relaxed">
+                  Sync the latest videos from your YouTube channel.
+                </p>
+                <button
+                  disabled={syncing}
+                  onClick={handleSyncVideos}
+                  className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-xl shadow-red-200 dark:shadow-none flex items-center justify-center gap-3 disabled:opacity-50"
+                >
+                  {syncing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
+                  Sync YouTube
+                </button>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-8 leading-relaxed">
-                Sync the latest videos from your YouTube channel directly to your Firebase database.
-              </p>
-              <button
-                disabled={syncing}
-                onClick={handleSyncVideos}
-                className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-xl shadow-red-200 dark:shadow-none flex items-center justify-center gap-3 disabled:opacity-50"
+            </div>
+
+            <div className="lg:col-span-2">
+              <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+                <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="h-6 w-6 text-blue-600" />
+                    <h2 className="text-xl font-black text-gray-900 dark:text-white">User Inquiries</h2>
+                  </div>
+                  <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black">
+                    {inquiries.length} Total
+                  </span>
+                </div>
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {inquiries.length === 0 ? (
+                    <div className="p-20 text-center text-gray-400 font-bold">No inquiries found.</div>
+                  ) : (
+                    inquiries.map((inquiry) => (
+                      <div key={inquiry.id} className="p-8 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{inquiry.name}</h4>
+                            <p className="text-sm font-bold text-blue-600">{inquiry.email}</p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                              {inquiry.createdAt?.toDate().toLocaleDateString()}
+                            </span>
+                            <button onClick={() => handleDelete('inquiries', inquiry.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                              <Trash2 className="h-5 w-5" />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{inquiry.message}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Courses Tab */}
+        {activeTab === 'courses' && (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Manage Courses</h2>
+              <button 
+                onClick={() => setShowAddModal('courses')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none"
               >
-                {syncing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
-                Sync YouTube to Firebase
+                <Plus className="h-5 w-5" />
+                Add New Course
               </button>
             </div>
-          </div>
-
-          {/* Inquiries List */}
-          <div className="lg:col-span-2">
-            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
-              <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <MessageSquare className="h-6 w-6 text-blue-600" />
-                  <h2 className="text-xl font-black text-gray-900 dark:text-white">User Inquiries</h2>
-                </div>
-                <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black">
-                  {inquiries.length} Total
-                </span>
-              </div>
-
-              <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                {inquiries.length === 0 ? (
-                  <div className="p-20 text-center">
-                    <p className="text-gray-400 font-bold">No inquiries found yet.</p>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {courses.map((course) => (
+                <div key={course.id} className="bg-white dark:bg-gray-900 rounded-[2.5rem] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-xl group">
+                  <div className="relative h-48">
+                    <img src={course.image} alt={course.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <button onClick={() => handleDelete('courses', course.id)} className="bg-white/90 p-2 rounded-xl text-red-600 hover:bg-red-600 hover:text-white transition-all shadow-lg">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                ) : (
-                  inquiries.map((inquiry) => (
-                    <div key={inquiry.id} className="p-8 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
-                      <div className="flex justify-between items-start mb-4">
-                        <div>
-                          <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{inquiry.name}</h4>
-                          <p className="text-sm font-bold text-blue-600">{inquiry.email}</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
-                            {inquiry.createdAt?.toDate().toLocaleDateString()}
-                          </span>
-                          <button
-                            onClick={() => handleDeleteInquiry(inquiry.id)}
-                            className="text-gray-400 hover:text-red-600 transition-colors"
-                          >
-                            <Trash2 className="h-5 w-5" />
-                          </button>
+                  <div className="p-8">
+                    <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2 block">{course.category}</span>
+                    <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4 line-clamp-1">{course.title}</h3>
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl font-black text-gray-900 dark:text-white">{course.price}</span>
+                      <div className="flex items-center gap-2 text-gray-400 text-xs font-bold">
+                        <Users className="h-4 w-4" />
+                        {course.students}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Notes Tab */}
+        {activeTab === 'notes' && (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Notes & Papers</h2>
+              <button 
+                onClick={() => setShowAddModal('notes')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none"
+              >
+                <Plus className="h-5 w-5" />
+                Add Document
+              </button>
+            </div>
+            
+            <div className="bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-800 overflow-hidden">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {notes.map((note) => (
+                  <div key={note.id} className="p-8 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div className="flex items-center gap-6">
+                      <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                        <FileText className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{note.title}</h4>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">{note.type}</span>
+                          <span className="text-gray-300">•</span>
+                          <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{note.category}</span>
                         </div>
                       </div>
-                      <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">
-                        {inquiry.message}
-                      </p>
                     </div>
-                  ))
-                )}
+                    <div className="flex items-center gap-4">
+                      <a href={note.pdfUrl} target="_blank" rel="noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">
+                        <ChevronRight className="h-6 w-6" />
+                      </a>
+                      <button onClick={() => handleDelete('notes', note.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* Quizzes Tab */}
+        {activeTab === 'quizzes' && (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Quiz Engine</h2>
+              <button 
+                onClick={() => setShowAddModal('quizzes')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none"
+              >
+                <Plus className="h-5 w-5" />
+                Create Quiz
+              </button>
+            </div>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              {quizzes.map((quiz) => (
+                <div key={quiz.id} className="bg-white dark:bg-gray-900 p-8 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-xl">
+                  <div className="flex justify-between items-start mb-6">
+                    <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                      <ClipboardList className="h-6 w-6 text-blue-600" />
+                    </div>
+                    <button onClick={() => handleDelete('quizzes', quiz.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                      <Trash2 className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">{quiz.title}</h3>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-6 line-clamp-2">{quiz.description}</p>
+                  <div className="flex items-center justify-between pt-6 border-t border-gray-50 dark:border-gray-800">
+                    <span className="text-xs font-black text-blue-600 uppercase tracking-widest">{quiz.questions.length} Questions</span>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{quiz.category}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
+
+      {/* Add Modals */}
+      <AnimatePresence>
+        {showAddModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowAddModal(null)} className="absolute inset-0 bg-gray-950/80 backdrop-blur-sm" />
+            <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-2xl bg-white dark:bg-gray-900 rounded-[2.5rem] shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+              <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
+                <h3 className="text-2xl font-black text-gray-900 dark:text-white">Add {showAddModal.slice(0, -1)}</h3>
+                <button onClick={() => setShowAddModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
+              </div>
+              <div className="p-8 overflow-y-auto custom-scrollbar">
+                {showAddModal === 'courses' && <AddCourseForm onComplete={() => setShowAddModal(null)} />}
+                {showAddModal === 'notes' && <AddNoteForm onComplete={() => setShowAddModal(null)} />}
+                {showAddModal === 'quizzes' && <AddQuizForm onComplete={() => setShowAddModal(null)} />}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// Form Components
+function AddCourseForm({ onComplete }: { onComplete: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      await addDoc(collection(db, 'courses'), {
+        title: formData.get('title'),
+        category: formData.get('category'),
+        price: `₹${formData.get('price')}`,
+        originalPrice: `₹${formData.get('originalPrice')}`,
+        image: formData.get('image') || 'https://picsum.photos/seed/course/800/600',
+        students: '0',
+        rating: 5.0,
+        duration: formData.get('duration'),
+        instructor: {
+          name: formData.get('instructorName'),
+          role: formData.get('instructorRole'),
+          image: 'https://picsum.photos/seed/instructor/200/200'
+        },
+        learningOutcomes: [formData.get('outcome1'), formData.get('outcome2')],
+        curriculum: [{ title: 'Introduction', topics: ['Welcome'] }],
+        createdAt: serverTimestamp()
+      });
+      onComplete();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Course Title</label>
+          <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
+          <select name="category" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+            <option>NORCET</option>
+            <option>NCLEX</option>
+            <option>Foundation</option>
+            <option>State Exams</option>
+          </select>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
+          <input name="price" type="number" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Original Price (₹)</label>
+          <input name="originalPrice" type="number" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+      </div>
+      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
+        {loading ? 'Creating...' : 'Create Course'}
+      </button>
+    </form>
+  );
+}
+
+function AddNoteForm({ onComplete }: { onComplete: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      await addDoc(collection(db, 'notes'), {
+        title: formData.get('title'),
+        type: formData.get('type'),
+        category: formData.get('category'),
+        pdfUrl: formData.get('pdfUrl'),
+        isPremium: formData.get('isPremium') === 'on',
+        createdAt: serverTimestamp()
+      });
+      onComplete();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Document Title</label>
+        <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Type</label>
+          <select name="type" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
+            <option value="note">Study Note</option>
+            <option value="paper">Previous Paper</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
+          <input name="category" required placeholder="e.g. Pharmacology" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">PDF URL</label>
+        <input name="pdfUrl" required placeholder="https://example.com/file.pdf" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
+        {loading ? 'Adding...' : 'Add Document'}
+      </button>
+    </form>
+  );
+}
+
+function AddQuizForm({ onComplete }: { onComplete: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData(e.currentTarget);
+    try {
+      await addDoc(collection(db, 'quizzes'), {
+        title: formData.get('title'),
+        description: formData.get('description'),
+        category: formData.get('category'),
+        questions: [
+          {
+            question: formData.get('q1'),
+            options: [formData.get('o1a'), formData.get('o1b'), formData.get('o1c'), formData.get('o1d')],
+            correctAnswer: parseInt(formData.get('c1') as string),
+            explanation: formData.get('e1')
+          }
+        ],
+        createdAt: serverTimestamp()
+      });
+      onComplete();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Quiz Title</label>
+        <input name="title" required className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+      </div>
+      <div>
+        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
+        <textarea name="description" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all min-h-[100px]" />
+      </div>
+      <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800">
+        <h4 className="text-sm font-black text-blue-600 mb-4">Sample Question</h4>
+        <div className="space-y-4">
+          <input name="q1" placeholder="Question text" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+          <div className="grid grid-cols-2 gap-4">
+            <input name="o1a" placeholder="Option 1" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1b" placeholder="Option 2" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1c" placeholder="Option 3" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+            <input name="o1d" placeholder="Option 4" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
+          </div>
+          <select name="c1" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold">
+            <option value="0">Option 1 is correct</option>
+            <option value="1">Option 2 is correct</option>
+            <option value="2">Option 3 is correct</option>
+            <option value="3">Option 4 is correct</option>
+          </select>
+        </div>
+      </div>
+      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
+        {loading ? 'Creating...' : 'Create Quiz'}
+      </button>
+    </form>
   );
 }

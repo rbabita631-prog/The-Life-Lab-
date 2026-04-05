@@ -1,33 +1,38 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { FileText, Download, ExternalLink, Lock, Search, Filter, BookOpen, ClipboardList } from 'lucide-react';
-
-const classNotes = [
-  { id: 1, subject: 'Anatomy', topic: 'Skeletal System', date: '2024-03-20', driveLink: 'https://drive.google.com/drive/folders/1' },
-  { id: 2, subject: 'Physiology', topic: 'Cardiovascular System', date: '2024-03-18', driveLink: 'https://drive.google.com/drive/folders/2' },
-  { id: 3, subject: 'Pharmacology', topic: 'Antibiotics', date: '2024-03-15', driveLink: 'https://drive.google.com/drive/folders/3' },
-  { id: 4, subject: 'Medical Surgical', topic: 'Endocrine Disorders', date: '2024-03-12', driveLink: 'https://drive.google.com/drive/folders/4' },
-];
-
-const previousPapers = {
-  NORCET: [
-    { id: 1, title: 'NORCET 2023 Shift 1', year: 2023, link: '#' },
-    { id: 2, title: 'NORCET 2023 Shift 2', year: 2023, link: '#' },
-    { id: 3, title: 'NORCET 2022', year: 2022, link: '#' },
-  ],
-  DSSSB: [
-    { id: 1, title: 'DSSSB Nursing Officer 2021', year: 2021, link: '#' },
-    { id: 2, title: 'DSSSB Staff Nurse 2019', year: 2019, link: '#' },
-  ],
-  'State Wise': [
-    { id: 1, title: 'UPPSC Staff Nurse 2023', year: 2023, link: '#' },
-    { id: 2, title: 'MP CHO 2022', year: 2022, link: '#' },
-    { id: 3, title: 'Rajasthan CHO 2023', year: 2023, link: '#' },
-  ]
-};
+import { FileText, Download, ExternalLink, Lock, Search, Filter, BookOpen, ClipboardList, Loader2 } from 'lucide-react';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 
 export default function StudyMaterials() {
-  const [isPaidUser] = useState(false); // Mock paid status
+  const [notes, setNotes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isPaidUser] = useState(true); // Temporarily true for testing, should be based on user profile
+
+  useEffect(() => {
+    const q = query(
+      collection(db, 'notes'), 
+      where('type', '==', 'note'),
+      orderBy('createdAt', 'desc')
+    );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setNotes(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      setLoading(false);
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'notes');
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="py-20 flex flex-col items-center justify-center gap-4">
+        <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+        <p className="text-gray-500 font-bold">Loading Notes...</p>
+      </div>
+    );
+  }
 
   return (
     <section className="py-20 bg-white dark:bg-gray-950 transition-colors duration-300">
@@ -67,33 +72,41 @@ export default function StudyMaterials() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                  {classNotes.map((note) => (
-                    <tr key={note.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
-                      <td className="px-8 py-6">
-                        <span className="text-sm font-black text-gray-900 dark:text-white">{note.subject}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-sm font-bold text-gray-600 dark:text-gray-400">{note.topic}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <span className="text-sm font-medium text-gray-400 dark:text-gray-500">{note.date}</span>
-                      </td>
-                      <td className="px-8 py-6 text-right">
-                        <button
-                          disabled={!isPaidUser}
-                          onClick={() => window.open(note.driveLink, '_blank')}
-                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
-                            isPaidUser
-                              ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none'
-                              : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
-                          }`}
-                        >
-                          {isPaidUser ? <ExternalLink className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                          View Notes
-                        </button>
-                      </td>
+                  {notes.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-8 py-20 text-center text-gray-400 font-bold">No notes available yet.</td>
                     </tr>
-                  ))}
+                  ) : (
+                    notes.map((note) => (
+                      <tr key={note.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
+                        <td className="px-8 py-6">
+                          <span className="text-sm font-black text-gray-900 dark:text-white">{note.category}</span>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-sm font-bold text-gray-600 dark:text-gray-400">{note.title}</span>
+                        </td>
+                        <td className="px-8 py-6">
+                          <span className="text-sm font-medium text-gray-400 dark:text-gray-500">
+                            {note.createdAt?.toDate().toLocaleDateString() || 'Recently'}
+                          </span>
+                        </td>
+                        <td className="px-8 py-6 text-right">
+                          <button
+                            disabled={note.isPremium && !isPaidUser}
+                            onClick={() => window.open(note.pdfUrl, '_blank')}
+                            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                              !(note.isPremium && !isPaidUser)
+                                ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none'
+                                : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
+                            }`}
+                          >
+                            {!(note.isPremium && !isPaidUser) ? <ExternalLink className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
+                            View Notes
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

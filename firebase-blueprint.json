@@ -5,24 +5,10 @@
       "description": "A message sent by a user through the contact form.",
       "type": "object",
       "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the user."
-        },
-        "email": {
-          "type": "string",
-          "format": "email",
-          "description": "The email address of the user."
-        },
-        "message": {
-          "type": "string",
-          "description": "The message content."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the inquiry was created."
-        }
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["name", "email", "message", "createdAt"]
     },
@@ -38,16 +24,90 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "title", "date", "updatedAt"]
+    },
+    "course": {
+      "title": "Course",
+      "description": "A premium nursing course.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "string" },
+        "originalPrice": { "type": "string" },
+        "image": { "type": "string" },
+        "category": { "type": "string" },
+        "instructor": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "role": { "type": "string" },
+            "image": { "type": "string" }
+          }
+        },
+        "learningOutcomes": { "type": "array", "items": { "type": "string" } },
+        "curriculum": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "topics": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "students": { "type": "string" },
+        "rating": { "type": "number" },
+        "duration": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "price", "category", "createdAt"]
+    },
+    "note": {
+      "title": "Note",
+      "description": "Study notes or previous papers.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "pdfUrl": { "type": "string" },
+        "isPremium": { "type": "boolean" },
+        "price": { "type": "string" },
+        "type": { "type": "string", "enum": ["note", "paper"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "pdfUrl", "type", "createdAt"]
+    },
+    "quiz": {
+      "title": "Quiz",
+      "description": "An interactive quiz or mock test.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "question": { "type": "string" },
+              "options": { "type": "array", "items": { "type": "string" } },
+              "correctAnswer": { "type": "number" },
+              "explanation": { "type": "string" }
+            }
+          }
+        },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "questions", "createdAt"]
     }
   },
   "firestore": {
-    "/inquiries/{inquiryId}": {
-      "schema": "inquiry",
-      "description": "Collection of user inquiries."
-    },
-    "/videos/{videoId}": {
-      "schema": "video",
-      "description": "Cached YouTube videos."
-    }
+    "/inquiries/{inquiryId}": { "schema": "inquiry", "description": "User inquiries." },
+    "/videos/{videoId}": { "schema": "video", "description": "YouTube videos." },
+    "/courses/{courseId}": { "schema": "course", "description": "Premium courses." },
+    "/notes/{noteId}": { "schema": "note", "description": "Study notes and papers." },
+    "/quizzes/{quizId}": { "schema": "quiz", "description": "Interactive quizzes." }
   }
 }
