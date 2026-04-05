@@ -83,9 +83,9 @@ function HomePage({ theme, toggleTheme }: ThemeProps) {
                   
                   <div className="flex flex-wrap gap-4">
                     {[
-                      { name: 'YouTube', icon: Youtube, color: 'bg-red-600', href: 'https://youtube.com/@nursingodysseynclex?si=bAn7uMxQy5Vvf8gx' },
+                      { name: 'YouTube', icon: Youtube, color: 'bg-red-600', href: 'https://www.youtube.com/@NursingOdyssey' },
                       { name: 'Telegram', icon: Send, color: 'bg-blue-500', href: 'https://t.me/Nursing_Odyssey' },
-                      { name: 'Instagram', icon: Instagram, color: 'bg-pink-600', href: 'https://instagram.com/nursing_odyssey?igsh=MTBpZWh2OHFweTRpbw==&utm_source=qr' }
+                      { name: 'Instagram', icon: Instagram, color: 'bg-pink-600', href: 'https://www.instagram.com/nursing_odyssey?igsh=MTBpZWh2OHFweTRpbw%3D%3D&utm_source=qr' }
                     ].map((social) => (
                       <a 
                         key={social.name}

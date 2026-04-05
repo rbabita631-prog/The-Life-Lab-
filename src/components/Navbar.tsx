@@ -55,7 +55,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex items-center space-x-1">
-            {navLinks.slice(0, 5).map((link) => (
+            {navLinks.map((link) => (
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link.href)}
