@@ -1,0 +1,36 @@
+{
+  "entities": {
+    "inquiry": {
+      "title": "Inquiry",
+      "description": "A message sent by a user through the contact form.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the user."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The email address of the user."
+        },
+        "message": {
+          "type": "string",
+          "description": "The message content."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the inquiry was created."
+        }
+      },
+      "required": ["name", "email", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/inquiries/{inquiryId}": {
+      "schema": "inquiry",
+      "description": "Collection of user inquiries."
+    }
+  }
+}

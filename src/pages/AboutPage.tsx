@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
-import { GraduationCap, Target, BookOpen, MessageCircle, BarChart3, ArrowRight, Award, Users, CheckCircle2 } from 'lucide-react';
+import { GraduationCap, Target, BookOpen, MessageCircle, BarChart3, ArrowRight, Award, Users, CheckCircle2, Mail, Phone, MapPin } from 'lucide-react';
+import ContactForm from '../components/ContactForm';
 
 export default function AboutPage() {
   return (
@@ -143,6 +144,69 @@ export default function AboutPage() {
                 <p className="text-4xl font-black text-blue-600 mb-1">10k+</p>
                 <p className="text-sm font-black text-gray-500 uppercase tracking-widest">Successful Students</p>
               </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="py-24 bg-white dark:bg-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-20 items-start">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <div className="inline-flex items-center gap-2 text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest text-xs mb-6 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                <Mail className="h-4 w-4" />
+                <span>Get In Touch</span>
+              </div>
+              <h2 className="text-3xl lg:text-5xl font-black text-gray-900 dark:text-white mb-8 tracking-tight">
+                Have Questions? <br />
+                <span className="text-blue-600">We're Here to Help</span>
+              </h2>
+              <p className="text-xl text-gray-500 dark:text-gray-400 font-medium leading-relaxed mb-12">
+                Whether you're curious about our courses, need help with registration, or want to discuss your career path, our team is ready to support you.
+              </p>
+
+              <div className="space-y-8">
+                <div className="flex items-center gap-6">
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                    <Mail className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Email Us</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">support@nursingodyssey.com</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                    <Phone className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Call Us</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">+91 98765 43210</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                    <MapPin className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-gray-400 uppercase tracking-widest mb-1">Visit Us</p>
+                    <p className="text-lg font-bold text-gray-900 dark:text-white">New Delhi, India</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <ContactForm />
             </motion.div>
           </div>
         </div>
