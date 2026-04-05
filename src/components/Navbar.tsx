@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from 'react';
-import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon, LogIn, Mail, Lock, UserPlus, AlertCircle, RefreshCw } from 'lucide-react';
+import { Menu, X, BookOpen, GraduationCap, FileText, ClipboardList, Zap, LayoutGrid, Search, User, Sun, Moon, LogIn, Mail, Lock, UserPlus, AlertCircle, RefreshCw, Youtube } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { auth, loginWithGoogle, loginWithEmail, signupWithEmail, logout } from '../firebase';
@@ -8,6 +8,7 @@ import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Courses', href: '/courses', icon: GraduationCap },
+  { name: 'Demo Videos', href: '/demo', icon: Youtube },
   { name: 'Test', href: '/test', icon: ClipboardList },
   { name: 'Daily Quiz', href: '/quiz', icon: Zap },
   { name: 'Notes', href: '/notes', icon: FileText },

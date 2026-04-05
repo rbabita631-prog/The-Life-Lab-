@@ -13,6 +13,7 @@ import QuizPage from './pages/QuizPage';
 import AdminPage from './pages/AdminPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import ProfilePage from './pages/ProfilePage';
+import DemoPage from './pages/DemoPage';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
@@ -224,6 +225,11 @@ export default function App() {
         <Route path="/profile" element={
           <Layout theme={theme} toggleTheme={toggleTheme}>
             <ProfilePage />
+          </Layout>
+        } />
+        <Route path="/demo" element={
+          <Layout theme={theme} toggleTheme={toggleTheme}>
+            <DemoPage />
           </Layout>
         } />
         <Route path="/admin" element={<AdminPage />} />
