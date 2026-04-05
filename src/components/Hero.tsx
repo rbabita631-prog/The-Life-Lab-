@@ -6,10 +6,7 @@ export default function Hero() {
   const navigate = useNavigate();
 
   const scrollToCourses = () => {
-    const element = document.getElementById('courses');
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigate('/courses');
   };
 
   return (

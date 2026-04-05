@@ -4,7 +4,6 @@ import Hero from './components/Hero';
 import CategoryGrid from './components/CategoryGrid';
 import FeaturedCourses from './components/FeaturedCourses';
 import StudyMaterials from './components/StudyMaterials';
-import About from './components/About';
 import Footer from './components/Footer';
 import DemoPage from './pages/DemoPage';
 import CoursesPage from './pages/CoursesPage';

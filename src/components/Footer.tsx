@@ -1,6 +1,23 @@
 import { GraduationCap, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Apple, Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Footer() {
+  const quickLinks = [
+    { name: 'Courses', href: '/courses' },
+    { name: 'Test', href: '/test' },
+    { name: 'Daily Quiz', href: '/quiz' },
+    { name: 'Notes', href: '/notes' },
+    { name: 'Previous Year', href: '/notes' },
+  ];
+
+  const legalLinks = [
+    { name: 'Terms & Conditions', href: '#' },
+    { name: 'Privacy Policy', href: '#' },
+    { name: 'Refunds & Cancellation Policy', href: '#' },
+    { name: 'About Us', href: '/about' },
+    { name: 'Contact Us', href: '#' },
+  ];
+
   return (
     <footer className="bg-gray-900 text-white pt-24 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,12 +57,12 @@ export default function Footer() {
           <div>
             <h4 className="text-xl font-black mb-8 tracking-tight">Quick Links</h4>
             <ul className="space-y-4">
-              {['Courses', 'Test', 'Daily Quiz', 'Notes', 'Previous Year'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
+              {quickLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {link}
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -55,12 +72,12 @@ export default function Footer() {
           <div>
             <h4 className="text-xl font-black mb-8 tracking-tight">Legal</h4>
             <ul className="space-y-4">
-              {['Terms & Conditions', 'Privacy Policy', 'Refunds & Cancellation Policy', 'About Us', 'Contact Us'].map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
+              {legalLinks.map((link) => (
+                <li key={link.name}>
+                  <Link to={link.href} className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {link}
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
               ))}
             </ul>
