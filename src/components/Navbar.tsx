@@ -96,8 +96,13 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
       setIsLoginOpen(false);
       navigate('/');
     } catch (error: any) {
-      console.error('Google login error:', error);
-      setAuthError(error.message || 'Google login failed');
+      if (error.code === 'auth/popup-blocked') {
+        console.warn('Google login popup blocked (expected in iframe).');
+        setAuthError('Popup blocked by browser. Please allow popups or open the app in a new tab to login.');
+      } else {
+        console.error('Google login error:', error);
+        setAuthError(error.message || 'Google login failed');
+      }
     } finally {
       setAuthLoading(false);
     }
@@ -169,11 +174,11 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                 
                 {user ? (
                   <button 
-                    onClick={handleLogout}
+                    onClick={() => navigate('/profile')}
                     className="ml-2 flex items-center gap-2 bg-blue-600 text-white px-6 py-2.5 rounded-xl text-sm font-black hover:scale-105 transition-all shadow-lg active:scale-95"
                   >
                     <User className="h-4 w-4" />
-                    Logout
+                    Profile
                   </button>
                 ) : (
                   <button 
@@ -232,16 +237,29 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
                 </button>
               ))}
               <div className="pt-6 px-2">
-                <button 
-                  onClick={() => {
-                    setIsOpen(false);
-                    setIsLoginOpen(true);
-                  }}
-                  className="w-full flex items-center justify-center gap-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl text-base font-black shadow-xl"
-                >
-                  <User className="h-5 w-5" />
-                  Login / Register
-                </button>
+                {user ? (
+                  <button 
+                    onClick={() => {
+                      setIsOpen(false);
+                      navigate('/profile');
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-blue-600 text-white px-6 py-4 rounded-2xl text-base font-black shadow-xl"
+                  >
+                    <User className="h-5 w-5" />
+                    My Profile
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      setIsOpen(false);
+                      setIsLoginOpen(true);
+                    }}
+                    className="w-full flex items-center justify-center gap-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-6 py-4 rounded-2xl text-base font-black shadow-xl"
+                  >
+                    <User className="h-5 w-5" />
+                    Login / Register
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

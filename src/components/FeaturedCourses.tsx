@@ -308,6 +308,11 @@ async function handlePayment(course: any) {
     }
     const order = await response.json();
 
+    if (order.id && order.id.startsWith('order_mock_')) {
+      alert('Payment system is in preview mode (Razorpay keys missing/invalid). Mock payment successful!');
+      return;
+    }
+
     // 2. Initialize Razorpay
     const options = {
       key: (import.meta as any).env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder',

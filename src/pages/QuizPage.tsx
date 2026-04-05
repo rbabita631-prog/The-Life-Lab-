@@ -12,6 +12,7 @@ export default function QuizPage() {
   const [score, setScore] = useState(0);
   const [showResults, setShowResults] = useState(false);
   const [userAnswers, setUserAnswers] = useState<number[]>([]);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'quizzes'), orderBy('createdAt', 'desc'));
@@ -25,12 +26,33 @@ export default function QuizPage() {
     return () => unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (selectedQuiz && !showResults && timeLeft !== null && timeLeft > 0) {
+      const timerId = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+      return () => clearTimeout(timerId);
+    } else if (timeLeft === 0 && selectedQuiz && !showResults) {
+      setShowResults(true);
+    }
+  }, [timeLeft, selectedQuiz, showResults]);
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   const handleStartQuiz = (quiz: any) => {
+    if (!quiz.questions || quiz.questions.length === 0) {
+      alert("This quiz has no questions yet.");
+      return;
+    }
     setSelectedQuiz(quiz);
     setCurrentQuestionIndex(0);
     setScore(0);
     setShowResults(false);
     setUserAnswers([]);
+    // Set timer based on number of questions (e.g., 1 minute per question)
+    setTimeLeft(quiz.questions.length * 60);
   };
 
   const handleAnswer = (answerIndex: number) => {
@@ -68,12 +90,23 @@ export default function QuizPage() {
                 <h2 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{selectedQuiz.title}</h2>
                 <p className="text-sm font-bold text-blue-600">Question {currentQuestionIndex + 1} of {selectedQuiz.questions.length}</p>
               </div>
-              <button 
-                onClick={() => setSelectedQuiz(null)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
-              >
-                <XCircle className="h-8 w-8" />
-              </button>
+              <div className="flex items-center gap-4">
+                {timeLeft !== null && (
+                  <div className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold ${timeLeft < 60 ? 'bg-red-100 text-red-600' : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'}`}>
+                    <Timer className="h-5 w-5" />
+                    <span>{formatTime(timeLeft)}</span>
+                  </div>
+                )}
+                <button 
+                  onClick={() => {
+                    setSelectedQuiz(null);
+                    setShowResults(false);
+                  }}
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                >
+                  <XCircle className="h-8 w-8" />
+                </button>
+              </div>
             </div>
 
             <div className="mb-12">
@@ -138,7 +171,10 @@ export default function QuizPage() {
             </div>
 
             <button
-              onClick={() => setSelectedQuiz(null)}
+              onClick={() => {
+                setSelectedQuiz(null);
+                setShowResults(false);
+              }}
               className="bg-blue-600 text-white px-12 py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none"
             >
               Back to Quizzes
@@ -230,11 +266,11 @@ export default function QuizPage() {
                   <div className="grid grid-cols-2 gap-4 mb-8">
                     <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                       <Timer className="h-4 w-4" />
-                      <span className="text-sm font-bold">{quiz.questions.length} Min</span>
+                      <span className="text-sm font-bold">{quiz.questions?.length || 0} Min</span>
                     </div>
                     <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                       <CheckCircle2 className="h-4 w-4" />
-                      <span className="text-sm font-bold">{quiz.questions.length} Qs</span>
+                      <span className="text-sm font-bold">{quiz.questions?.length || 0} Qs</span>
                     </div>
                   </div>
 
