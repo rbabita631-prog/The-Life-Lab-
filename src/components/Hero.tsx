@@ -8,15 +8,7 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const filteredAnnouncements = heroSettings?.announcements?.filter((a: any) => a.isActive);
-  const announcements = (filteredAnnouncements && filteredAnnouncements.length > 0) ? filteredAnnouncements : [
-    {
-      badge: 'Admissions Open',
-      title: 'Your Nursing Odyssey',
-      subtitle: 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.',
-      launchDate: '2026-05-01',
-      price: '₹4999'
-    }
-  ];
+  const announcements = filteredAnnouncements || [];
 
   useEffect(() => {
     if (announcements.length <= 1) {
@@ -29,7 +21,7 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
     return () => clearInterval(timer);
   }, [announcements.length]);
 
-  const currentAnnouncement = announcements[currentSlide] || announcements[0];
+  const currentAnnouncement = announcements[currentSlide];
 
   const scrollToCourses = () => {
     const element = document.getElementById('courses');
@@ -43,7 +35,7 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
   const showCourses = !visibility || visibility.courses;
 
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-500">
+    <section className="relative min-h-[60vh] flex items-center overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-500">
       {/* Premium Background Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-100/50 dark:bg-blue-900/20 rounded-full blur-[120px] animate-pulse" />
@@ -52,9 +44,9 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
         <div className="absolute bottom-[20%] right-[15%] w-32 h-32 bg-indigo-200/30 dark:bg-indigo-800/10 rounded-[3rem] -rotate-12 blur-xl animate-bounce" style={{ animationDuration: '8s' }} />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-12">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div className="relative min-h-[450px] flex flex-col justify-center">
+          <div className="relative min-h-[350px] flex flex-col justify-center">
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentSlide}
@@ -64,51 +56,53 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                 className="absolute inset-0 flex flex-col justify-center"
               >
-                <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8 border border-blue-100 dark:border-blue-800 shadow-sm w-fit">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-                  </span>
-                  {currentAnnouncement.badge}
-                </div>
+                {currentAnnouncement && (
+                  <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-6 border border-blue-100 dark:border-blue-800 shadow-sm w-fit">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                    </span>
+                    {currentAnnouncement.badge}
+                  </div>
+                )}
                 
-                <h1 className="text-5xl lg:text-7xl font-black text-gray-900 dark:text-white leading-[1.05] mb-8 tracking-tight">
-                  {currentAnnouncement.title.split(' ').slice(0, -1).join(' ')} <br />
+                <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.05] mb-6 tracking-tight">
+                  {currentAnnouncement ? currentAnnouncement.title.split(' ').slice(0, -1).join(' ') : 'Your Nursing'} <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 dark:from-blue-400 dark:via-indigo-400 dark:to-blue-400 bg-[length:200%_auto] animate-gradient">
-                    {currentAnnouncement.title.split(' ').slice(-1)}
+                    {currentAnnouncement ? currentAnnouncement.title.split(' ').slice(-1) : 'Odyssey'}
                   </span>
                 </h1>
                 
-                <p className="text-lg lg:text-xl text-gray-500 dark:text-gray-400 mb-12 leading-relaxed font-medium max-w-xl">
-                  {currentAnnouncement.subtitle}
+                <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-8 leading-relaxed font-medium max-w-xl">
+                  {currentAnnouncement ? currentAnnouncement.subtitle : 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.'}
                 </p>
 
                 <div className="flex flex-wrap gap-6 items-center">
                   {showCourses && (
                     <button 
                       onClick={scrollToCourses}
-                      className="group bg-blue-600 text-white px-10 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-2xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 flex items-center gap-3 active:scale-95"
+                      className="group bg-blue-600 text-white px-8 py-4 rounded-2xl text-base font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 flex items-center gap-3 active:scale-95"
                     >
                       Explore Courses
-                      <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                   )}
                   
-                  {(currentAnnouncement.launchDate || currentAnnouncement.price) && (
-                    <div className="flex items-center gap-6 px-8 py-5 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl shadow-gray-200/50 dark:shadow-none">
+                  {currentAnnouncement && (currentAnnouncement.launchDate || currentAnnouncement.price) && (
+                    <div className="flex items-center gap-6 px-6 py-4 bg-white dark:bg-gray-900 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-lg shadow-gray-200/50 dark:shadow-none">
                       {currentAnnouncement.launchDate && (
                         <div>
                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">Starts</p>
-                          <p className="text-base font-black text-blue-600 dark:text-blue-400">{currentAnnouncement.launchDate}</p>
+                          <p className="text-sm font-black text-blue-600 dark:text-blue-400">{currentAnnouncement.launchDate}</p>
                         </div>
                       )}
                       {currentAnnouncement.launchDate && currentAnnouncement.price && (
-                        <div className="h-10 w-px bg-gray-100 dark:bg-gray-800" />
+                        <div className="h-8 w-px bg-gray-100 dark:bg-gray-800" />
                       )}
                       {currentAnnouncement.price && (
                         <div>
                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-2">Price</p>
-                          <p className="text-base font-black text-gray-900 dark:text-white">{currentAnnouncement.price}</p>
+                          <p className="text-sm font-black text-gray-900 dark:text-white">{currentAnnouncement.price}</p>
                         </div>
                       )}
                     </div>
@@ -145,7 +139,7 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
                 <img 
                   src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2070" 
                   alt="Nursing Professionals" 
-                  className="w-full h-[600px] object-cover group-hover:scale-105 transition-transform duration-700"
+                  className="w-full h-[400px] lg:h-[500px] object-cover group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/40 to-transparent" />

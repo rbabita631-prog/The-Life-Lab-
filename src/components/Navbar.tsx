@@ -15,7 +15,6 @@ const navLinks = [
   { name: 'Notes', href: '/notes', icon: FileText },
   { name: 'Previous Paper', href: '/previous-paper', icon: BookOpen },
   { name: 'About Us', href: '/about', icon: LayoutGrid },
-  { name: 'Contact Us', href: '#contact-form', icon: Mail },
 ];
 
 interface NavbarProps {
@@ -162,10 +161,13 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
   };
 
   const mockSearchResults = [
-    { title: 'NORCET 6.0 Crash Course', type: 'Course', href: '/courses' },
-    { title: 'Pharmacology Notes', type: 'Note', href: '/notes' },
-    { title: 'Daily Anatomy Quiz', type: 'Quiz', href: '/quiz' },
-  ].filter(item => item.title.toLowerCase().includes(submittedQuery.toLowerCase()));
+    { title: 'NORCET 6.0 Crash Course', type: 'Course', href: '/courses', key: 'courses' },
+    { title: 'Pharmacology Notes', type: 'Note', href: '/notes', key: 'notes' },
+    { title: 'Daily Anatomy Quiz', type: 'Quiz', href: '/quiz', key: 'dailyQuiz' },
+  ].filter(item => {
+    if (!visibility) return true;
+    return visibility[item.key] !== false;
+  }).filter(item => item.title.toLowerCase().includes(submittedQuery.toLowerCase()));
 
   return (
     <>

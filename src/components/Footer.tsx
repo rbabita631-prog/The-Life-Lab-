@@ -28,10 +28,10 @@ export default function Footer({ visibility }: FooterProps) {
   });
 
   const legalLinks = [
+    { name: 'Legal Information', href: '/legal' },
     { name: 'Terms & Conditions', href: '/terms' },
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Refunds & Cancellation Policy', href: '/refund' },
-    { name: 'Contact Us', href: '#contact-form' },
   ];
 
   return (
