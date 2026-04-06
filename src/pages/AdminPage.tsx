@@ -54,7 +54,7 @@ import {
 
 const ADMIN_EMAIL = "rbabita631@gmail.com";
 
-type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics' | 'ai' | 'settings' | 'questions';
+type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics' | 'ai' | 'settings' | 'questions' | 'enrollments' | 'users';
 
 export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) {
   const [user, setUser] = useState<User | null>(null);
@@ -69,6 +69,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [testSeries, setTestSeries] = useState<any[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
+  const [enrollments, setEnrollments] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>(null);
   
   // UI states
@@ -136,6 +137,11 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       (e) => console.error('Questions error:', e)
     );
 
+    const unsubEnrollments = onSnapshot(query(collection(db, 'enrollments'), orderBy('enrolledAt', 'desc')), 
+      (s) => setEnrollments(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => console.error('Enrollments error:', e)
+    );
+
     const unsubSettings = onSnapshot(doc(db, 'settings', 'visibility'), 
       (s) => setSettings(s.data()),
       (e) => console.error('Settings error:', e)
@@ -149,6 +155,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       unsubQuizzes();
       unsubTestSeries();
       unsubQuestions();
+      unsubEnrollments();
       unsubSettings();
     };
   }, [user]);
@@ -223,6 +230,8 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
               { id: 'questions', label: 'Question Bank', icon: Plus },
               { id: 'testSeries', label: 'Test Series', icon: FileText },
+              { id: 'enrollments', label: 'Enrollments', icon: Users },
+              { id: 'users', label: 'Users', icon: Users },
               { id: 'analytics', label: 'Analytics', icon: BarChart },
               { id: 'ai', label: 'AI Assistant', icon: Sparkles },
               { id: 'settings', label: 'Settings', icon: Sun },
@@ -541,6 +550,65 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                     </div>
                     <div className="flex items-center gap-4">
                       <button onClick={() => handleDelete('questions', q.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Enrollments Tab */}
+        {activeTab === 'enrollments' && (
+          <div className="space-y-8">
+            <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Course Enrollments</h2>
+            
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {enrollments.map((e) => (
+                  <div key={e.id} className="p-8 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div className="flex items-center gap-6">
+                      <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                        <Users className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">User: {e.userId}</h4>
+                        <p className="text-sm font-bold text-gray-500">Course: {e.courseId}</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
+                      {e.enrolledAt?.toDate().toLocaleDateString()}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Users Tab */}
+        {activeTab === 'users' && (
+          <div className="space-y-8">
+            <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">User Management</h2>
+            
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {users.map((u) => (
+                  <div key={u.id} className="p-8 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div className="flex items-center gap-6">
+                      <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                        <Users className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{u.name || 'Anonymous'}</h4>
+                        <p className="text-sm font-bold text-gray-500">{u.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{u.role || 'User'}</span>
+                      <button onClick={() => handleDelete('users', u.id)} className="text-gray-400 hover:text-red-600 transition-colors">
                         <Trash2 className="h-5 w-5" />
                       </button>
                     </div>

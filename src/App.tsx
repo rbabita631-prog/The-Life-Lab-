@@ -14,6 +14,7 @@ import AdminPage from './pages/AdminPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import ProfilePage from './pages/ProfilePage';
 import DemoPage from './pages/DemoPage';
+import PersonalizedLearningPage from './pages/PersonalizedLearningPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
@@ -257,6 +258,11 @@ export default function App() {
           <Route path="/demo" element={
             <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <DemoPage />
+            </Layout>
+          } />
+          <Route path="/personalized-learning" element={
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+              <PersonalizedLearningPage />
             </Layout>
           } />
           <Route path="/admin" element={<AdminPage theme={theme} toggleTheme={toggleTheme} />} />

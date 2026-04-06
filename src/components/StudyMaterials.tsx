@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { FileText, Download, ExternalLink, Lock, Search, Filter, BookOpen, ClipboardList, Loader2 } from 'lucide-react';
+import { FileText, Download, ExternalLink, Lock, Search, Filter, BookOpen, ClipboardList, Loader2, MessageSquare, X } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import Comments from './Comments';
 
 export default function StudyMaterials() {
   const [notes, setNotes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPaidUser] = useState(true); // Temporarily true for testing, should be based on user profile
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedNote, setSelectedNote] = useState<any>(null);
 
   useEffect(() => {
     const q = query(
@@ -24,6 +27,11 @@ export default function StudyMaterials() {
     });
     return () => unsubscribe();
   }, []);
+
+  const filteredNotes = notes.filter(note => 
+    note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    note.category.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (loading) {
     return (
@@ -52,6 +60,16 @@ export default function StudyMaterials() {
               <BookOpen className="h-6 w-6 text-blue-600" />
               Class Notes Repository
             </h3>
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input 
+                type="text"
+                placeholder="Search notes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              />
+            </div>
             {!isPaidUser && (
               <div className="inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 px-4 py-2 rounded-xl text-xs font-bold border border-amber-100 dark:border-amber-800">
                 <Lock className="h-4 w-4" />
@@ -72,12 +90,12 @@ export default function StudyMaterials() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50 dark:divide-gray-800">
-                  {notes.length === 0 ? (
+                  {filteredNotes.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="px-8 py-20 text-center text-gray-400 font-bold">No notes available yet.</td>
+                      <td colSpan={4} className="px-8 py-20 text-center text-gray-400 font-bold">No notes found.</td>
                     </tr>
                   ) : (
-                    notes.map((note) => (
+                    filteredNotes.map((note) => (
                       <tr key={note.id} className="hover:bg-gray-50/50 dark:hover:bg-gray-800/30 transition-colors">
                         <td className="px-8 py-6">
                           <span className="text-sm font-black text-gray-900 dark:text-white">{note.category}</span>
@@ -90,7 +108,13 @@ export default function StudyMaterials() {
                             {note.createdAt?.toDate().toLocaleDateString() || 'Recently'}
                           </span>
                         </td>
-                        <td className="px-8 py-6 text-right">
+                        <td className="px-8 py-6 text-right flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedNote(note)}
+                            className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                          >
+                            <MessageSquare className="h-5 w-5" />
+                          </button>
                           <button
                             disabled={note.isPremium && !isPaidUser}
                             onClick={() => window.open(note.pdfUrl, '_blank')}
@@ -101,7 +125,7 @@ export default function StudyMaterials() {
                             }`}
                           >
                             {!(note.isPremium && !isPaidUser) ? <ExternalLink className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
-                            View Notes
+                            View
                           </button>
                         </td>
                       </tr>
@@ -131,6 +155,19 @@ export default function StudyMaterials() {
           </div>
         </div>
       </div>
+
+      {selectedNote && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative">
+            <button onClick={() => setSelectedNote(null)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white">
+              <X className="h-6 w-6" />
+            </button>
+            <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{selectedNote.title}</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-8">{selectedNote.description}</p>
+            <Comments targetId={selectedNote.id} targetType="note" />
+          </div>
+        </div>
+      )}
     </section>
   );
 }

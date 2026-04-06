@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Star, Users, Clock, ArrowRight, X, CheckCircle2, Play, BookOpen, Award, GraduationCap, Loader2 } from 'lucide-react';
+import { Star, Users, Clock, ArrowRight, X, CheckCircle2, Play, BookOpen, Award, GraduationCap, Loader2, Search, Share2 } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
@@ -8,6 +8,7 @@ export default function FeaturedCourses() {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('All');
 
   useEffect(() => {
@@ -22,9 +23,23 @@ export default function FeaturedCourses() {
     return () => unsubscribe();
   }, []);
 
-  const filteredCourses = activeTab === 'All' 
-    ? courses 
-    : courses.filter(c => c.category === activeTab);
+  const filteredCourses = courses.filter(c => 
+    (activeTab === 'All' || c.category === activeTab) &&
+    c.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleShare = (course: any) => {
+    if (navigator.share) {
+      navigator.share({
+        title: course.title,
+        text: `Check out this nursing course: ${course.title}`,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
 
   if (loading) {
     return (
@@ -43,6 +58,16 @@ export default function FeaturedCourses() {
             <h2 className="text-3xl lg:text-5xl font-black text-gray-900 dark:text-white mb-4 tracking-tight">
               Featured <span className="text-blue-600">Courses</span>
             </h2>
+            <div className="relative w-full md:w-96 mb-4">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input 
+                type="text"
+                placeholder="Search courses..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-2xl font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              />
+            </div>
             <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">
               Handpicked premium courses to accelerate your learning and career growth.
             </p>
@@ -111,6 +136,9 @@ export default function FeaturedCourses() {
                     <span className="text-sm font-black text-gray-900 dark:text-white">{course.rating}</span>
                     <span className="text-gray-300 dark:text-gray-700">•</span>
                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{course.students} Students</span>
+                    <button onClick={() => handleShare(course)} className="ml-auto text-gray-400 hover:text-blue-600 transition-colors">
+                      <Share2 className="h-4 w-4" />
+                    </button>
                   </div>
 
                   <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4 leading-tight group-hover:text-blue-600 transition-colors">

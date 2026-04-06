@@ -109,30 +109,40 @@ export default function QuizPage() {
               </div>
             </div>
 
-            <div className="mb-12">
-              <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
-                {currentQuestion.question}
-              </h3>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentQuestionIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="mb-12">
+                  <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-200 leading-relaxed">
+                    {currentQuestion.question}
+                  </h3>
+                </div>
 
-            <div className="grid gap-4">
-              {currentQuestion.options.map((option: string, idx: number) => (
-                <button
-                  key={idx}
-                  onClick={() => handleAnswer(idx)}
-                  className="w-full text-left p-6 rounded-2xl border-2 border-gray-100 dark:border-gray-800 hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm font-black text-gray-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                      {String.fromCharCode(65 + idx)}
-                    </span>
-                    <span className="text-lg font-bold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
-                      {option}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </div>
+                <div className="grid gap-4">
+                  {currentQuestion.options.map((option: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleAnswer(idx)}
+                      className="w-full text-left p-6 rounded-2xl border-2 border-gray-100 dark:border-gray-800 hover:border-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm font-black text-gray-500 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                          {String.fromCharCode(65 + idx)}
+                        </span>
+                        <span className="text-lg font-bold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">
+                          {option}
+                        </span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </div>
@@ -154,17 +164,25 @@ export default function QuizPage() {
               {selectedQuiz.questions.map((q: any, idx: number) => (
                 <div key={idx} className="p-6 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-800">
                   <p className="font-bold text-gray-900 dark:text-white mb-4">{idx + 1}. {q.question}</p>
-                  <div className="flex flex-wrap gap-4">
-                    <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black ${
-                      userAnswers[idx] === q.correctAnswer ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                    }`}>
-                      Your Answer: {q.options[userAnswers[idx]]}
-                    </span>
-                    {userAnswers[idx] !== q.correctAnswer && (
-                      <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black bg-green-100 text-green-700">
-                        Correct: {q.options[q.correctAnswer]}
-                      </span>
-                    )}
+                  <div className="grid gap-2">
+                    {q.options.map((option: string, optIdx: number) => {
+                      const isSelected = userAnswers[idx] === optIdx;
+                      const isCorrect = optIdx === q.correctAnswer;
+                      const isWrong = isSelected && !isCorrect;
+
+                      return (
+                        <div
+                          key={optIdx}
+                          className={`p-4 rounded-xl border-2 font-bold ${
+                            isCorrect ? 'border-green-500 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300' :
+                            isWrong ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' :
+                            'border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-300'
+                          }`}
+                        >
+                          {String.fromCharCode(65 + optIdx)}. {option}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               ))}

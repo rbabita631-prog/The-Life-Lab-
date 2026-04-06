@@ -145,6 +145,31 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["question", "options", "correctAnswer", "createdAt"]
+    },
+    "enrollment": {
+      "title": "Enrollment",
+      "description": "A user enrollment in a course.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "courseId": { "type": "string" },
+        "enrolledAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "courseId", "enrolledAt"]
+    },
+    "comment": {
+      "title": "Comment",
+      "description": "A comment on a test question or note.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "content": { "type": "string" },
+        "targetId": { "type": "string" },
+        "targetType": { "type": "string", "enum": ["question", "note"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "userName", "content", "targetId", "targetType", "createdAt"]
     }
   },
   "firestore": {
@@ -154,6 +179,8 @@
     "/notes/{noteId}": { "schema": "note", "description": "Study notes and papers." },
     "/quizzes/{quizId}": { "schema": "quiz", "description": "Interactive quizzes." },
     "/settings/visibility": { "schema": "settings", "description": "Visibility settings." },
-    "/questions/{questionId}": { "schema": "question", "description": "Question bank." }
+    "/questions/{questionId}": { "schema": "question", "description": "Question bank." },
+    "/enrollments/{enrollmentId}": { "schema": "enrollment", "description": "Course enrollments." },
+    "/comments/{commentId}": { "schema": "comment", "description": "Comments on questions or notes." }
   }
 }

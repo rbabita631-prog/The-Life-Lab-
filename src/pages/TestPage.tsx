@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { motion } from 'motion/react';
-import { ClipboardList, Clock, Award, CheckCircle2, ArrowRight, Star, ShieldCheck } from 'lucide-react';
+import { ClipboardList, Clock, Award, CheckCircle2, ArrowRight, Star, ShieldCheck, Search, Share2 } from 'lucide-react';
 
 const testSeries = [
   {
@@ -45,6 +46,25 @@ const testSeries = [
 ];
 
 export default function TestPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredTests = testSeries.filter(test => 
+    test.title.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const handleShare = (test: any) => {
+    if (navigator.share) {
+      navigator.share({
+        title: test.title,
+        text: `Check out this nursing test series: ${test.title}`,
+        url: window.location.href,
+      }).catch(console.error);
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert('Link copied to clipboard!');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 transition-colors duration-300">
       {/* Hero Section */}
@@ -92,16 +112,22 @@ export default function TestPage() {
       {/* Test Grid */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6">
             <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Available Test Series</h2>
-            <div className="flex gap-2">
-              <button className="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl text-sm font-black">All Tests</button>
-              <button className="px-4 py-2 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900 rounded-xl text-sm font-bold">Free Demo</button>
+            <div className="relative w-full md:w-96">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input 
+                type="text"
+                placeholder="Search tests..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+              />
             </div>
           </div>
 
           <div className="grid md:grid-cols-2 gap-8">
-            {testSeries.map((test, idx) => (
+            {filteredTests.map((test, idx) => (
               <motion.div
                 key={test.id}
                 initial={{ opacity: 0, y: 20 }}
@@ -114,9 +140,14 @@ export default function TestPage() {
                   <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-2xl group-hover:bg-blue-600 transition-colors">
                     <ClipboardList className="h-6 w-6 text-blue-600 dark:text-blue-400 group-hover:text-white" />
                   </div>
-                  <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    {test.tag}
-                  </span>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleShare(test)} className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                      <Share2 className="h-5 w-5" />
+                    </button>
+                    <span className="bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                      {test.tag}
+                    </span>
+                  </div>
                 </div>
 
                 <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 transition-colors">{test.title}</h3>
