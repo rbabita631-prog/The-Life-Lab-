@@ -54,7 +54,7 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
               {subtitleText}
             </p>
 
-            <div className="flex flex-wrap gap-4">
+            <div className="flex flex-wrap gap-4 items-center">
               {showCourses && (
                 <button 
                   onClick={scrollToCourses}
@@ -63,6 +63,26 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
                   Explore Courses
                   <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                 </button>
+              )}
+              
+              {(heroSettings?.launchDate || heroSettings?.price) && (
+                <div className="flex items-center gap-4 px-6 py-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                  {heroSettings.launchDate && (
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Starts</p>
+                      <p className="text-sm font-black text-blue-600 dark:text-blue-400">{heroSettings.launchDate}</p>
+                    </div>
+                  )}
+                  {heroSettings.launchDate && heroSettings.price && (
+                    <div className="h-8 w-px bg-gray-200 dark:bg-gray-800" />
+                  )}
+                  {heroSettings.price && (
+                    <div>
+                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Price</p>
+                      <p className="text-sm font-black text-gray-900 dark:text-white">{heroSettings.price}</p>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
 

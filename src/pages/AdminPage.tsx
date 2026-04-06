@@ -926,9 +926,15 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-10">
-                    <p className="text-gray-500 font-medium mb-4">No visibility settings found.</p>
-                    <button onClick={handleInitializeSettings} className="text-blue-600 font-black text-sm uppercase tracking-widest">Initialize</button>
+                  <div className="text-center py-10 bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl border-2 border-dashed border-blue-200 dark:border-blue-800">
+                    <LayoutGrid className="h-10 w-10 text-blue-400 mx-auto mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400 font-bold mb-4">Navigation settings not initialized</p>
+                    <button 
+                      onClick={handleInitializeSettings} 
+                      className="bg-blue-600 text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all"
+                    >
+                      Initialize Now
+                    </button>
                   </div>
                 )}
               </div>
@@ -998,9 +1004,15 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                     </button>
                   </form>
                 ) : (
-                  <div className="text-center py-10">
-                    <p className="text-gray-500 font-medium mb-4">No hero settings found.</p>
-                    <button onClick={handleInitializeSettings} className="text-blue-600 font-black text-sm uppercase tracking-widest">Initialize</button>
+                  <div className="text-center py-10 bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl border-2 border-dashed border-blue-200 dark:border-blue-800">
+                    <Sun className="h-10 w-10 text-blue-400 mx-auto mb-4" />
+                    <p className="text-gray-600 dark:text-gray-400 font-bold mb-4">Hero settings not initialized</p>
+                    <button 
+                      onClick={handleInitializeSettings} 
+                      className="bg-blue-600 text-white px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-blue-700 transition-all"
+                    >
+                      Initialize Now
+                    </button>
                   </div>
                 )}
               </div>

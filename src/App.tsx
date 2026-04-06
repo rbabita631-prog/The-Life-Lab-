@@ -30,6 +30,7 @@ import FeaturedCourses from './components/FeaturedCourses';
 import StudyMaterials from './components/StudyMaterials';
 import CategoryGrid from './components/CategoryGrid';
 import ContactForm from './components/ContactForm';
+import AnnouncementBar from './components/AnnouncementBar';
 
 interface ThemeProps {
   theme: 'light' | 'dark';
@@ -40,11 +41,13 @@ interface ThemeProps {
 interface LayoutProps extends ThemeProps {
   children: ReactNode;
   visibility: any;
+  heroSettings: any;
 }
 
-function Layout({ children, theme, toggleTheme, visibility }: LayoutProps) {
+function Layout({ children, theme, toggleTheme, visibility, heroSettings }: LayoutProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
+      <AnnouncementBar heroSettings={heroSettings} />
       <Navbar theme={theme} toggleTheme={toggleTheme} visibility={visibility} />
       <Suspense fallback={
         <div className="min-h-screen flex items-center justify-center">
@@ -262,67 +265,67 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           <Route path="/" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <HomePage theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings} />
             </Layout>
           } />
           <Route path="/courses" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <CoursesPage />
             </Layout>
           } />
           <Route path="/about" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <AboutPage />
             </Layout>
           } />
           <Route path="/notes" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <NotesPage />
             </Layout>
           } />
           <Route path="/previous-paper" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <PreviousPaperPage />
             </Layout>
           } />
           <Route path="/test" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <TestPage />
             </Layout>
           } />
           <Route path="/quiz" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <QuizPage />
             </Layout>
           } />
           <Route path="/profile" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <ProfilePage />
             </Layout>
           } />
           <Route path="/demo" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <DemoPage />
             </Layout>
           } />
           <Route path="/personalized-learning" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <PersonalizedLearningPage />
             </Layout>
           } />
           <Route path="/terms" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <TermsPage />
             </Layout>
           } />
           <Route path="/privacy" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <PrivacyPage />
             </Layout>
           } />
           <Route path="/refund" element={
-            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings}>
               <RefundPage />
             </Layout>
           } />
