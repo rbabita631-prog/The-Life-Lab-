@@ -21,10 +21,14 @@ const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const DemoPage = lazy(() => import('./pages/DemoPage'));
 const PersonalizedLearningPage = lazy(() => import('./pages/PersonalizedLearningPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const RefundPage = lazy(() => import('./pages/RefundPage'));
 
 import FeaturedCourses from './components/FeaturedCourses';
 import StudyMaterials from './components/StudyMaterials';
 import CategoryGrid from './components/CategoryGrid';
+import ContactForm from './components/ContactForm';
 
 interface ThemeProps {
   theme: 'light' | 'dark';
@@ -53,7 +57,7 @@ function Layout({ children, theme, toggleTheme, visibility }: LayoutProps) {
   );
 }
 
-function HomePage({ theme, toggleTheme, visibility }: ThemeProps) {
+function HomePage({ theme, toggleTheme, visibility, heroSettings }: ThemeProps & { heroSettings: any }) {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -78,13 +82,54 @@ function HomePage({ theme, toggleTheme, visibility }: ThemeProps) {
       />
       
       <main>
-        <Hero visibility={visibility} />
+        <Hero visibility={visibility} heroSettings={heroSettings} />
         
         {visibility?.courses && <FeaturedCourses />}
         {visibility?.notes && <StudyMaterials />}
         <CategoryGrid visibility={visibility} />
         
-        {/* Combined Community & Newsletter - More Aesthetic & Compact */}
+        {/* Contact Form Section */}
+        <section id="contact" className="py-24 bg-gray-50 dark:bg-gray-950 transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8 border border-blue-100 dark:border-blue-800">
+                  <Bell className="h-4 w-4" />
+                  Get in Touch
+                </div>
+                <h2 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-8 tracking-tight">
+                  Have Questions? <br />
+                  <span className="text-blue-600">We're Here to Help</span>
+                </h2>
+                <p className="text-lg text-gray-500 dark:text-gray-400 mb-12 font-medium leading-relaxed max-w-lg">
+                  Whether you're looking for course details, technical support, or career guidance, our expert team is ready to assist you.
+                </p>
+                
+                <div className="space-y-6">
+                  {[
+                    { icon: Mail, label: 'Email Us', value: 'support@nursingodyssey.com' },
+                    { icon: Send, label: 'Telegram', value: '@Nursing_Odyssey' },
+                    { icon: Instagram, label: 'Instagram', value: '@nursing_odyssey' }
+                  ].map((item) => (
+                    <div key={item.label} className="flex items-center gap-4">
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                        <item.icon className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
+                        <p className="text-base font-bold text-gray-900 dark:text-white">{item.value}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <ContactForm />
+            </div>
+          </div>
+        </section>
+
+        {/* Combined Community & Newsletter */}
         <section className="py-20 bg-white dark:bg-gray-950">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="relative bg-gray-900 dark:bg-blue-900/20 rounded-[3rem] p-8 lg:p-20 overflow-hidden border border-gray-800 dark:border-blue-500/20">
@@ -195,12 +240,23 @@ export default function App() {
     return 'light';
   });
   const [visibility, setVisibility] = useState<any>(null);
+  const [heroSettings, setHeroSettings] = useState<any>(null);
 
   useEffect(() => {
     const unsub = onSnapshot(doc(db, 'settings', 'visibility'), (s) => {
       setVisibility(s.data()?.visibility);
     });
-    return () => unsub();
+    
+    const unsubHero = onSnapshot(doc(db, 'settings', 'hero'), (s) => {
+      if (s.exists()) {
+        setHeroSettings(s.data());
+      }
+    });
+
+    return () => {
+      unsub();
+      unsubHero();
+    };
   }, []);
 
   useEffect(() => {
@@ -231,7 +287,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={
             <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
-              <HomePage theme={theme} toggleTheme={toggleTheme} visibility={visibility} />
+              <HomePage theme={theme} toggleTheme={toggleTheme} visibility={visibility} heroSettings={heroSettings} />
             </Layout>
           } />
           <Route path="/courses" element={
@@ -277,6 +333,21 @@ export default function App() {
           <Route path="/personalized-learning" element={
             <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <PersonalizedLearningPage />
+            </Layout>
+          } />
+          <Route path="/terms" element={
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+              <TermsPage />
+            </Layout>
+          } />
+          <Route path="/privacy" element={
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+              <PrivacyPage />
+            </Layout>
+          } />
+          <Route path="/refund" element={
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+              <RefundPage />
             </Layout>
           } />
           <Route path="/admin" element={

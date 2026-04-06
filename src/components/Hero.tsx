@@ -2,14 +2,23 @@ import { Play, ArrowRight, Star, Users, Award, GraduationCap } from 'lucide-reac
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Hero({ visibility }: { visibility?: any }) {
+export default function Hero({ visibility, heroSettings }: { visibility?: any, heroSettings?: any }) {
   const navigate = useNavigate();
 
   const scrollToCourses = () => {
-    navigate('/courses');
+    const element = document.getElementById('courses');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/courses');
+    }
   };
 
   const showCourses = !visibility || visibility.courses;
+
+  const badgeText = heroSettings?.badge || 'New Batch Starting Soon';
+  const titleText = heroSettings?.title || 'Your Nursing Odyssey';
+  const subtitleText = heroSettings?.subtitle || 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.';
 
   return (
     <div className="relative min-h-[80vh] flex items-center overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-300">
@@ -31,18 +40,18 @@ export default function Hero({ visibility }: { visibility?: any }) {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
-              New Batch Starting Soon
+              {badgeText}
             </div>
             
             <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
-              Your Nursing <br />
+              {titleText.split(' ').slice(0, -1).join(' ')} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                Odyssey
+                {titleText.split(' ').slice(-1)}
               </span>
             </h1>
             
             <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium max-w-lg">
-              Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.
+              {subtitleText}
             </p>
 
             <div className="flex flex-wrap gap-4">

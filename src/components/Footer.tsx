@@ -22,10 +22,10 @@ export default function Footer({ visibility }: FooterProps) {
   });
 
   const legalLinks = [
-    { name: 'Terms & Conditions', href: '#' },
-    { name: 'Privacy Policy', href: '#' },
-    { name: 'Refunds & Cancellation Policy', href: '#' },
-    { name: 'Contact Us', href: '#' },
+    { name: 'Terms & Conditions', href: '/terms' },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Refunds & Cancellation Policy', href: '/refund' },
+    { name: 'Contact Us', href: '#contact' },
   ];
 
   return (
@@ -86,10 +86,25 @@ export default function Footer({ visibility }: FooterProps) {
             <ul className="space-y-4">
               {legalLinks.map((link) => (
                 <li key={link.name}>
-                  <Link to={link.href} className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
-                    <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {link.name}
-                  </Link>
+                  {link.href.startsWith('#') ? (
+                    <button 
+                      onClick={() => {
+                        const element = document.getElementById(link.href.substring(1));
+                        if (element) {
+                          element.scrollIntoView({ behavior: 'smooth' });
+                        }
+                      }}
+                      className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium"
+                    >
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {link.name}
+                    </button>
+                  ) : (
+                    <Link to={link.href} className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
+                      <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {link.name}
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

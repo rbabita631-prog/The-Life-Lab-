@@ -2,6 +2,7 @@ import React, { useState, useEffect, FormEvent } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LayoutDashboard, 
+  LayoutGrid,
   MessageSquare, 
   Youtube, 
   LogOut, 
@@ -72,6 +73,8 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
   const [questions, setQuestions] = useState<any[]>([]);
   const [enrollments, setEnrollments] = useState<any[]>([]);
   const [settings, setSettings] = useState<any>(null);
+  const [heroSettings, setHeroSettings] = useState<any>(null);
+  const [isSavingHero, setIsSavingHero] = useState(false);
   
   // UI states
   const [syncing, setSyncing] = useState(false);
@@ -145,11 +148,18 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       (s) => {
         if (s.exists()) {
           setSettings(s.data());
-        } else {
-          setSettings({ visibility: null });
         }
       },
       (e) => console.error('Settings error:', e)
+    );
+
+    const unsubHero = onSnapshot(doc(db, 'settings', 'hero'), 
+      (s) => {
+        if (s.exists()) {
+          setHeroSettings(s.data());
+        }
+      },
+      (e) => console.error('Hero error:', e)
     );
 
     return () => {
@@ -162,6 +172,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       unsubQuestions();
       unsubEnrollments();
       unsubSettings();
+      unsubHero();
     };
   }, [user]);
 
@@ -223,9 +234,31 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
           personalizedLearning: true,
         }
       });
+      
+      await setDoc(doc(db, 'settings', 'hero'), {
+        badge: 'New Batch Starting Soon',
+        title: 'Your Nursing Odyssey',
+        subtitle: 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.',
+        launchDate: '2026-05-01',
+        price: '₹4999'
+      });
+
       setStatus({ type: 'success', message: 'Settings initialized with defaults' });
     } catch (error) {
-      handleFirestoreError(error, OperationType.WRITE, 'settings/visibility');
+      handleFirestoreError(error, OperationType.WRITE, 'settings');
+    }
+  };
+
+  const handleSaveHero = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingHero(true);
+    try {
+      await setDoc(doc(db, 'settings', 'hero'), heroSettings);
+      setStatus({ type: 'success', message: 'Hero settings updated successfully!' });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'settings/hero');
+    } finally {
+      setIsSavingHero(false);
     }
   };
 
@@ -856,9 +889,9 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 
         {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="space-y-8">
+          <div className="space-y-12">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Visibility Settings</h2>
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Platform Configuration</h2>
               <button 
                 onClick={handleInitializeSettings}
                 className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-600 hover:text-white transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-900"
@@ -868,39 +901,109 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               </button>
             </div>
             
-            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
-              {settings?.visibility ? (
-                <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                  {Object.entries(settings.visibility).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between py-6 first:pt-0 last:pb-0">
-                      <div>
-                        <span className="text-lg font-black text-gray-900 dark:text-white capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Toggle visibility on main navigation</p>
+            <div className="grid lg:grid-cols-2 gap-8">
+              {/* Visibility Settings */}
+              <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-xl">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <LayoutGrid className="h-5 w-5 text-blue-600" />
+                  Navigation Visibility
+                </h3>
+                {settings?.visibility ? (
+                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                    {Object.entries(settings.visibility).map(([key, value]) => (
+                      <div key={key} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+                        <div>
+                          <span className="text-sm font-black text-gray-900 dark:text-white capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Show in main menu</p>
+                        </div>
+                        <button
+                          onClick={() => handleToggleVisibility(key, value as boolean)}
+                          className={`w-12 h-7 rounded-full transition-all relative p-1 ${value ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-200 dark:bg-gray-800'}`}
+                        >
+                          <div className={`w-5 h-5 bg-white rounded-full shadow-sm transition-all transform ${value ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </button>
                       </div>
-                      <button
-                        onClick={() => handleToggleVisibility(key, value as boolean)}
-                        className={`w-16 h-9 rounded-full transition-all relative p-1 ${value ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-200 dark:bg-gray-800'}`}
-                      >
-                        <div className={`w-7 h-7 bg-white rounded-full shadow-sm transition-all transform ${value ? 'translate-x-7' : 'translate-x-0'}`} />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-20">
-                  <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Sun className="h-10 w-10 text-blue-600" />
+                    ))}
                   </div>
-                  <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">No Settings Found</h3>
-                  <p className="text-gray-500 dark:text-gray-400 font-medium mb-8">Initialize your platform visibility settings to get started.</p>
-                  <button
-                    onClick={handleInitializeSettings}
-                    className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95"
-                  >
-                    Initialize Settings
-                  </button>
-                </div>
-              )}
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-gray-500 font-medium mb-4">No visibility settings found.</p>
+                    <button onClick={handleInitializeSettings} className="text-blue-600 font-black text-sm uppercase tracking-widest">Initialize</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Hero & Announcement Settings */}
+              <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-xl">
+                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                  <Sun className="h-5 w-5 text-blue-600" />
+                  Hero & Announcements
+                </h3>
+                {heroSettings ? (
+                  <form onSubmit={handleSaveHero} className="space-y-4">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Badge Text (e.g. New Batch)</label>
+                      <input
+                        type="text"
+                        value={heroSettings.badge}
+                        onChange={(e) => setHeroSettings({ ...heroSettings, badge: e.target.value })}
+                        className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hero Title</label>
+                      <input
+                        type="text"
+                        value={heroSettings.title}
+                        onChange={(e) => setHeroSettings({ ...heroSettings, title: e.target.value })}
+                        className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hero Subtitle</label>
+                      <textarea
+                        rows={3}
+                        value={heroSettings.subtitle}
+                        onChange={(e) => setHeroSettings({ ...heroSettings, subtitle: e.target.value })}
+                        className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all resize-none"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
+                        <input
+                          type="text"
+                          value={heroSettings.launchDate}
+                          onChange={(e) => setHeroSettings({ ...heroSettings, launchDate: e.target.value })}
+                          className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price Info</label>
+                        <input
+                          type="text"
+                          value={heroSettings.price}
+                          onChange={(e) => setHeroSettings({ ...heroSettings, price: e.target.value })}
+                          className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      disabled={isSavingHero}
+                      type="submit"
+                      className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                      {isSavingHero ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                      Save Hero Settings
+                    </button>
+                  </form>
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-gray-500 font-medium mb-4">No hero settings found.</p>
+                    <button onClick={handleInitializeSettings} className="text-blue-600 font-black text-sm uppercase tracking-widest">Initialize</button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

@@ -15,6 +15,7 @@ const navLinks = [
   { name: 'Notes', href: '/notes', icon: FileText },
   { name: 'Previous Paper', href: '/previous-paper', icon: BookOpen },
   { name: 'About Us', href: '/about', icon: LayoutGrid },
+  { name: 'Contact Us', href: '#contact', icon: Mail },
 ];
 
 interface NavbarProps {
