@@ -1,4 +1,4 @@
-import { Instagram, Youtube, Mail, Phone, MapPin, Apple, Play } from 'lucide-react';
+import { GraduationCap, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Apple, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function Footer() {
@@ -31,6 +31,7 @@ export default function Footer() {
                   src="https://cdn-icons-png.flaticon.com/512/3063/3063176.png" 
                   alt="Nursing Odyssey Logo" 
                   className="h-12 w-12 object-contain brightness-0 invert" 
+                  loading="lazy"
                 />
               </div>
               <div className="flex flex-col">

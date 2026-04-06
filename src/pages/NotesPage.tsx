@@ -1,6 +1,8 @@
 import { motion } from 'motion/react';
-import StudyMaterials from '../components/StudyMaterials';
-import { BookOpen, FileText, Download, Shield, Zap, Search } from 'lucide-react';
+import { BookOpen, FileText, Download, Shield, Zap, Search, Loader2 } from 'lucide-react';
+import { lazy, Suspense } from 'react';
+
+const StudyMaterials = lazy(() => import('../components/StudyMaterials'));
 
 export default function NotesPage() {
   return (
@@ -28,7 +30,9 @@ export default function NotesPage() {
       </section>
 
       {/* Main Content */}
-      <StudyMaterials />
+      <Suspense fallback={<div className="py-20 flex justify-center"><Loader2 className="h-12 w-12 animate-spin text-blue-600" /></div>}>
+        <StudyMaterials />
+      </Suspense>
 
       {/* Features Section */}
       <section className="py-20 bg-gray-50 dark:bg-gray-900/50">

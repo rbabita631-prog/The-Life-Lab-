@@ -1,6 +1,8 @@
 import { motion } from 'motion/react';
-import { GraduationCap, Target, BookOpen, MessageCircle, BarChart3, ArrowRight, Award, Users, CheckCircle2, Mail, Phone, MapPin } from 'lucide-react';
-import ContactForm from '../components/ContactForm';
+import { GraduationCap, Target, BookOpen, MessageCircle, BarChart3, ArrowRight, Award, Users, CheckCircle2, Mail, Phone, MapPin, Loader2 } from 'lucide-react';
+import { lazy, Suspense } from 'react';
+
+const ContactForm = lazy(() => import('../components/ContactForm'));
 
 export default function AboutPage() {
   return (
@@ -26,6 +28,7 @@ export default function AboutPage() {
                   alt="Our Mentors"
                   className="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-700"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-blue-900/60 via-transparent to-transparent" />
               </div>
@@ -138,6 +141,7 @@ export default function AboutPage() {
                   alt="Nursing Education"
                   className="w-full aspect-square object-cover"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
               </div>
               <div className="absolute -bottom-8 -right-8 bg-white dark:bg-gray-900 p-8 rounded-[2rem] shadow-2xl border border-gray-100 dark:border-gray-800 hidden md:block">
@@ -206,7 +210,9 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <ContactForm />
+              <Suspense fallback={<div className="flex justify-center py-20"><Loader2 className="h-12 w-12 animate-spin text-blue-600" /></div>}>
+                <ContactForm />
+              </Suspense>
             </motion.div>
           </div>
         </div>

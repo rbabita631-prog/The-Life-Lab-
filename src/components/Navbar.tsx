@@ -144,6 +144,15 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
   const mockSearchResults = [
     { title: 'NORCET 6.0 Crash Course', type: 'Course', href: '/courses' },
     { title: 'Pharmacology Notes', type: 'Note', href: '/notes' },
@@ -162,6 +171,7 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
                   src="https://cdn-icons-png.flaticon.com/512/3063/3063176.png" 
                   alt="Nursing Odyssey Logo" 
                   className="h-10 w-10 object-contain brightness-0 invert" 
+                  loading="lazy"
                 />
               </div>
               <div className="flex flex-col">
@@ -546,7 +556,7 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
                         disabled={authLoading}
                         className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white py-4 rounded-2xl text-sm font-black hover:bg-gray-50 dark:hover:bg-gray-700 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
                       >
-                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" />
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="h-5 w-5" loading="lazy" />
                         Google
                       </button>
                     </div>

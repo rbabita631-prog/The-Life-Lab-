@@ -1,4 +1,4 @@
-import { ArrowRight, Star, Users, GraduationCap } from 'lucide-react';
+import { Play, ArrowRight, Star, Users, Award, GraduationCap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
@@ -62,6 +62,7 @@ export default function Hero() {
                     src={`https://picsum.photos/seed/user${i}/100/100`}
                     alt="Student"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                   />
                 ))}
                 <div className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-950 bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
@@ -89,6 +90,7 @@ export default function Hero() {
                 alt="Nursing Education"
                 className="w-full h-full object-cover aspect-[4/3]"
                 referrerPolicy="no-referrer"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             </div>

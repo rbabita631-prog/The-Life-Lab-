@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import { ExternalLink, Lock, Search, BookOpen, Loader2, MessageSquare, X, Download } from 'lucide-react';
+import { useState, useEffect, lazy, Suspense } from 'react';
+import { motion } from 'motion/react';
+import { FileText, Download, ExternalLink, Lock, Search, Filter, BookOpen, ClipboardList, Loader2, MessageSquare, X } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
-import Comments from './Comments';
+
+const Comments = lazy(() => import('./Comments'));
 
 export default function StudyMaterials() {
   const [notes, setNotes] = useState<any[]>([]);
@@ -165,7 +167,9 @@ export default function StudyMaterials() {
             </button>
             <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{selectedNote.title}</h3>
             <p className="text-gray-500 dark:text-gray-400 mb-8">{selectedNote.description}</p>
-            <Comments targetId={selectedNote.id} targetType="note" />
+            <Suspense fallback={<div className="flex justify-center py-8"><Loader2 className="h-8 w-8 animate-spin text-blue-600" /></div>}>
+              <Comments targetId={selectedNote.id} targetType="note" />
+            </Suspense>
           </div>
         </div>
       )}

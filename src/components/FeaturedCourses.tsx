@@ -111,6 +111,7 @@ export default function FeaturedCourses() {
                     alt={course.title}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                   />
                   <div className="absolute top-4 left-4">
                     <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
@@ -146,7 +147,7 @@ export default function FeaturedCourses() {
                   </h3>
 
                   <div className="flex items-center gap-3 mb-6">
-                    <img src={course.instructor.image} alt={course.instructor.name} className="h-10 w-10 rounded-full object-cover border-2 border-blue-100 dark:border-gray-800" referrerPolicy="no-referrer" />
+                    <img src={course.instructor.image} alt={course.instructor.name} className="h-10 w-10 rounded-full object-cover border-2 border-blue-100 dark:border-gray-800" referrerPolicy="no-referrer" loading="lazy" />
                     <div>
                       <p className="text-sm font-black text-gray-900 dark:text-white leading-none mb-1">{course.instructor.name}</p>
                       <p className="text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-widest">{course.instructor.role}</p>
@@ -205,6 +206,7 @@ export default function FeaturedCourses() {
                   alt={selectedCourse.title}
                   className="w-full h-full object-cover min-h-[300px]"
                   referrerPolicy="no-referrer"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-8 flex flex-col justify-end">
                   <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-4 self-start">
@@ -231,7 +233,7 @@ export default function FeaturedCourses() {
                 <div className="space-y-10">
                   {/* Instructor */}
                   <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700">
-                    <img src={selectedCourse.instructor.image} alt={selectedCourse.instructor.name} className="h-16 w-16 rounded-2xl object-cover" referrerPolicy="no-referrer" />
+                    <img src={selectedCourse.instructor.image} alt={selectedCourse.instructor.name} className="h-16 w-16 rounded-2xl object-cover" referrerPolicy="no-referrer" loading="lazy" />
                     <div>
                       <p className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Your Instructor</p>
                       <p className="text-xl font-black text-gray-900 dark:text-white">{selectedCourse.instructor.name}</p>
