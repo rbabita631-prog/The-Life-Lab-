@@ -7,7 +7,8 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
   const navigate = useNavigate();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  const announcements = heroSettings?.announcements?.filter((a: any) => a.isActive) || [
+  const filteredAnnouncements = heroSettings?.announcements?.filter((a: any) => a.isActive);
+  const announcements = (filteredAnnouncements && filteredAnnouncements.length > 0) ? filteredAnnouncements : [
     {
       badge: 'Admissions Open',
       title: 'Your Nursing Odyssey',
@@ -18,12 +19,17 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
   ];
 
   useEffect(() => {
-    if (announcements.length <= 1) return;
+    if (announcements.length <= 1) {
+      setCurrentSlide(0);
+      return;
+    }
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % announcements.length);
     }, 5000);
     return () => clearInterval(timer);
   }, [announcements.length]);
+
+  const currentAnnouncement = announcements[currentSlide] || announcements[0];
 
   const scrollToCourses = () => {
     const element = document.getElementById('courses');
@@ -61,18 +67,18 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
                   </span>
-                  {announcements[currentSlide].badge}
+                  {currentAnnouncement.badge}
                 </div>
                 
                 <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
-                  {announcements[currentSlide].title.split(' ').slice(0, -1).join(' ')} <br />
+                  {currentAnnouncement.title.split(' ').slice(0, -1).join(' ')} <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                    {announcements[currentSlide].title.split(' ').slice(-1)}
+                    {currentAnnouncement.title.split(' ').slice(-1)}
                   </span>
                 </h1>
                 
                 <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium max-w-lg">
-                  {announcements[currentSlide].subtitle}
+                  {currentAnnouncement.subtitle}
                 </p>
 
                 <div className="flex flex-wrap gap-4 items-center">
@@ -86,21 +92,21 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
                     </button>
                   )}
                   
-                  {(announcements[currentSlide].launchDate || announcements[currentSlide].price) && (
+                  {(currentAnnouncement.launchDate || currentAnnouncement.price) && (
                     <div className="flex items-center gap-4 px-6 py-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-                      {announcements[currentSlide].launchDate && (
+                      {currentAnnouncement.launchDate && (
                         <div>
                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Starts</p>
-                          <p className="text-sm font-black text-blue-600 dark:text-blue-400">{announcements[currentSlide].launchDate}</p>
+                          <p className="text-sm font-black text-blue-600 dark:text-blue-400">{currentAnnouncement.launchDate}</p>
                         </div>
                       )}
-                      {announcements[currentSlide].launchDate && announcements[currentSlide].price && (
+                      {currentAnnouncement.launchDate && currentAnnouncement.price && (
                         <div className="h-8 w-px bg-gray-200 dark:bg-gray-800" />
                       )}
-                      {announcements[currentSlide].price && (
+                      {currentAnnouncement.price && (
                         <div>
                           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Price</p>
-                          <p className="text-sm font-black text-gray-900 dark:text-white">{announcements[currentSlide].price}</p>
+                          <p className="text-sm font-black text-gray-900 dark:text-white">{currentAnnouncement.price}</p>
                         </div>
                       )}
                     </div>

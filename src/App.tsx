@@ -45,8 +45,20 @@ interface LayoutProps extends ThemeProps {
 }
 
 function Layout({ children, theme, toggleTheme, visibility, heroSettings }: LayoutProps) {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
+      {/* Global Progress Bar */}
+      <motion.div
+        className="fixed top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-600 z-[100] origin-left shadow-[0_0_15px_rgba(37,99,235,0.4)]"
+        style={{ scaleX }}
+      />
       <AnnouncementBar heroSettings={heroSettings} />
       <Navbar theme={theme} toggleTheme={toggleTheme} visibility={visibility} />
       <Suspense fallback={
@@ -62,13 +74,6 @@ function Layout({ children, theme, toggleTheme, visibility, heroSettings }: Layo
 }
 
 function HomePage({ theme, toggleTheme, visibility, heroSettings }: ThemeProps & { heroSettings: any }) {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001
-  });
-
   const [isSubscribed, setIsSubscribed] = useState(false);
 
   const handleSubscribe = (e: FormEvent) => {
@@ -79,12 +84,6 @@ function HomePage({ theme, toggleTheme, visibility, heroSettings }: ThemeProps &
 
   return (
     <>
-      {/* Progress Bar */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 z-[60] origin-left"
-        style={{ scaleX }}
-      />
-      
       <main>
         <Hero visibility={visibility} heroSettings={heroSettings} />
         
