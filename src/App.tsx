@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Footer from './components/Footer';
@@ -22,6 +22,10 @@ const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const DemoPage = lazy(() => import('./pages/DemoPage'));
 const PersonalizedLearningPage = lazy(() => import('./pages/PersonalizedLearningPage'));
 
+import FeaturedCourses from './components/FeaturedCourses';
+import StudyMaterials from './components/StudyMaterials';
+import CategoryGrid from './components/CategoryGrid';
+
 interface ThemeProps {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
@@ -44,12 +48,12 @@ function Layout({ children, theme, toggleTheme, visibility }: LayoutProps) {
       }>
         {children}
       </Suspense>
-      <Footer />
+      <Footer visibility={visibility} />
     </div>
   );
 }
 
-function HomePage({ theme, toggleTheme }: ThemeProps) {
+function HomePage({ theme, toggleTheme, visibility }: ThemeProps) {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -74,7 +78,11 @@ function HomePage({ theme, toggleTheme }: ThemeProps) {
       />
       
       <main>
-        <Hero />
+        <Hero visibility={visibility} />
+        
+        {visibility?.courses && <FeaturedCourses />}
+        {visibility?.notes && <StudyMaterials />}
+        <CategoryGrid visibility={visibility} />
         
         {/* Combined Community & Newsletter - More Aesthetic & Compact */}
         <section className="py-20 bg-white dark:bg-gray-950">

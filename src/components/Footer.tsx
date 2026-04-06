@@ -1,16 +1,25 @@
 import { GraduationCap, Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin, Apple, Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export default function Footer() {
+interface FooterProps {
+  visibility?: any;
+}
+
+export default function Footer({ visibility }: FooterProps) {
   const quickLinks = [
     { name: 'Home', href: '/' },
-    { name: 'Courses', href: '/courses' },
-    { name: 'Test', href: '/test' },
-    { name: 'Daily Quiz', href: '/quiz' },
-    { name: 'Notes', href: '/notes' },
-    { name: 'Previous Paper', href: '/previous-paper' },
+    { name: 'Courses', href: '/courses', key: 'courses' },
+    { name: 'Test', href: '/test', key: 'test' },
+    { name: 'Daily Quiz', href: '/quiz', key: 'dailyQuiz' },
+    { name: 'Notes', href: '/notes', key: 'notes' },
+    { name: 'Previous Paper', href: '/previous-paper', key: 'previousPaper' },
     { name: 'About Us', href: '/about' },
   ];
+
+  const filteredQuickLinks = quickLinks.filter(link => {
+    if (!visibility || !link.key) return true;
+    return visibility[link.key];
+  });
 
   const legalLinks = [
     { name: 'Terms & Conditions', href: '#' },
@@ -60,7 +69,7 @@ export default function Footer() {
           <div>
             <h4 className="text-xl font-black mb-8 tracking-tight">Quick Links</h4>
             <ul className="space-y-4">
-              {quickLinks.map((link) => (
+              {filteredQuickLinks.map((link) => (
                 <li key={link.name}>
                   <Link to={link.href} className="text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group font-medium">
                     <div className="w-1.5 h-1.5 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />

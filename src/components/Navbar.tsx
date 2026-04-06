@@ -52,6 +52,7 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
     if (link.href === '/quiz') return visibility.dailyQuiz;
     if (link.href === '/notes') return visibility.notes;
     if (link.href === '/previous-paper') return visibility.previousPaper;
+    if (link.href === '/personalized-learning') return visibility.personalizedLearning;
     return true;
   });
 

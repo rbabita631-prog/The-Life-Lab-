@@ -19,6 +19,7 @@ import {
   Edit,
   Save,
   X,
+  Menu,
   ChevronRight,
   FileText,
   Clock,
@@ -77,6 +78,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
   const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
   const [editingItem, setEditingItem] = useState<{ type: Tab; data: any } | null>(null);
   const [showAddModal, setShowAddModal] = useState<Tab | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const navigate = useNavigate();
 
@@ -140,7 +142,13 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
     );
 
     const unsubSettings = onSnapshot(doc(db, 'settings', 'visibility'), 
-      (s) => setSettings(s.data()),
+      (s) => {
+        if (s.exists()) {
+          setSettings(s.data());
+        } else {
+          setSettings({ visibility: null });
+        }
+      },
       (e) => console.error('Settings error:', e)
     );
 
@@ -190,6 +198,37 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
     }
   };
 
+  const handleToggleVisibility = async (key: string, value: boolean) => {
+    try {
+      await setDoc(doc(db, 'settings', 'visibility'), {
+        visibility: {
+          [key]: !value
+        }
+      }, { merge: true });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.UPDATE, 'settings/visibility');
+    }
+  };
+
+  const handleInitializeSettings = async () => {
+    try {
+      await setDoc(doc(db, 'settings', 'visibility'), {
+        visibility: {
+          courses: true,
+          demo: true,
+          test: true,
+          dailyQuiz: true,
+          notes: true,
+          previousPaper: true,
+          personalizedLearning: true,
+        }
+      });
+      setStatus({ type: 'success', message: 'Settings initialized with defaults' });
+    } catch (error) {
+      handleFirestoreError(error, OperationType.WRITE, 'settings/visibility');
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
@@ -224,8 +263,8 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
             </div>
           </div>
           
-          {/* Desktop Tabs */}
-          <nav className="hidden lg:flex items-center gap-1 bg-gray-100/50 dark:bg-gray-800/50 p-1.5 rounded-2xl border border-gray-200/20 dark:border-gray-700/20">
+          {/* Desktop Tabs - Scrollable on smaller desktops */}
+          <nav className="hidden lg:flex items-center gap-1 bg-gray-100/50 dark:bg-gray-800/50 p-1 rounded-2xl border border-gray-200/20 dark:border-gray-700/20 overflow-x-auto no-scrollbar max-w-full">
             {[
               { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
               { id: 'courses', label: 'Courses', icon: GraduationCap },
@@ -242,14 +281,14 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as Tab)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all relative group ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-[11px] font-black transition-all relative group whitespace-nowrap ${
                   activeTab === tab.id 
                     ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm border border-gray-200/50 dark:border-gray-700/50' 
                     : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
-                {tab.label}
+                <tab.icon className={`h-3.5 w-3.5 ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
+                <span className="hidden xl:block">{tab.label}</span>
                 {activeTab === tab.id && (
                   <motion.div layoutId="activeTab" className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" />
                 )}
@@ -257,7 +296,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
             ))}
           </nav>
 
-          <div className="flex items-center gap-4 shrink-0">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="hidden xl:flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-700">
               <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 font-black text-xs">
                 {user.displayName?.charAt(0)}
@@ -268,23 +307,80 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               <button 
                 onClick={toggleTheme}
-                className="p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all active:scale-90 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+                className="p-2 sm:p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all active:scale-90 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
                 aria-label="Toggle Theme"
               >
                 {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               </button>
               <button
                 onClick={logout}
-                className="bg-gray-100 dark:bg-gray-800 p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all group border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
+                className="hidden sm:flex bg-gray-100 dark:bg-gray-800 p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all group border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
               >
                 <LogOut className="h-5 w-5" />
+              </button>
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className="lg:hidden p-2 sm:p-3 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-700 transition-all"
+              >
+                {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
               </button>
             </div>
           </div>
         </div>
+
+        {/* Mobile Navigation Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="lg:hidden bg-white dark:bg-[#020817] border-t border-gray-100 dark:border-gray-800 overflow-hidden"
+            >
+              <div className="p-4 grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {[
+                  { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
+                  { id: 'courses', label: 'Courses', icon: GraduationCap },
+                  { id: 'notes', label: 'Notes', icon: BookOpen },
+                  { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
+                  { id: 'questions', label: 'Bank', icon: Plus },
+                  { id: 'testSeries', label: 'Series', icon: FileText },
+                  { id: 'enrollments', label: 'Sales', icon: Users },
+                  { id: 'users', label: 'Users', icon: Users },
+                  { id: 'analytics', label: 'Stats', icon: BarChart },
+                  { id: 'ai', label: 'AI', icon: Sparkles },
+                  { id: 'settings', label: 'Config', icon: Sun },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id as Tab);
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-black transition-all ${
+                      activeTab === tab.id 
+                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' 
+                        : 'bg-gray-50 dark:bg-gray-800/50 text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                    }`}
+                  >
+                    <tab.icon className="h-4 w-4" />
+                    {tab.label}
+                  </button>
+                ))}
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-3 px-4 py-3 rounded-2xl text-xs font-black text-red-600 bg-red-50 dark:bg-red-900/20 sm:hidden"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -761,26 +857,49 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
         {/* Settings Tab */}
         {activeTab === 'settings' && (
           <div className="space-y-8">
-            <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Visibility Settings</h2>
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Visibility Settings</h2>
+              <button 
+                onClick={handleInitializeSettings}
+                className="bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-600 hover:text-white transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-900"
+              >
+                <RefreshCw className="h-5 w-5" />
+                Reset to Defaults
+              </button>
+            </div>
+            
             <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
               {settings?.visibility ? (
-                Object.entries(settings.visibility).map(([key, value]) => (
-                  <div key={key} className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-800 last:border-0">
-                    <span className="text-lg font-bold text-gray-900 dark:text-white capitalize">{key}</span>
-                    <button
-                      onClick={async () => {
-                        await updateDoc(doc(db, 'settings', 'visibility'), {
-                          [`visibility.${key}`]: !value
-                        });
-                      }}
-                      className={`w-14 h-8 rounded-full transition-all ${value ? 'bg-blue-600' : 'bg-gray-300'}`}
-                    >
-                      <div className={`w-6 h-6 bg-white rounded-full transition-all ${value ? 'translate-x-7' : 'translate-x-1'}`} />
-                    </button>
-                  </div>
-                ))
+                <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {Object.entries(settings.visibility).map(([key, value]) => (
+                    <div key={key} className="flex items-center justify-between py-6 first:pt-0 last:pb-0">
+                      <div>
+                        <span className="text-lg font-black text-gray-900 dark:text-white capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Toggle visibility on main navigation</p>
+                      </div>
+                      <button
+                        onClick={() => handleToggleVisibility(key, value as boolean)}
+                        className={`w-16 h-9 rounded-full transition-all relative p-1 ${value ? 'bg-blue-600 shadow-lg shadow-blue-500/30' : 'bg-gray-200 dark:bg-gray-800'}`}
+                      >
+                        <div className={`w-7 h-7 bg-white rounded-full shadow-sm transition-all transform ${value ? 'translate-x-7' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
               ) : (
-                <p className="text-gray-500">Loading settings...</p>
+                <div className="text-center py-20">
+                  <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <Sun className="h-10 w-10 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">No Settings Found</h3>
+                  <p className="text-gray-500 dark:text-gray-400 font-medium mb-8">Initialize your platform visibility settings to get started.</p>
+                  <button
+                    onClick={handleInitializeSettings}
+                    className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95"
+                  >
+                    Initialize Settings
+                  </button>
+                </div>
               )}
             </div>
           </div>

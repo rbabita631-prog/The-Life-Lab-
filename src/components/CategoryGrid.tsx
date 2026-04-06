@@ -1,16 +1,23 @@
-import { GraduationCap, ClipboardList, Zap, LayoutGrid, FileText, Award, Star } from 'lucide-react';
+import { GraduationCap, BookOpen, ClipboardList, Zap, LayoutGrid, FileText, Award, Star, Newspaper } from 'lucide-react';
 import { motion } from 'motion/react';
 
-const categories = [
-  { name: 'Nursing Officer', icon: GraduationCap, color: 'blue', count: '12 Courses' },
-  { name: 'NORCET Special', icon: Award, color: 'indigo', count: '8 Courses' },
-  { name: 'NCLEX Prep', icon: Star, color: 'purple', count: '5 Courses' },
-  { name: 'Test Series', icon: ClipboardList, color: 'green', count: '50+ Tests' },
-  { name: 'Free Quiz', icon: Zap, color: 'orange', count: 'Daily Live' },
-  { name: 'Class Notes', icon: FileText, color: 'red', count: 'PDFs' },
-];
+export default function CategoryGrid({ visibility }: { visibility?: any }) {
+  const categories = [
+    { name: 'Nursing Officer', icon: GraduationCap, color: 'blue', count: '12 Courses', key: 'courses' },
+    { name: 'NORCET Special', icon: Award, color: 'indigo', count: '8 Courses', key: 'courses' },
+    { name: 'NCLEX Prep', icon: Star, color: 'purple', count: '5 Courses', key: 'courses' },
+    { name: 'Test Series', icon: ClipboardList, color: 'green', count: '50+ Tests', key: 'test' },
+    { name: 'Free Quiz', icon: Zap, color: 'orange', count: 'Daily Live', key: 'dailyQuiz' },
+    { name: 'Class Notes', icon: FileText, color: 'red', count: 'PDFs', key: 'notes' },
+  ];
 
-export default function CategoryGrid() {
+  const filteredCategories = categories.filter(cat => {
+    if (!visibility || !cat.key) return true;
+    return visibility[cat.key];
+  });
+
+  if (filteredCategories.length === 0) return null;
+
   return (
     <section className="py-20 bg-white dark:bg-gray-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -30,7 +37,7 @@ export default function CategoryGrid() {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-          {categories.map((category, index) => (
+          {filteredCategories.map((category, index) => (
             <motion.div
               key={category.name}
               initial={{ opacity: 0, y: 20 }}

@@ -2,12 +2,14 @@ import { Play, ArrowRight, Star, Users, Award, GraduationCap } from 'lucide-reac
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
-export default function Hero() {
+export default function Hero({ visibility }: { visibility?: any }) {
   const navigate = useNavigate();
 
   const scrollToCourses = () => {
     navigate('/courses');
   };
+
+  const showCourses = !visibility || visibility.courses;
 
   return (
     <div className="relative min-h-[80vh] flex items-center overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-300">
@@ -44,13 +46,15 @@ export default function Hero() {
             </p>
 
             <div className="flex flex-wrap gap-4">
-              <button 
-                onClick={scrollToCourses}
-                className="group bg-blue-600 text-white px-8 py-4 rounded-2xl text-base font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 flex items-center gap-3 active:scale-95"
-              >
-                Explore Courses
-                <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-              </button>
+              {showCourses && (
+                <button 
+                  onClick={scrollToCourses}
+                  className="group bg-blue-600 text-white px-8 py-4 rounded-2xl text-base font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 flex items-center gap-3 active:scale-95"
+                >
+                  Explore Courses
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </button>
+              )}
             </div>
 
             <div className="mt-12 flex items-center gap-6 border-t border-gray-100 dark:border-gray-800 pt-8">
