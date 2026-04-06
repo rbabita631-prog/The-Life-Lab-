@@ -26,12 +26,18 @@ import {
   Users,
   Sun,
   Moon,
-  BarChart
+  BarChart,
+  Sparkles
 } from 'lucide-react';
 import { auth, db, loginWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import AdminAnalyticsPage from './AdminAnalyticsPage';
+import AdminAIChat from '../components/admin/AdminAIChat';
+import AdminCourseForm from '../components/admin/AdminCourseForm';
+import AdminNoteForm from '../components/admin/AdminNoteForm';
+import AdminQuizForm from '../components/admin/AdminQuizForm';
+import AdminTestSeriesForm from '../components/admin/AdminTestSeriesForm';
 import { 
   collection, 
   query, 
@@ -47,7 +53,7 @@ import {
 
 const ADMIN_EMAIL = "rbabita631@gmail.com";
 
-type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics';
+type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics' | 'ai';
 
 export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) {
   const [user, setUser] = useState<User | null>(null);
@@ -72,9 +78,12 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      console.log('AdminPage auth state changed:', currentUser?.email);
       if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
+        console.log('Redirecting to /admin/login');
         navigate('/admin/login');
       } else {
+        console.log('Admin authenticated:', currentUser.email);
         setUser(currentUser);
         setLoading(false);
       }
@@ -199,6 +208,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
               { id: 'testSeries', label: 'Test Series', icon: FileText },
               { id: 'analytics', label: 'Analytics', icon: BarChart },
+              { id: 'ai', label: 'AI Assistant', icon: Sparkles },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -532,6 +542,9 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 
         {/* Analytics Tab */}
         {activeTab === 'analytics' && <AdminAnalyticsPage />}
+
+        {/* AI Assistant Tab */}
+        {activeTab === 'ai' && <AdminAIChat />}
       </main>
 
       {/* Add Modals */}
@@ -545,10 +558,10 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                 <button onClick={() => setShowAddModal(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
               </div>
               <div className="p-8 overflow-y-auto custom-scrollbar">
-                {showAddModal === 'courses' && <AddCourseForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Course created successfully!' }); }} />}
-                {showAddModal === 'notes' && <AddNoteForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Document added successfully!' }); }} />}
-                {showAddModal === 'quizzes' && <AddQuizForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Quiz created successfully!' }); }} />}
-                {showAddModal === 'testSeries' && <AddTestSeriesForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Test Series created successfully!' }); }} />}
+                {showAddModal === 'courses' && <AdminCourseForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Course created successfully!' }); }} />}
+                {showAddModal === 'notes' && <AdminNoteForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Document added successfully!' }); }} />}
+                {showAddModal === 'quizzes' && <AdminQuizForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Quiz created successfully!' }); }} />}
+                {showAddModal === 'testSeries' && <AdminTestSeriesForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Test Series created successfully!' }); }} />}
               </div>
             </motion.div>
           </div>
@@ -566,10 +579,10 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                 <button onClick={() => setEditingItem(null)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-xl transition-all"><X className="h-6 w-6 text-gray-400" /></button>
               </div>
               <div className="p-8 overflow-y-auto custom-scrollbar">
-                {editingItem.type === 'courses' && <AddCourseForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Course updated successfully!' }); }} />}
-                {editingItem.type === 'notes' && <AddNoteForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Document updated successfully!' }); }} />}
-                {editingItem.type === 'quizzes' && <AddQuizForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Quiz updated successfully!' }); }} />}
-                {editingItem.type === 'testSeries' && <AddTestSeriesForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Test Series updated successfully!' }); }} />}
+                {editingItem.type === 'courses' && <AdminCourseForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Course updated successfully!' }); }} />}
+                {editingItem.type === 'notes' && <AdminNoteForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Document updated successfully!' }); }} />}
+                {editingItem.type === 'quizzes' && <AdminQuizForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Quiz updated successfully!' }); }} />}
+                {editingItem.type === 'testSeries' && <AdminTestSeriesForm initialData={editingItem.data} onComplete={() => { setEditingItem(null); setStatus({ type: 'success', message: 'Test Series updated successfully!' }); }} />}
               </div>
             </motion.div>
           </div>
@@ -580,392 +593,10 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 }
 
 // Form Components
-function AddCourseForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    const courseData = {
-      title: formData.get('title'),
-      category: formData.get('category'),
-      price: `₹${formData.get('price')}`,
-      originalPrice: `₹${formData.get('originalPrice')}`,
-      image: formData.get('image') || 'https://picsum.photos/seed/course/800/600',
-      students: initialData?.students || '0',
-      rating: initialData?.rating || 5.0,
-      duration: formData.get('duration') || '10+ Hours',
-      instructor: {
-        name: formData.get('instructorName') || 'Expert Faculty',
-        role: formData.get('instructorRole') || 'Nursing Specialist',
-        image: 'https://picsum.photos/seed/instructor/200/200'
-      },
-      learningOutcomes: [
-        formData.get('outcome1') || 'Comprehensive coverage of topics',
-        formData.get('outcome2') || 'Practice questions and mock tests'
-      ],
-      curriculum: initialData?.curriculum || [{ title: 'Introduction', topics: ['Welcome to the course'] }],
-      updatedAt: serverTimestamp()
-    };
 
-    try {
-      if (initialData) {
-        await updateDoc(doc(db, 'courses', initialData.id), courseData);
-      } else {
-        await addDoc(collection(db, 'courses'), {
-          ...courseData,
-          createdAt: serverTimestamp()
-        });
-      }
-      onComplete();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to save course');
-      handleFirestoreError(err, OperationType.WRITE, 'courses');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
-          <AlertCircle className="h-5 w-5" />
-          <p className="text-xs font-bold">{error}</p>
-        </div>
-      )}
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Course Title</label>
-          <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" defaultValue={initialData?.category || 'NORCET'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
-            <option>NORCET</option>
-            <option>NCLEX</option>
-            <option>Foundation</option>
-            <option>State Exams</option>
-          </select>
-        </div>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
-          <input name="price" type="number" required defaultValue={initialData?.price?.replace('₹', '')} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Original Price (₹)</label>
-          <input name="originalPrice" type="number" required defaultValue={initialData?.originalPrice?.replace('₹', '')} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Instructor Name</label>
-          <input name="instructorName" defaultValue={initialData?.instructor?.name} placeholder="e.g. Dr. Smith" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Instructor Role</label>
-          <input name="instructorRole" defaultValue={initialData?.instructor?.role} placeholder="e.g. Senior Faculty" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Duration</label>
-          <input name="duration" defaultValue={initialData?.duration} placeholder="e.g. 45+ Hours" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Image URL (Optional)</label>
-          <input name="image" defaultValue={initialData?.image} placeholder="https://picsum.photos/seed/course/800/600" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Learning Outcome 1</label>
-          <input name="outcome1" defaultValue={initialData?.learningOutcomes?.[0]} placeholder="e.g. Master Anatomy" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Learning Outcome 2</label>
-          <input name="outcome2" defaultValue={initialData?.learningOutcomes?.[1]} placeholder="e.g. Practice MCQs" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-      </div>
-      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Saving...' : initialData ? 'Update Course' : 'Create Course'}
-      </button>
-    </form>
-  );
-}
 
-function AddNoteForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    const noteData = {
-      title: formData.get('title'),
-      type: formData.get('type'),
-      category: formData.get('category'),
-      pdfUrl: formData.get('pdfUrl'),
-      isPremium: formData.get('isPremium') === 'on',
-      updatedAt: serverTimestamp()
-    };
 
-    try {
-      if (initialData) {
-        await updateDoc(doc(db, 'notes', initialData.id), noteData);
-      } else {
-        await addDoc(collection(db, 'notes'), {
-          ...noteData,
-          createdAt: serverTimestamp()
-        });
-      }
-      onComplete();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to save document');
-      handleFirestoreError(err, OperationType.WRITE, 'notes');
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
-          <AlertCircle className="h-5 w-5" />
-          <p className="text-xs font-bold">{error}</p>
-        </div>
-      )}
-      <div>
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Document Title</label>
-        <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-      </div>
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Type</label>
-          <select name="type" defaultValue={initialData?.type || 'note'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
-            <option value="note">Study Note</option>
-            <option value="paper">Previous Paper</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" defaultValue={initialData?.category || 'NORCET'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
-            <option>NORCET</option>
-            <option>DSSSB</option>
-            <option>State Wise</option>
-            <option>Pharmacology</option>
-            <option>Anatomy</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">PDF URL</label>
-        <input name="pdfUrl" required defaultValue={initialData?.pdfUrl} placeholder="https://example.com/file.pdf" className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-      </div>
-      <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-        <input type="checkbox" name="isPremium" id="isPremium" defaultChecked={initialData?.isPremium} className="w-5 h-5 rounded-lg border-gray-300 text-blue-600 focus:ring-blue-500" />
-        <label htmlFor="isPremium" className="text-sm font-bold text-gray-700 dark:text-gray-300">Mark as Premium (Paid)</label>
-      </div>
-      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Saving...' : initialData ? 'Update Document' : 'Add Document'}
-      </button>
-    </form>
-  );
-}
-
-function AddQuizForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    
-    const quizData = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      category: formData.get('category'),
-      questions: [
-        {
-          question: formData.get('q1'),
-          options: [formData.get('o1a'), formData.get('o1b'), formData.get('o1c'), formData.get('o1d')],
-          correctAnswer: parseInt(formData.get('c1') as string),
-          explanation: formData.get('e1') || 'No explanation provided.'
-        }
-      ],
-      updatedAt: serverTimestamp()
-    };
-
-    try {
-      if (initialData) {
-        await updateDoc(doc(db, 'quizzes', initialData.id), quizData);
-      } else {
-        await addDoc(collection(db, 'quizzes'), {
-          ...quizData,
-          createdAt: serverTimestamp()
-        });
-      }
-      onComplete();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to save quiz');
-      handleFirestoreError(err, OperationType.WRITE, 'quizzes');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const firstQuestion = initialData?.questions?.[0] || {};
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
-          <AlertCircle className="h-5 w-5" />
-          <p className="text-xs font-bold">{error}</p>
-        </div>
-      )}
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Quiz Title</label>
-          <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" defaultValue={initialData?.category || 'Anatomy'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
-            <option>Anatomy</option>
-            <option>Pharmacology</option>
-            <option>Medical Surgical</option>
-            <option>Pediatrics</option>
-            <option>OBG</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
-        <textarea name="description" defaultValue={initialData?.description} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all min-h-[100px]" />
-      </div>
-      <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-3xl border border-blue-100 dark:border-blue-800">
-        <h4 className="text-sm font-black text-blue-600 mb-4">Sample Question</h4>
-        <div className="space-y-4">
-          <input name="q1" required defaultValue={firstQuestion.question} placeholder="Question text" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-          <div className="grid grid-cols-2 gap-4">
-            <input name="o1a" required defaultValue={firstQuestion.options?.[0]} placeholder="Option 1" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1b" required defaultValue={firstQuestion.options?.[1]} placeholder="Option 2" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1c" required defaultValue={firstQuestion.options?.[2]} placeholder="Option 3" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-            <input name="o1d" required defaultValue={firstQuestion.options?.[3]} placeholder="Option 4" className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-3 rounded-xl text-xs font-bold" />
-          </div>
-          <div className="grid sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Correct Answer</label>
-              <select name="c1" defaultValue={firstQuestion.correctAnswer || '0'} className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold">
-                <option value="0">Option 1</option>
-                <option value="1">Option 2</option>
-                <option value="2">Option 3</option>
-                <option value="3">Option 4</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Explanation</label>
-              <input name="e1" defaultValue={firstQuestion.explanation} placeholder="Why is this correct?" className="w-full bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl text-sm font-bold" />
-            </div>
-          </div>
-        </div>
-      </div>
-      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Saving...' : initialData ? 'Update Quiz' : 'Create Quiz'}
-      </button>
-    </form>
-  );
-}
-
-function AddTestSeriesForm({ onComplete, initialData }: { onComplete: () => void, initialData?: any }) {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const formData = new FormData(e.currentTarget);
-    
-    const tsData = {
-      title: formData.get('title'),
-      description: formData.get('description'),
-      category: formData.get('category'),
-      price: `₹${formData.get('price')}`,
-      updatedAt: serverTimestamp()
-    };
-
-    try {
-      if (initialData) {
-        await updateDoc(doc(db, 'testSeries', initialData.id), tsData);
-      } else {
-        await addDoc(collection(db, 'testSeries'), {
-          ...tsData,
-          createdAt: serverTimestamp()
-        });
-      }
-      onComplete();
-    } catch (err: any) {
-      console.error(err);
-      setError(err.message || 'Failed to save test series');
-      handleFirestoreError(err, OperationType.WRITE, 'testSeries');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl flex items-center gap-3 text-red-600 dark:text-red-400">
-          <AlertCircle className="h-5 w-5" />
-          <p className="text-xs font-bold">{error}</p>
-        </div>
-      )}
-      <div className="grid sm:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Title</label>
-          <input name="title" required defaultValue={initialData?.title} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-        </div>
-        <div>
-          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Category</label>
-          <select name="category" defaultValue={initialData?.category || 'Anatomy'} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all">
-            <option>Anatomy</option>
-            <option>Pharmacology</option>
-            <option>Medical Surgical</option>
-            <option>Pediatrics</option>
-            <option>OBG</option>
-            <option>Other</option>
-          </select>
-        </div>
-      </div>
-      <div>
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Price (₹)</label>
-        <input name="price" type="number" required defaultValue={initialData?.price?.replace('₹', '')} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
-      </div>
-      <div>
-        <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Description</label>
-        <textarea name="description" defaultValue={initialData?.description} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all min-h-[100px]" />
-      </div>
-      <button disabled={loading} type="submit" className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none disabled:opacity-50">
-        {loading ? 'Saving...' : initialData ? 'Update Test Series' : 'Create Test Series'}
-      </button>
-    </form>
-  );
-}

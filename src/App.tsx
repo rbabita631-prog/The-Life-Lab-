@@ -14,6 +14,7 @@ import AdminPage from './pages/AdminPage';
 import AdminLoginPage from './pages/AdminLoginPage';
 import ProfilePage from './pages/ProfilePage';
 import DemoPage from './pages/DemoPage';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
@@ -198,56 +199,58 @@ export default function App() {
   };
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <HomePage theme={theme} toggleTheme={toggleTheme} />
-          </Layout>
-        } />
-        <Route path="/courses" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <CoursesPage />
-          </Layout>
-        } />
-        <Route path="/about" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <AboutPage />
-          </Layout>
-        } />
-        <Route path="/notes" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <NotesPage />
-          </Layout>
-        } />
-        <Route path="/previous-paper" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <PreviousPaperPage />
-          </Layout>
-        } />
-        <Route path="/test" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <TestPage />
-          </Layout>
-        } />
-        <Route path="/quiz" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <QuizPage />
-          </Layout>
-        } />
-        <Route path="/profile" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <ProfilePage />
-          </Layout>
-        } />
-        <Route path="/demo" element={
-          <Layout theme={theme} toggleTheme={toggleTheme}>
-            <DemoPage />
-          </Layout>
-        } />
-        <Route path="/admin" element={<AdminPage theme={theme} toggleTheme={toggleTheme} />} />
-        <Route path="/admin/login" element={<AdminLoginPage />} />
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <HomePage theme={theme} toggleTheme={toggleTheme} />
+            </Layout>
+          } />
+          <Route path="/courses" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <CoursesPage />
+            </Layout>
+          } />
+          <Route path="/about" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <AboutPage />
+            </Layout>
+          } />
+          <Route path="/notes" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <NotesPage />
+            </Layout>
+          } />
+          <Route path="/previous-paper" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <PreviousPaperPage />
+            </Layout>
+          } />
+          <Route path="/test" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <TestPage />
+            </Layout>
+          } />
+          <Route path="/quiz" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <QuizPage />
+            </Layout>
+          } />
+          <Route path="/profile" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <ProfilePage />
+            </Layout>
+          } />
+          <Route path="/demo" element={
+            <Layout theme={theme} toggleTheme={toggleTheme}>
+              <DemoPage />
+            </Layout>
+          } />
+          <Route path="/admin" element={<AdminPage theme={theme} toggleTheme={toggleTheme} />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+        </Routes>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
