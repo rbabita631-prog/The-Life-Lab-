@@ -45,7 +45,9 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const filteredNavLinks = navLinks.filter(link => {
+  const isHomePage = location.pathname === '/';
+
+  const filteredNavLinks = isHomePage ? [] : navLinks.filter(link => {
     if (!visibility) return true;
     if (link.href === '/courses') return visibility.courses;
     if (link.href === '/demo') return visibility.demo;
@@ -197,7 +199,9 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
                 </button>
               ))}
               
-              <div className="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-4" />
+              {filteredNavLinks.length > 0 && (
+                <div className="h-6 w-px bg-gray-200 dark:bg-gray-800 mx-4" />
+              )}
               
               <div className="flex items-center gap-2">
                 <button 
