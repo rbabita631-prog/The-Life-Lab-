@@ -910,8 +910,10 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                 </h3>
                 {settings?.visibility ? (
                   <div className="divide-y divide-gray-100 dark:divide-gray-800">
-                    {Object.entries(settings.visibility).map(([key, value]) => (
-                      <div key={key} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
+                    {Object.entries(settings.visibility)
+                      .sort(([a], [b]) => a.localeCompare(b))
+                      .map(([key, value]) => (
+                        <div key={key} className="flex items-center justify-between py-4 first:pt-0 last:pb-0">
                         <div>
                           <span className="text-sm font-black text-gray-900 dark:text-white capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
                           <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">Show in main menu</p>

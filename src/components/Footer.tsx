@@ -9,6 +9,8 @@ export default function Footer({ visibility }: FooterProps) {
   const quickLinks = [
     { name: 'Home', href: '/' },
     { name: 'Courses', href: '/courses', key: 'courses' },
+    { name: 'Personalized Learning', href: '/personalized-learning', key: 'personalizedLearning' },
+    { name: 'Demo', href: '/demo', key: 'demo' },
     { name: 'Test', href: '/test', key: 'test' },
     { name: 'Daily Quiz', href: '/quiz', key: 'dailyQuiz' },
     { name: 'Notes', href: '/notes', key: 'notes' },
@@ -19,6 +21,10 @@ export default function Footer({ visibility }: FooterProps) {
   const filteredQuickLinks = quickLinks.filter(link => {
     if (!visibility || !link.key) return true;
     return visibility[link.key];
+  }).sort((a, b) => {
+    if (a.name === 'Home') return -1;
+    if (b.name === 'Home') return 1;
+    return a.name.localeCompare(b.name);
   });
 
   const legalLinks = [

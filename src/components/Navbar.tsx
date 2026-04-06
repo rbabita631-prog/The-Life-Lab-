@@ -55,6 +55,10 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
     if (link.href === '/previous-paper') return visibility.previousPaper;
     if (link.href === '/personalized-learning') return visibility.personalizedLearning;
     return true;
+  }).sort((a, b) => {
+    if (a.name === 'Home') return -1;
+    if (b.name === 'Home') return 1;
+    return a.name.localeCompare(b.name);
   });
 
   useEffect(() => {

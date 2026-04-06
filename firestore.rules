@@ -24,12 +24,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isAuthenticated() && (
-        (request.auth.token.email == "rbabita631@gmail.com") ||
-        (request.auth.token.firebase.identities.email[0] == "rbabita631@gmail.com") ||
-        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
-         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin')
-      );
+      return isAuthenticated() && request.auth.token.email == "rbabita631@gmail.com";
     }
 
     function isValidEmail(email) {
@@ -42,6 +37,10 @@ service cloud.firestore {
 
     function hasOnlyAllowedFields(fields) {
       return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
     }
 
     // ===============================================================
@@ -64,7 +63,7 @@ service cloud.firestore {
     match /inquiries/{inquiryId} {
       // Allow anyone to create an inquiry (public contact form)
       allow create: if isValidInquiry(request.resource.data) && 
-                      request.resource.data.createdAt == request.time;
+                       request.resource.data.createdAt == request.time;
       
       // Only admins can read or delete inquiries
       allow read, delete: if isAdmin();
@@ -95,14 +94,36 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /settings/visibility {
+    match /settings/{settingId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
+    match /testSeries/{seriesId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /enrollments/{enrollmentId} {
+      allow read: if isAdmin() || (isAuthenticated() && request.auth.uid == resource.data.userId);
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow delete: if isAdmin();
+    }
+
+    match /comments/{commentId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin() || (isAuthenticated() && resource.data.userId == request.auth.uid);
+    }
+
     match /users/{userId} {
       allow read: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
-      allow write: if isAdmin() || (isAuthenticated() && request.auth.uid == userId && request.auth.token.email == "rbabita631@gmail.com");
+      allow write: if isAdmin() || (isAuthenticated() && request.auth.uid == userId);
     }
 
     // Default deny
