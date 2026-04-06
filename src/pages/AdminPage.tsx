@@ -209,63 +209,80 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       </div>
 
       {/* Admin Header */}
-      <header className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="bg-blue-600 p-2 rounded-xl">
+      <header className="bg-white/70 dark:bg-[#020817]/70 backdrop-blur-2xl border-b border-gray-200/50 dark:border-gray-800/50 sticky top-0 z-[60] shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-8">
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="bg-gradient-to-br from-blue-600 to-indigo-700 p-2.5 rounded-2xl shadow-lg shadow-blue-500/20">
               <LayoutDashboard className="h-6 w-6 text-white" />
             </div>
-            <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight">Admin Dashboard</h1>
+            <div className="hidden sm:block">
+              <h1 className="text-xl font-black text-gray-900 dark:text-white tracking-tight leading-tight">Command Center</h1>
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Admin Node 01</span>
+              </div>
+            </div>
           </div>
           
           {/* Desktop Tabs */}
-          <nav className="hidden lg:flex items-center gap-2">
+          <nav className="hidden lg:flex items-center gap-1 bg-gray-100/50 dark:bg-gray-800/50 p-1.5 rounded-2xl border border-gray-200/20 dark:border-gray-700/20">
             {[
-              { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+              { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
               { id: 'courses', label: 'Courses', icon: GraduationCap },
-              { id: 'notes', label: 'Notes & Papers', icon: BookOpen },
+              { id: 'notes', label: 'Notes', icon: BookOpen },
               { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
-              { id: 'questions', label: 'Question Bank', icon: Plus },
-              { id: 'testSeries', label: 'Test Series', icon: FileText },
-              { id: 'enrollments', label: 'Enrollments', icon: Users },
+              { id: 'questions', label: 'Bank', icon: Plus },
+              { id: 'testSeries', label: 'Series', icon: FileText },
+              { id: 'enrollments', label: 'Sales', icon: Users },
               { id: 'users', label: 'Users', icon: Users },
-              { id: 'analytics', label: 'Analytics', icon: BarChart },
-              { id: 'ai', label: 'AI Assistant', icon: Sparkles },
-              { id: 'settings', label: 'Settings', icon: Sun },
+              { id: 'analytics', label: 'Stats', icon: BarChart },
+              { id: 'ai', label: 'AI', icon: Sparkles },
+              { id: 'settings', label: 'Config', icon: Sun },
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as Tab)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black transition-all relative group ${
                   activeTab === tab.id 
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none' 
-                    : 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    ? 'bg-white dark:bg-gray-900 text-blue-600 shadow-sm border border-gray-200/50 dark:border-gray-700/50' 
+                    : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
-                <tab.icon className="h-4 w-4" />
+                <tab.icon className={`h-4 w-4 ${activeTab === tab.id ? 'text-blue-600' : 'text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
                 {tab.label}
+                {activeTab === tab.id && (
+                  <motion.div layoutId="activeTab" className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-600 rounded-full" />
+                )}
               </button>
             ))}
           </nav>
 
-          <div className="flex items-center gap-6">
-            <div className="hidden md:block text-right">
-              <p className="text-sm font-black text-gray-900 dark:text-white">{user.displayName}</p>
-              <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{user.email}</p>
+          <div className="flex items-center gap-4 shrink-0">
+            <div className="hidden xl:flex items-center gap-3 bg-gray-50 dark:bg-gray-800/50 px-4 py-2 rounded-2xl border border-gray-100 dark:border-gray-700">
+              <div className="w-8 h-8 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 font-black text-xs">
+                {user.displayName?.charAt(0)}
+              </div>
+              <div className="text-left">
+                <p className="text-xs font-black text-gray-900 dark:text-white leading-none">{user.displayName?.split(' ')[0]}</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mt-1">Super Admin</p>
+              </div>
             </div>
-            <button
-              onClick={logout}
-              className="bg-gray-100 dark:bg-gray-800 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all group"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
-            <button 
-              onClick={toggleTheme}
-              className="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all active:scale-90"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-            </button>
+            
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={toggleTheme}
+                className="p-3 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-2xl transition-all active:scale-90 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+                aria-label="Toggle Theme"
+              >
+                {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              </button>
+              <button
+                onClick={logout}
+                className="bg-gray-100 dark:bg-gray-800 p-3 rounded-2xl hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 transition-all group border border-transparent hover:border-red-100 dark:hover:border-red-900/50"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -290,79 +307,144 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
+          <div className="space-y-10">
+            {/* Welcome Section */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+              <div>
+                <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Welcome back, {user.displayName?.split(' ')[0]}! 👋</h2>
+                <p className="text-gray-500 dark:text-gray-400 font-medium mt-1">Here's what's happening with your platform today.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-white dark:bg-gray-900 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                  <span className="text-xs font-bold text-gray-600 dark:text-gray-400 uppercase tracking-widest">System Online</span>
+                </div>
+              </div>
+            </div>
+
             {/* Metrics Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
               {[
-                { label: 'Total Users', value: users.length, icon: Users, color: 'text-blue-600' },
-                { label: 'Previous Papers', value: notes.filter(n => n.type === 'paper').length, icon: FileText, color: 'text-purple-600' },
-                { label: 'Tests/Quizzes', value: quizzes.length, icon: ClipboardList, color: 'text-orange-600' },
-                { label: 'Test Series', value: testSeries.length, icon: BookOpen, color: 'text-pink-600' },
-                { label: 'Total Courses', value: courses.length, icon: GraduationCap, color: 'text-green-600' },
+                { label: 'Total Students', value: users.length, icon: Users, color: 'blue', trend: '+12%' },
+                { label: 'Study Papers', value: notes.filter(n => n.type === 'paper').length, icon: FileText, color: 'purple', trend: '+5%' },
+                { label: 'Active Quizzes', value: quizzes.length, icon: ClipboardList, color: 'orange', trend: '+8%' },
+                { label: 'Test Series', value: testSeries.length, icon: BookOpen, color: 'pink', trend: '+3%' },
+                { label: 'Courses', value: courses.length, icon: GraduationCap, color: 'green', trend: '+2%' },
               ].map((metric, idx) => (
-                <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50">
-                  <div className={`mb-4 ${metric.color}`}>
-                    <metric.icon className="h-8 w-8" />
+                <motion.div 
+                  key={idx} 
+                  initial={{ opacity: 0, y: 20 }} 
+                  animate={{ opacity: 1, y: 0 }} 
+                  transition={{ delay: idx * 0.1 }} 
+                  className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-6 rounded-[2rem] shadow-sm border border-white/50 dark:border-gray-800/50 group hover:border-blue-500/30 transition-all"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div className={`p-3 rounded-2xl bg-${metric.color}-500/10 text-${metric.color}-600 dark:text-${metric.color}-400`}>
+                      <metric.icon className="h-5 w-5" />
+                    </div>
+                    <span className="text-[10px] font-black text-green-500 bg-green-500/10 px-2 py-0.5 rounded-lg">{metric.trend}</span>
                   </div>
-                  <p className="text-sm font-black text-gray-500 dark:text-gray-400 uppercase tracking-widest">{metric.label}</p>
-                  <p className="text-4xl font-black text-gray-900 dark:text-white mt-2">{metric.value}</p>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{metric.label}</p>
+                  <p className="text-3xl font-black text-gray-900 dark:text-white font-mono tracking-tighter">{metric.value}</p>
                 </motion.div>
               ))}
             </div>
 
             <div className="grid lg:grid-cols-3 gap-8">
+              {/* Quick Actions & Sync */}
               <div className="lg:col-span-1 space-y-8">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-sm border border-white/50 dark:border-gray-800/50">
                   <div className="flex items-center gap-3 mb-6">
-                    <Youtube className="h-6 w-6 text-red-600" />
+                    <div className="p-2 bg-red-500/10 rounded-xl">
+                      <Youtube className="h-5 w-5 text-red-600" />
+                    </div>
                     <h2 className="text-xl font-black text-gray-900 dark:text-white">Content Sync</h2>
                   </div>
                   <p className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-8 leading-relaxed">
-                    Sync the latest videos from your YouTube channel.
+                    Automatically pull the latest educational content from your YouTube channel.
                   </p>
                   <button
                     disabled={syncing}
                     onClick={handleSyncVideos}
-                    className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-xl shadow-red-200 dark:shadow-none flex items-center justify-center gap-3 disabled:opacity-50"
+                    className="w-full bg-red-600 text-white py-4 rounded-2xl font-black hover:bg-red-700 transition-all shadow-xl shadow-red-600/20 flex items-center justify-center gap-3 disabled:opacity-50 active:scale-95"
                   >
                     {syncing ? <RefreshCw className="h-5 w-5 animate-spin" /> : <RefreshCw className="h-5 w-5" />}
-                    Sync YouTube
+                    Sync YouTube Channel
                   </button>
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] shadow-sm border border-white/50 dark:border-gray-800/50">
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white mb-6">Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {[
+                      { label: 'Add Course', icon: Plus, tab: 'courses' },
+                      { label: 'New Quiz', icon: ClipboardList, tab: 'quizzes' },
+                      { label: 'Upload Note', icon: FileText, tab: 'notes' },
+                      { label: 'AI Chat', icon: Sparkles, tab: 'ai' },
+                    ].map((action, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveTab(action.tab as Tab)}
+                        className="flex flex-col items-center justify-center p-4 rounded-2xl bg-gray-50 dark:bg-gray-800/50 border border-gray-100 dark:border-gray-700 hover:border-blue-500/30 hover:bg-white dark:hover:bg-gray-800 transition-all group"
+                      >
+                        <action.icon className="h-5 w-5 text-gray-400 group-hover:text-blue-600 mb-2 transition-colors" />
+                        <span className="text-[10px] font-black text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white uppercase tracking-widest">{action.label}</span>
+                      </button>
+                    ))}
+                  </div>
                 </motion.div>
               </div>
 
+              {/* Inquiries Section */}
               <div className="lg:col-span-2">
-                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
-                  <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }} className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-sm border border-white/50 dark:border-gray-800/50 overflow-hidden h-full flex flex-col">
+                  <div className="p-8 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between bg-white/30 dark:bg-gray-900/30">
                     <div className="flex items-center gap-3">
-                      <MessageSquare className="h-6 w-6 text-blue-600" />
-                      <h2 className="text-xl font-black text-gray-900 dark:text-white">User Inquiries</h2>
+                      <div className="p-2 bg-blue-500/10 rounded-xl">
+                        <MessageSquare className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <h2 className="text-xl font-black text-gray-900 dark:text-white">Recent Inquiries</h2>
                     </div>
-                    <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-600 px-4 py-1.5 rounded-full text-xs font-black">
-                      {inquiries.length} Total
+                    <span className="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">
+                      {inquiries.length} Pending
                     </span>
                   </div>
-                  <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                  <div className="flex-1 overflow-y-auto custom-scrollbar divide-y divide-gray-100 dark:divide-gray-800">
                     {inquiries.length === 0 ? (
-                      <div className="p-20 text-center text-gray-400 font-bold">No inquiries found.</div>
+                      <div className="p-20 text-center">
+                        <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <MessageSquare className="h-8 w-8 text-gray-300" />
+                        </div>
+                        <p className="text-gray-400 font-bold uppercase tracking-widest text-xs">No inquiries found.</p>
+                      </div>
                     ) : (
                       inquiries.map((inquiry) => (
-                        <div key={inquiry.id} className="p-8 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+                        <div key={inquiry.id} className="p-8 hover:bg-white dark:hover:bg-gray-800/50 transition-all group relative">
                           <div className="flex justify-between items-start mb-4">
-                            <div>
-                              <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{inquiry.name}</h4>
-                              <p className="text-sm font-bold text-blue-600">{inquiry.email}</p>
+                            <div className="flex items-center gap-4">
+                              <div className="w-10 h-10 rounded-full bg-blue-600/10 flex items-center justify-center text-blue-600 font-black text-xs">
+                                {inquiry.name.charAt(0)}
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-black text-gray-900 dark:text-white mb-0.5">{inquiry.name}</h4>
+                                <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{inquiry.email}</p>
+                              </div>
                             </div>
                             <div className="flex items-center gap-4">
                               <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                 {inquiry.createdAt?.toDate().toLocaleDateString()}
                               </span>
-                              <button onClick={() => handleDelete('inquiries', inquiry.id)} className="text-gray-400 hover:text-red-600 transition-colors">
-                                <Trash2 className="h-5 w-5" />
+                              <button 
+                                onClick={() => handleDelete('inquiries', inquiry.id)} 
+                                className="opacity-0 group-hover:opacity-100 p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                              >
+                                <Trash2 className="h-4 w-4" />
                               </button>
                             </div>
                           </div>
-                          <p className="text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{inquiry.message}</p>
+                          <div className="bg-gray-50/50 dark:bg-gray-800/30 p-4 rounded-2xl border border-gray-100/50 dark:border-gray-700/50">
+                            <p className="text-sm text-gray-600 dark:text-gray-400 font-medium leading-relaxed">{inquiry.message}</p>
+                          </div>
                         </div>
                       ))
                     )}
