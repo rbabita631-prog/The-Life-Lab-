@@ -18,27 +18,31 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
 import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode } from 'react';
+import { onSnapshot, doc } from 'firebase/firestore';
+import { db } from './firebase';
 
 interface ThemeProps {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  visibility: any;
 }
 
 interface LayoutProps extends ThemeProps {
   children: ReactNode;
+  visibility: any;
 }
 
-function Layout({ children, theme, toggleTheme }: LayoutProps) {
+function Layout({ children, theme, toggleTheme, visibility }: LayoutProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
-      <Navbar theme={theme} toggleTheme={toggleTheme} />
+      <Navbar theme={theme} toggleTheme={toggleTheme} visibility={visibility} />
       {children}
       <Footer />
     </div>
   );
 }
 
-function HomePage({ theme, toggleTheme }: ThemeProps) {
+function HomePage({ theme, toggleTheme, visibility }: ThemeProps) {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -175,6 +179,14 @@ export default function App() {
     }
     return 'light';
   });
+  const [visibility, setVisibility] = useState<any>(null);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, 'settings', 'visibility'), (s) => {
+      setVisibility(s.data()?.visibility);
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
@@ -203,47 +215,47 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
-              <HomePage theme={theme} toggleTheme={toggleTheme} />
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
+              <HomePage theme={theme} toggleTheme={toggleTheme} visibility={visibility} />
             </Layout>
           } />
           <Route path="/courses" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <CoursesPage />
             </Layout>
           } />
           <Route path="/about" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <AboutPage />
             </Layout>
           } />
           <Route path="/notes" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <NotesPage />
             </Layout>
           } />
           <Route path="/previous-paper" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <PreviousPaperPage />
             </Layout>
           } />
           <Route path="/test" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <TestPage />
             </Layout>
           } />
           <Route path="/quiz" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <QuizPage />
             </Layout>
           } />
           <Route path="/profile" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <ProfilePage />
             </Layout>
           } />
           <Route path="/demo" element={
-            <Layout theme={theme} toggleTheme={toggleTheme}>
+            <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
               <DemoPage />
             </Layout>
           } />

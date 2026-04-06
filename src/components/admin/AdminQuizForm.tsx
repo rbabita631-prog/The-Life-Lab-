@@ -1,5 +1,5 @@
-import { useState, FormEvent } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { useState, FormEvent, ChangeEvent } from 'react';
+import { AlertCircle, Upload } from 'lucide-react';
 import { serverTimestamp, doc, updateDoc, collection, addDoc } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../../firebase';
 
@@ -7,6 +7,25 @@ export default function AdminQuizForm({ onComplete, initialData }: { onComplete:
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [questions, setQuestions] = useState(initialData?.questions || [{ question: '', options: ['', '', '', ''], correctAnswer: 0, explanation: '' }]);
+
+  const handleBulkUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const json = JSON.parse(event.target?.result as string);
+        if (Array.isArray(json)) {
+          setQuestions(json);
+        } else {
+          setError('Invalid JSON format. Expected an array of questions.');
+        }
+      } catch (err) {
+        setError('Failed to parse JSON file.');
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,11 +37,12 @@ export default function AdminQuizForm({ onComplete, initialData }: { onComplete:
       title: formData.get('title'),
       description: formData.get('description'),
       category: formData.get('category'),
+      durationMinutes: parseInt(formData.get('durationMinutes') as string),
       questions: questions.map((_, i) => ({
-        question: formData.get(`q${i}`),
-        options: [formData.get(`o${i}a`), formData.get(`o${i}b`), formData.get(`o${i}c`), formData.get(`o${i}d`)],
-        correctAnswer: parseInt(formData.get(`c${i}`) as string),
-        explanation: formData.get(`e${i}`) || 'No explanation provided.'
+        question: formData.get(`q${i}`) || questions[i].question,
+        options: [formData.get(`o${i}a`) || questions[i].options[0], formData.get(`o${i}b`) || questions[i].options[1], formData.get(`o${i}c`) || questions[i].options[2], formData.get(`o${i}d`) || questions[i].options[3]],
+        correctAnswer: parseInt(formData.get(`c${i}`) as string) || questions[i].correctAnswer,
+        explanation: formData.get(`e${i}`) || questions[i].explanation || 'No explanation provided.'
       })),
       updatedAt: serverTimestamp()
     };
@@ -69,6 +89,31 @@ export default function AdminQuizForm({ onComplete, initialData }: { onComplete:
             <option>OBG</option>
             <option>Other</option>
           </select>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Duration (Minutes)</label>
+          <input name="durationMinutes" type="number" required defaultValue={initialData?.durationMinutes || 30} className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
+        </div>
+        <div>
+          <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Bulk Upload (JSON)</label>
+          <div className="flex gap-2">
+            <label className="flex items-center justify-center gap-2 flex-1 bg-gray-50 dark:bg-gray-800 border-2 border-dashed border-gray-200 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold cursor-pointer hover:border-blue-500 transition-all">
+              <Upload className="h-5 w-5" />
+              Upload JSON
+              <input type="file" accept=".json" onChange={handleBulkUpload} className="hidden" />
+            </label>
+            <button type="button" onClick={() => {
+              const template = [{ question: "Sample question?", options: ["A", "B", "C", "D"], correctAnswer: 0, explanation: "Sample explanation" }];
+              const blob = new Blob([JSON.stringify(template, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'quiz_template.json';
+              a.click();
+            }} className="bg-gray-200 dark:bg-gray-700 px-4 rounded-2xl text-xs font-bold hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">Download Template</button>
+          </div>
         </div>
       </div>
       <div>

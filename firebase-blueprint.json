@@ -71,6 +71,7 @@
         "description": { "type": "string" },
         "category": { "type": "string" },
         "pdfUrl": { "type": "string" },
+        "documentUrl": { "type": "string" },
         "isPremium": { "type": "boolean" },
         "price": { "type": "string" },
         "type": { "type": "string", "enum": ["note", "paper"] },
@@ -86,6 +87,17 @@
         "title": { "type": "string" },
         "description": { "type": "string" },
         "category": { "type": "string" },
+        "durationMinutes": { "type": "number" },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "questionIds": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
         "questions": {
           "type": "array",
           "items": {
@@ -101,6 +113,38 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "questions", "createdAt"]
+    },
+    "settings": {
+      "title": "Settings",
+      "description": "Global application settings.",
+      "type": "object",
+      "properties": {
+        "visibility": {
+          "type": "object",
+          "properties": {
+            "courses": { "type": "boolean" },
+            "demo": { "type": "boolean" },
+            "test": { "type": "boolean" },
+            "dailyQuiz": { "type": "boolean" },
+            "notes": { "type": "boolean" },
+            "previousPaper": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "question": {
+      "title": "Question",
+      "description": "A single quiz question.",
+      "type": "object",
+      "properties": {
+        "question": { "type": "string" },
+        "options": { "type": "array", "items": { "type": "string" } },
+        "correctAnswer": { "type": "number" },
+        "explanation": { "type": "string" },
+        "category": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["question", "options", "correctAnswer", "createdAt"]
     }
   },
   "firestore": {
@@ -108,6 +152,8 @@
     "/videos/{videoId}": { "schema": "video", "description": "YouTube videos." },
     "/courses/{courseId}": { "schema": "course", "description": "Premium courses." },
     "/notes/{noteId}": { "schema": "note", "description": "Study notes and papers." },
-    "/quizzes/{quizId}": { "schema": "quiz", "description": "Interactive quizzes." }
+    "/quizzes/{quizId}": { "schema": "quiz", "description": "Interactive quizzes." },
+    "/settings/visibility": { "schema": "settings", "description": "Visibility settings." },
+    "/questions/{questionId}": { "schema": "question", "description": "Question bank." }
   }
 }

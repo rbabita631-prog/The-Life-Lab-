@@ -77,6 +77,27 @@ const createTestSeriesTool: FunctionDeclaration = {
   }
 };
 
+const postQuizToTelegramTool: FunctionDeclaration = {
+  name: "postQuizToTelegram",
+  description: "Post a quiz to the Telegram group.",
+  parameters: {
+    type: Type.OBJECT,
+    properties: {
+      title: { type: Type.STRING },
+      questions: {
+        type: Type.ARRAY,
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            question: { type: Type.STRING }
+          }
+        }
+      }
+    },
+    required: ["title", "questions"]
+  }
+};
+
 export default function AdminAIChat() {
   const [messages, setMessages] = useState<{ role: 'user' | 'bot', text: string }[]>([
     { role: 'bot', text: 'Hello! I am your AI assistant. How can I help you manage your content today? I can create quizzes, test series, and courses for you.' }
@@ -109,10 +130,21 @@ Mandatory Workflow for Content Creation:
 - Step 1: Gather Requirements (Ask for topic, target audience, and difficulty level if not provided).
 - Step 2: Draft & Review (Generate a structured draft of the quiz, course, or test series and present it to the user).
 - Step 3: Refine (Incorporate any feedback from the user).
-- Step 4: Execute (ONLY call the create tools like createQuiz, createCourse, createTestSeries AFTER explicit user approval).
+- Step 4: Execute (ONLY call the create tools like createQuiz, createCourse, createTestSeries, postQuizToTelegram AFTER explicit user approval).
 
-When creating quizzes, limit to 5 questions per request. Be concise, professional, and highly logical in your communication.`,
-          tools: [{ functionDeclarations: [createQuizTool, createCourseTool, createTestSeriesTool] }]
+Bulk Upload & Content Management Guidance:
+- For large volumes of questions (500+), advise the user to prepare a JSON file in the following format:
+  [
+    { "question": "...", "options": ["...", "...", "...", "..."], "correctAnswer": 0, "explanation": "..." },
+    ...
+  ]
+- Guide the user to use the "Upload JSON File" feature in the Quiz form for bulk uploads.
+- For detailed courses, ask the user for course title, category, instructor details, learning outcomes, and an image URL (if available).
+- For previous years' exam papers, ask the user for the paper title, category, and the document URL (e.g., a link to the PDF).
+- For test series, ask for title, description, category, duration, and section details.
+
+When creating quizzes, limit to 5 questions per request for drafting. Be concise, professional, and highly logical in your communication.`,
+          tools: [{ functionDeclarations: [createQuizTool, createCourseTool, createTestSeriesTool, postQuizToTelegramTool] }]
         }
       });
       
@@ -159,6 +191,13 @@ When creating quizzes, limit to 5 questions per request. Be concise, professiona
               createdAt: serverTimestamp()
             });
             setMessages(prev => [...prev, { role: 'bot', text: `Test Series "${call.args.title}" created successfully!` }]);
+          } else if (call.name === 'postQuizToTelegram') {
+            await fetch('/api/telegram/post-quiz', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(call.args)
+            });
+            setMessages(prev => [...prev, { role: 'bot', text: `Quiz "${call.args.title}" posted to Telegram successfully!` }]);
           }
         }
       } else {

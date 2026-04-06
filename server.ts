@@ -187,6 +187,37 @@ async function startServer() {
     }
   });
 
+  // API route to post quiz to Telegram
+  app.post("/api/telegram/post-quiz", async (req, res) => {
+    try {
+      const { title, questions } = req.body;
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      const chatId = process.env.TELEGRAM_CHAT_ID;
+
+      if (!botToken || !chatId) {
+        return res.status(400).json({ error: "Telegram credentials missing" });
+      }
+
+      const message = `*New Quiz: ${title}*\n\n${questions.map((q: any, i: number) => `${i + 1}. ${q.question}`).join('\n')}`;
+      
+      const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: message,
+          parse_mode: 'Markdown'
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to post to Telegram");
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Telegram error:", error);
+      res.status(500).json({ error: "Failed to post to Telegram" });
+    }
+  });
+
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

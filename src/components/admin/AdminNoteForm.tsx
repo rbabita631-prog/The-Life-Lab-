@@ -16,6 +16,8 @@ export default function AdminNoteForm({ onComplete, initialData }: { onComplete:
       title: formData.get('title'),
       category: formData.get('category'),
       content: formData.get('content'),
+      isPremium: formData.get('isPremium') === 'on',
+      documentUrl: formData.get('documentUrl'),
       updatedAt: serverTimestamp()
     };
 
@@ -62,6 +64,13 @@ export default function AdminNoteForm({ onComplete, initialData }: { onComplete:
             <option>Other</option>
           </select>
         </div>
+      </div>
+      <div className="flex items-center gap-4">
+        <label className="flex items-center gap-2 text-sm font-bold text-gray-700 dark:text-gray-300">
+          <input type="checkbox" name="isPremium" defaultChecked={initialData?.isPremium} className="h-5 w-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+          Premium Content
+        </label>
+        <input name="documentUrl" defaultValue={initialData?.documentUrl} placeholder="Document URL (e.g. for previous year papers)" className="flex-1 bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl text-sm font-bold focus:outline-none focus:border-blue-500 transition-all" />
       </div>
       <div>
         <label className="block text-xs font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Content</label>

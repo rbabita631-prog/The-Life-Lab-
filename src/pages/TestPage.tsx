@@ -6,6 +6,7 @@ const testSeries = [
     id: 1,
     title: "NORCET 6.0 Mega Mock Test",
     questions: 200,
+    completed: 150,
     duration: "180 mins",
     attempts: "12k+",
     rating: 4.9,
@@ -15,6 +16,7 @@ const testSeries = [
     id: 2,
     title: "NCLEX-RN Practice Set 1",
     questions: 75,
+    completed: 25,
     duration: "120 mins",
     attempts: "8k+",
     rating: 4.8,
@@ -24,6 +26,7 @@ const testSeries = [
     id: 3,
     title: "ESIC Nursing Officer Special",
     questions: 100,
+    completed: 0,
     duration: "90 mins",
     attempts: "5k+",
     rating: 4.7,
@@ -33,6 +36,7 @@ const testSeries = [
     id: 4,
     title: "Anatomy & Physiology Subject Test",
     questions: 50,
+    completed: 50,
     duration: "45 mins",
     attempts: "15k+",
     rating: 4.9,
@@ -117,6 +121,16 @@ export default function TestPage() {
 
                 <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-4 group-hover:text-blue-600 transition-colors">{test.title}</h3>
                 
+                <div className="mb-6">
+                  <div className="flex items-center justify-between text-xs font-bold text-gray-500 mb-2">
+                    <span>{test.completed} / {test.questions} questions completed</span>
+                    <span>{Math.round((test.completed / test.questions) * 100)}%</span>
+                  </div>
+                  <div className="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-2">
+                    <div className="bg-blue-600 h-2 rounded-full" style={{ width: `${(test.completed / test.questions) * 100}%` }}></div>
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-3 gap-4 mb-8">
                   <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
                     <Star className="h-4 w-4 text-amber-500 fill-amber-500" />

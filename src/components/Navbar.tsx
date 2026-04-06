@@ -19,9 +19,10 @@ const navLinks = [
 interface NavbarProps {
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  visibility: any;
 }
 
-export default function Navbar({ theme, toggleTheme }: NavbarProps) {
+export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -41,6 +42,17 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  const filteredNavLinks = navLinks.filter(link => {
+    if (!visibility) return true;
+    if (link.href === '/courses') return visibility.courses;
+    if (link.href === '/demo') return visibility.demo;
+    if (link.href === '/test') return visibility.test;
+    if (link.href === '/quiz') return visibility.dailyQuiz;
+    if (link.href === '/notes') return visibility.notes;
+    if (link.href === '/previous-paper') return visibility.previousPaper;
+    return true;
+  });
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -167,7 +179,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center space-x-1">
-              {navLinks.map((link) => (
+              {filteredNavLinks.map((link) => (
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.href)}
@@ -252,7 +264,7 @@ export default function Navbar({ theme, toggleTheme }: NavbarProps) {
             className="lg:hidden bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800"
           >
             <div className="px-4 pt-4 pb-8 space-y-1">
-              {navLinks.map((link) => (
+              {filteredNavLinks.map((link) => (
                 <button
                   key={link.name}
                   onClick={() => handleNavClick(link.href)}

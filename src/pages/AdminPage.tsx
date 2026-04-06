@@ -38,6 +38,7 @@ import AdminCourseForm from '../components/admin/AdminCourseForm';
 import AdminNoteForm from '../components/admin/AdminNoteForm';
 import AdminQuizForm from '../components/admin/AdminQuizForm';
 import AdminTestSeriesForm from '../components/admin/AdminTestSeriesForm';
+import AdminQuestionForm from '../components/admin/AdminQuestionForm';
 import { 
   collection, 
   query, 
@@ -53,7 +54,7 @@ import {
 
 const ADMIN_EMAIL = "rbabita631@gmail.com";
 
-type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics' | 'ai';
+type Tab = 'dashboard' | 'courses' | 'notes' | 'quizzes' | 'testSeries' | 'analytics' | 'ai' | 'settings' | 'questions';
 
 export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'dark', toggleTheme: () => void }) {
   const [user, setUser] = useState<User | null>(null);
@@ -67,6 +68,8 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
   const [notes, setNotes] = useState<any[]>([]);
   const [quizzes, setQuizzes] = useState<any[]>([]);
   const [testSeries, setTestSeries] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [settings, setSettings] = useState<any>(null);
   
   // UI states
   const [syncing, setSyncing] = useState(false);
@@ -128,6 +131,16 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       (e) => console.error('Test Series error:', e)
     );
 
+    const unsubQuestions = onSnapshot(query(collection(db, 'questions'), orderBy('createdAt', 'desc')), 
+      (s) => setQuestions(s.docs.map(d => ({ id: d.id, ...d.data() }))),
+      (e) => console.error('Questions error:', e)
+    );
+
+    const unsubSettings = onSnapshot(doc(db, 'settings', 'visibility'), 
+      (s) => setSettings(s.data()),
+      (e) => console.error('Settings error:', e)
+    );
+
     return () => {
       unsubInquiries();
       unsubUsers();
@@ -135,6 +148,8 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       unsubNotes();
       unsubQuizzes();
       unsubTestSeries();
+      unsubQuestions();
+      unsubSettings();
     };
   }, [user]);
 
@@ -206,9 +221,11 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
               { id: 'courses', label: 'Courses', icon: GraduationCap },
               { id: 'notes', label: 'Notes & Papers', icon: BookOpen },
               { id: 'quizzes', label: 'Quizzes', icon: ClipboardList },
+              { id: 'questions', label: 'Question Bank', icon: Plus },
               { id: 'testSeries', label: 'Test Series', icon: FileText },
               { id: 'analytics', label: 'Analytics', icon: BarChart },
               { id: 'ai', label: 'AI Assistant', icon: Sparkles },
+              { id: 'settings', label: 'Settings', icon: Sun },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -495,6 +512,45 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
           </div>
         )}
 
+        {/* Question Bank Tab */}
+        {activeTab === 'questions' && (
+          <div className="space-y-8">
+            <div className="flex justify-between items-center">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Question Bank</h2>
+              <button 
+                onClick={() => setShowAddModal('questions')}
+                className="bg-blue-600 text-white px-6 py-3 rounded-2xl font-black flex items-center gap-2 hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none"
+              >
+                <Plus className="h-5 w-5" />
+                Add Question
+              </button>
+            </div>
+            
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-gray-800/50 overflow-hidden">
+              <div className="divide-y divide-gray-100 dark:divide-gray-800">
+                {questions.map((q) => (
+                  <div key={q.id} className="p-8 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <div className="flex items-center gap-6">
+                      <div className="bg-blue-100 dark:bg-blue-900/30 p-4 rounded-2xl">
+                        <Plus className="h-6 w-6 text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-lg font-black text-gray-900 dark:text-white mb-1">{q.question}</h4>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{q.category}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <button onClick={() => handleDelete('questions', q.id)} className="text-gray-400 hover:text-red-600 transition-colors">
+                        <Trash2 className="h-5 w-5" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Test Series Tab */}
         {activeTab === 'testSeries' && (
           <div className="space-y-8">
@@ -541,10 +597,47 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
         )}
 
         {/* Analytics Tab */}
-        {activeTab === 'analytics' && <AdminAnalyticsPage />}
+        {activeTab === 'analytics' && (
+          <AdminAnalyticsPage 
+            users={users} 
+            courses={courses} 
+            quizzes={quizzes} 
+            testSeries={testSeries} 
+            notes={notes} 
+            inquiries={inquiries} 
+          />
+        )}
 
         {/* AI Assistant Tab */}
         {activeTab === 'ai' && <AdminAIChat />}
+
+        {/* Settings Tab */}
+        {activeTab === 'settings' && (
+          <div className="space-y-8">
+            <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Visibility Settings</h2>
+            <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)]">
+              {settings?.visibility ? (
+                Object.entries(settings.visibility).map(([key, value]) => (
+                  <div key={key} className="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-800 last:border-0">
+                    <span className="text-lg font-bold text-gray-900 dark:text-white capitalize">{key}</span>
+                    <button
+                      onClick={async () => {
+                        await updateDoc(doc(db, 'settings', 'visibility'), {
+                          [`visibility.${key}`]: !value
+                        });
+                      }}
+                      className={`w-14 h-8 rounded-full transition-all ${value ? 'bg-blue-600' : 'bg-gray-300'}`}
+                    >
+                      <div className={`w-6 h-6 bg-white rounded-full transition-all ${value ? 'translate-x-7' : 'translate-x-1'}`} />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500">Loading settings...</p>
+              )}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Add Modals */}
@@ -561,6 +654,7 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
                 {showAddModal === 'courses' && <AdminCourseForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Course created successfully!' }); }} />}
                 {showAddModal === 'notes' && <AdminNoteForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Document added successfully!' }); }} />}
                 {showAddModal === 'quizzes' && <AdminQuizForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Quiz created successfully!' }); }} />}
+                {showAddModal === 'questions' && <AdminQuestionForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Question added successfully!' }); }} />}
                 {showAddModal === 'testSeries' && <AdminTestSeriesForm onComplete={() => { setShowAddModal(null); setStatus({ type: 'success', message: 'Test Series created successfully!' }); }} />}
               </div>
             </motion.div>
