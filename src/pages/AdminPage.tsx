@@ -82,12 +82,9 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      console.log('AdminPage auth state changed:', currentUser?.email);
       if (!currentUser || currentUser.email !== ADMIN_EMAIL) {
-        console.log('Redirecting to /admin/login');
         navigate('/admin/login');
       } else {
-        console.log('Admin authenticated:', currentUser.email);
         setUser(currentUser);
         setLoading(false);
       }

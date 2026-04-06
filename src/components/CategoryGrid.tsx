@@ -1,4 +1,4 @@
-import { GraduationCap, BookOpen, ClipboardList, Zap, LayoutGrid, FileText, Award, Star, Newspaper } from 'lucide-react';
+import { GraduationCap, ClipboardList, Zap, LayoutGrid, FileText, Award, Star } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const categories = [

@@ -1,4 +1,4 @@
-import { Play, ArrowRight, Star, Users, Award, GraduationCap } from 'lucide-react';
+import { ArrowRight, Star, Users, GraduationCap } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 

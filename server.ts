@@ -134,7 +134,6 @@ async function startServer() {
       const channelId = "UCnKc0J80BfZJVNYFjbMyJOQ";
       const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
       
-      console.log(`Fetching RSS from: ${rssUrl}`);
       const response = await fetch(rssUrl, {
         headers: {
           'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -151,8 +150,6 @@ async function startServer() {
         attributeNamePrefix: "@_"
       });
       const jsonObj = parser.parse(xmlData);
-      console.log("RSS Feed Keys:", Object.keys(jsonObj));
-      if (jsonObj.feed) console.log("Feed Keys:", Object.keys(jsonObj.feed));
       
       if (!jsonObj.feed || !jsonObj.feed.entry) {
         console.log("No entries found in RSS feed");

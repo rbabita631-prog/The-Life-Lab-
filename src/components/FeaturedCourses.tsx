@@ -136,7 +136,7 @@ export default function FeaturedCourses() {
                     <span className="text-sm font-black text-gray-900 dark:text-white">{course.rating}</span>
                     <span className="text-gray-300 dark:text-gray-700">•</span>
                     <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">{course.students} Students</span>
-                    <button onClick={() => handleShare(course)} className="ml-auto text-gray-400 hover:text-blue-600 transition-colors">
+                    <button onClick={() => handleShare(course)} className="ml-auto text-gray-400 hover:text-blue-600 transition-colors" aria-label="Share Course">
                       <Share2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -193,6 +193,7 @@ export default function FeaturedCourses() {
               <button
                 onClick={() => setSelectedCourse(null)}
                 className="absolute top-6 right-6 z-10 p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full text-white lg:text-gray-500 lg:bg-gray-100 lg:hover:bg-gray-200 transition-all"
+                aria-label="Close Modal"
               >
                 <X className="h-6 w-6" />
               </button>

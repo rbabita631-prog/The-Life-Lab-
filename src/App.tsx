@@ -1,26 +1,26 @@
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
-import FeaturedCourses from './components/FeaturedCourses';
-import StudyMaterials from './components/StudyMaterials';
 import Footer from './components/Footer';
-import CoursesPage from './pages/CoursesPage';
-import AboutPage from './pages/AboutPage';
-import NotesPage from './pages/NotesPage';
-import PreviousPaperPage from './pages/PreviousPaperPage';
-import TestPage from './pages/TestPage';
-import QuizPage from './pages/QuizPage';
-import AdminPage from './pages/AdminPage';
-import AdminLoginPage from './pages/AdminLoginPage';
-import ProfilePage from './pages/ProfilePage';
-import DemoPage from './pages/DemoPage';
-import PersonalizedLearningPage from './pages/PersonalizedLearningPage';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { motion, useScroll, useSpring, AnimatePresence } from 'motion/react';
-import { Youtube, Instagram, Send, Mail, Bell } from 'lucide-react';
-import { useState, useEffect, FormEvent, ReactNode } from 'react';
+import { Youtube, Instagram, Send, Mail, Bell, Loader2 } from 'lucide-react';
+import { useState, useEffect, FormEvent, ReactNode, lazy, Suspense } from 'react';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { db } from './firebase';
+
+// Lazy load pages for performance optimization
+const CoursesPage = lazy(() => import('./pages/CoursesPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const NotesPage = lazy(() => import('./pages/NotesPage'));
+const PreviousPaperPage = lazy(() => import('./pages/PreviousPaperPage'));
+const TestPage = lazy(() => import('./pages/TestPage'));
+const QuizPage = lazy(() => import('./pages/QuizPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
+const AdminLoginPage = lazy(() => import('./pages/AdminLoginPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const DemoPage = lazy(() => import('./pages/DemoPage'));
+const PersonalizedLearningPage = lazy(() => import('./pages/PersonalizedLearningPage'));
 
 interface ThemeProps {
   theme: 'light' | 'dark';
@@ -37,13 +37,19 @@ function Layout({ children, theme, toggleTheme, visibility }: LayoutProps) {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 font-sans selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100 transition-colors duration-300">
       <Navbar theme={theme} toggleTheme={toggleTheme} visibility={visibility} />
-      {children}
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-600" />
+        </div>
+      }>
+        {children}
+      </Suspense>
       <Footer />
     </div>
   );
 }
 
-function HomePage({ theme, toggleTheme, visibility }: ThemeProps) {
+function HomePage({ theme, toggleTheme }: ThemeProps) {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
@@ -265,8 +271,16 @@ export default function App() {
               <PersonalizedLearningPage />
             </Layout>
           } />
-          <Route path="/admin" element={<AdminPage theme={theme} toggleTheme={toggleTheme} />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-blue-600" /></div>}>
+              <AdminPage theme={theme} toggleTheme={toggleTheme} />
+            </Suspense>
+          } />
+          <Route path="/admin/login" element={
+            <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-12 w-12 animate-spin text-blue-600" /></div>}>
+              <AdminLoginPage />
+            </Suspense>
+          } />
         </Routes>
       </BrowserRouter>
     </ErrorBoundary>

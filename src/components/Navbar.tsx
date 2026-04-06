@@ -144,15 +144,6 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout error:', error);
-    }
-  };
-
   const mockSearchResults = [
     { title: 'NORCET 6.0 Crash Course', type: 'Course', href: '/courses' },
     { title: 'Pharmacology Notes', type: 'Note', href: '/notes' },
@@ -204,6 +195,7 @@ export default function Navbar({ theme, toggleTheme, visibility }: NavbarProps) 
                 <button 
                   onClick={() => setIsSearchOpen(true)}
                   className="p-2.5 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-900 rounded-xl transition-all"
+                  aria-label="Search"
                 >
                   <Search className="h-5 w-5" />
                 </button>

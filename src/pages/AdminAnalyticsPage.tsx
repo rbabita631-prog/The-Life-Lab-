@@ -20,8 +20,7 @@ export default function AdminAnalyticsPage({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate data fetching
-    setTimeout(() => setLoading(false), 500);
+    setLoading(false);
   }, []);
 
   if (loading) {

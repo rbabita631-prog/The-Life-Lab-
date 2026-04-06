@@ -5,10 +5,9 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from '../../firebase';
 
 const getAI = () => {
-  // Prioritize GEMINI_API_KEY1 since that is the one being updated
-  const key = process.env.GEMINI_API_KEY1 || process.env.GEMINI_API_KEY;
+  const key = process.env.GEMINI_API_KEY;
   if (!key) {
-    throw new Error("GEMINI_API_KEY or GEMINI_API_KEY1 is missing. Please add your API key to the Secrets panel in AI Studio.");
+    throw new Error("GEMINI_API_KEY is missing. Please add your API key to the Secrets panel in AI Studio.");
   }
   return new GoogleGenAI({ apiKey: key });
 };

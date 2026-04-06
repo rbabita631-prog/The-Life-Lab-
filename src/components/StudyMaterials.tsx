@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
-import { FileText, Download, ExternalLink, Lock, Search, Filter, BookOpen, ClipboardList, Loader2, MessageSquare, X } from 'lucide-react';
+import { ExternalLink, Lock, Search, BookOpen, Loader2, MessageSquare, X, Download } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
 import Comments from './Comments';
@@ -112,6 +111,7 @@ export default function StudyMaterials() {
                           <button
                             onClick={() => setSelectedNote(note)}
                             className="p-2 text-gray-400 hover:text-blue-600 transition-colors"
+                            aria-label="Discuss Note"
                           >
                             <MessageSquare className="h-5 w-5" />
                           </button>
@@ -123,6 +123,7 @@ export default function StudyMaterials() {
                                 ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-200 dark:shadow-none'
                                 : 'bg-gray-100 dark:bg-gray-800 text-gray-400 cursor-not-allowed'
                             }`}
+                            aria-label="View Note"
                           >
                             {!(note.isPremium && !isPaidUser) ? <ExternalLink className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
                             View
@@ -159,7 +160,7 @@ export default function StudyMaterials() {
       {selectedNote && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-8 relative">
-            <button onClick={() => setSelectedNote(null)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white">
+            <button onClick={() => setSelectedNote(null)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-900 dark:hover:text-white" aria-label="Close Modal">
               <X className="h-6 w-6" />
             </button>
             <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">{selectedNote.title}</h3>
