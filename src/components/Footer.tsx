@@ -25,7 +25,7 @@ export default function Footer({ visibility }: FooterProps) {
     { name: 'Terms & Conditions', href: '/terms' },
     { name: 'Privacy Policy', href: '/privacy' },
     { name: 'Refunds & Cancellation Policy', href: '/refund' },
-    { name: 'Contact Us', href: '#contact' },
+    { name: 'Contact Us', href: '#contact-form' },
   ];
 
   return (
@@ -115,44 +115,59 @@ export default function Footer({ visibility }: FooterProps) {
             <div>
               <h4 className="text-xl font-black mb-8 tracking-tight">Contact Us</h4>
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="bg-blue-600/10 p-2 rounded-lg">
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=123,+Education+Hub,+New+Delhi,+India+-+110001" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex items-start gap-4 group"
+                >
+                  <div className="bg-blue-600/10 p-2 rounded-lg group-hover:bg-blue-600/20 transition-colors">
                     <MapPin className="h-5 w-5 text-blue-500" />
                   </div>
-                  <p className="text-gray-400 font-medium">123, Education Hub, New Delhi, India - 110001</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-600/10 p-2 rounded-lg">
+                  <p className="text-gray-400 font-medium group-hover:text-blue-400 transition-colors">123, Education Hub, New Delhi, India - 110001</p>
+                </a>
+                <a href="tel:+919876543210" className="flex items-center gap-4 group">
+                  <div className="bg-blue-600/10 p-2 rounded-lg group-hover:bg-blue-600/20 transition-colors">
                     <Phone className="h-5 w-5 text-blue-500" />
                   </div>
-                  <p className="text-gray-400 font-medium">+91 98765 43210</p>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-600/10 p-2 rounded-lg">
+                  <p className="text-gray-400 font-medium group-hover:text-blue-400 transition-colors">+91 98765 43210</p>
+                </a>
+                <a href="mailto:support@nursingodyssey.com" className="flex items-center gap-4 group">
+                  <div className="bg-blue-600/10 p-2 rounded-lg group-hover:bg-blue-600/20 transition-colors">
                     <Mail className="h-5 w-5 text-blue-500" />
                   </div>
-                  <p className="text-gray-400 font-medium">support@nursingodyssey.com</p>
-                </div>
+                  <p className="text-gray-400 font-medium group-hover:text-blue-400 transition-colors">support@nursingodyssey.com</p>
+                </a>
               </div>
             </div>
 
             <div>
               <h4 className="text-xl font-black mb-8 tracking-tight">Download App</h4>
               <div className="flex flex-col gap-4">
-                <button className="bg-white text-gray-900 px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-100 transition-all shadow-xl font-bold">
+                <a 
+                  href="https://play.google.com/store/apps" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-white text-gray-900 px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-100 transition-all shadow-xl font-bold"
+                >
                   <Play className="h-6 w-6 fill-current" />
                   <div className="text-left">
                     <p className="text-[10px] uppercase tracking-widest leading-none">Get it on</p>
                     <p className="text-lg leading-none mt-1">Google Play</p>
                   </div>
-                </button>
-                <button className="bg-gray-800 text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-700 transition-all shadow-xl font-bold border border-gray-700">
+                </a>
+                <a 
+                  href="https://www.apple.com/app-store/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-gray-800 text-white px-6 py-3 rounded-xl flex items-center gap-3 hover:bg-gray-700 transition-all shadow-xl font-bold border border-gray-700"
+                >
                   <Apple className="h-6 w-6 fill-current" />
                   <div className="text-left">
                     <p className="text-[10px] uppercase tracking-widest leading-none">Download on the</p>
                     <p className="text-lg leading-none mt-1">App Store</p>
                   </div>
-                </button>
+                </a>
               </div>
             </div>
           </div>

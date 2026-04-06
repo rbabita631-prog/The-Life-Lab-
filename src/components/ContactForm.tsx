@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Send, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
@@ -8,13 +8,41 @@ export default function ContactForm() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
+    mobile: '',
     message: ''
   });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+  const [wordCount, setWordCount] = useState(0);
+
+  useEffect(() => {
+    const words = formData.message.trim().split(/\s+/).filter(word => word.length > 0);
+    setWordCount(words.length);
+  }, [formData.message]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Word count validation
+    if (wordCount > 400) {
+      setStatus('error');
+      setErrorMessage('Message cannot exceed 400 words.');
+      return;
+    }
+
+    // One message a day constraint
+    const lastSent = localStorage.getItem('last_contact_sent');
+    const now = new Date().getTime();
+    if (lastSent) {
+      const lastSentTime = parseInt(lastSent);
+      const oneDay = 24 * 60 * 60 * 1000;
+      if (now - lastSentTime < oneDay) {
+        setStatus('error');
+        setErrorMessage('You can only send one message every 24 hours. Please try again later.');
+        return;
+      }
+    }
+
     setStatus('loading');
     setErrorMessage('');
 
@@ -25,14 +53,15 @@ export default function ContactForm() {
         ...formData,
         createdAt: serverTimestamp()
       });
+      
+      localStorage.setItem('last_contact_sent', now.toString());
       setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ name: '', email: '', mobile: '', message: '' });
     } catch (error: any) {
       console.error('Error saving inquiry:', error);
       setStatus('error');
       
       try {
-        // This will throw the JSON error info
         handleFirestoreError(error, OperationType.CREATE, path);
       } catch (err: any) {
         try {
@@ -100,7 +129,24 @@ export default function ContactForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Your Message</label>
+          <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Mobile Number</label>
+          <input
+            required
+            type="tel"
+            value={formData.mobile}
+            onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
+            placeholder="+91 98765 43210"
+            className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-2xl px-6 py-4 text-gray-900 dark:text-white font-bold focus:ring-2 focus:ring-blue-600 transition-all"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between items-center ml-1">
+            <label className="text-xs font-black text-gray-400 uppercase tracking-widest">Your Message</label>
+            <span className={`text-[10px] font-black uppercase tracking-widest ${wordCount > 400 ? 'text-red-500' : 'text-gray-400'}`}>
+              {wordCount} / 400 Words
+            </span>
+          </div>
           <textarea
             required
             rows={5}

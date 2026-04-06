@@ -8,6 +8,7 @@ import { Youtube, Instagram, Send, Mail, Bell, Loader2 } from 'lucide-react';
 import { useState, useEffect, FormEvent, ReactNode, lazy, Suspense } from 'react';
 import { onSnapshot, doc } from 'firebase/firestore';
 import { db } from './firebase';
+import ScrollToTop from './components/ScrollToTop';
 
 // Lazy load pages for performance optimization
 const CoursesPage = lazy(() => import('./pages/CoursesPage'));
@@ -93,10 +94,16 @@ function HomePage({ theme, toggleTheme, visibility, heroSettings }: ThemeProps &
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
               <div>
-                <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8 border border-blue-100 dark:border-blue-800">
+                <button 
+                  onClick={() => {
+                    const element = document.getElementById('contact-form');
+                    if (element) element.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8 border border-blue-100 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-all"
+                >
                   <Bell className="h-4 w-4" />
                   Get in Touch
-                </div>
+                </button>
                 <h2 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-8 tracking-tight">
                   Have Questions? <br />
                   <span className="text-blue-600">We're Here to Help</span>
@@ -107,108 +114,76 @@ function HomePage({ theme, toggleTheme, visibility, heroSettings }: ThemeProps &
                 
                 <div className="space-y-6">
                   {[
-                    { icon: Mail, label: 'Email Us', value: 'support@nursingodyssey.com' },
-                    { icon: Send, label: 'Telegram', value: '@Nursing_Odyssey' },
-                    { icon: Instagram, label: 'Instagram', value: '@nursing_odyssey' }
+                    { icon: Mail, label: 'Email Us', value: 'support@nursingodyssey.com', href: 'mailto:support@nursingodyssey.com' },
+                    { icon: Send, label: 'Telegram', value: '@Nursing_Odyssey', href: 'https://t.me/Nursing_Odyssey' },
+                    { icon: Instagram, label: 'Instagram', value: '@nursing_odyssey', href: 'https://www.instagram.com/nursing_odyssey' }
                   ].map((item) => (
-                    <div key={item.label} className="flex items-center gap-4">
-                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+                    <a 
+                      key={item.label} 
+                      href={item.href}
+                      target={item.href.startsWith('mailto') ? undefined : '_blank'}
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 group"
+                    >
+                      <div className="bg-white dark:bg-gray-900 p-4 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 group-hover:scale-110 transition-all">
                         <item.icon className="h-6 w-6 text-blue-600" />
                       </div>
                       <div>
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{item.label}</p>
-                        <p className="text-base font-bold text-gray-900 dark:text-white">{item.value}</p>
+                        <p className="text-base font-bold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">{item.value}</p>
                       </div>
-                    </div>
+                    </a>
                   ))}
                 </div>
               </div>
               
-              <ContactForm />
-            </div>
-          </div>
-        </section>
-
-        {/* Combined Community & Newsletter */}
-        <section className="py-20 bg-white dark:bg-gray-950">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="relative bg-gray-900 dark:bg-blue-900/20 rounded-[3rem] p-8 lg:p-20 overflow-hidden border border-gray-800 dark:border-blue-500/20">
-              {/* Abstract Background Elements */}
-              <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-600/20 to-transparent pointer-events-none" />
-              <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none" />
-              
-              <div className="relative z-10 grid lg:grid-cols-2 gap-16 items-center">
-                <div>
-                  <div className="inline-flex items-center gap-2 bg-blue-600/20 text-blue-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-blue-500/20">
-                    <Bell className="h-4 w-4" />
-                    Join 8,000+ Students
-                  </div>
-                  <h2 className="text-3xl lg:text-5xl font-black text-white mb-6 tracking-tight leading-tight">
-                    Ready to Start Your <span className="text-blue-500">Professional</span> Journey?
-                  </h2>
-                  <p className="text-lg text-gray-400 mb-10 font-medium leading-relaxed">
-                    Get the latest study materials, exam notifications, and expert tips directly in your inbox and social feeds.
-                  </p>
-                  
-                  <div className="flex flex-wrap gap-4">
-                    {[
-                      { name: 'YouTube', icon: Youtube, color: 'bg-red-600', href: 'https://www.youtube.com/@NursingOdyssey' },
-                      { name: 'Telegram', icon: Send, color: 'bg-blue-500', href: 'https://t.me/Nursing_Odyssey' },
-                      { name: 'Instagram', icon: Instagram, color: 'bg-pink-600', href: 'https://www.instagram.com/nursing_odyssey?igsh=MTBpZWh2OHFweTRpbw%3D%3D&utm_source=qr' }
-                    ].map((social) => (
-                      <a 
-                        key={social.name}
-                        href={social.href}
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className={`${social.color} text-white p-4 rounded-2xl hover:scale-110 transition-all shadow-lg active:scale-95`}
-                        title={social.name}
-                      >
-                        <social.icon className="h-6 w-6" />
-                      </a>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-white/5 backdrop-blur-xl p-8 lg:p-12 rounded-[2.5rem] border border-white/10">
-                  <h3 className="text-xl font-black text-white mb-6">Subscribe to Newsletter</h3>
-                  <form onSubmit={handleSubscribe} className="space-y-4">
-                    <div className="relative">
-                      <Mail className="absolute left-5 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-500" />
-                      <input
-                        type="email"
-                        placeholder="Enter your email"
-                        className="w-full bg-gray-900/50 border border-gray-800 focus:border-blue-500 text-white pl-14 pr-6 py-4 rounded-2xl text-sm font-bold focus:outline-none transition-all"
-                        required
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-600 text-white py-4 rounded-2xl text-sm font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-600/20 active:scale-95"
-                    >
-                      Subscribe Now
-                    </button>
-                  </form>
-                  
-                  <AnimatePresence>
-                    {isSubscribed && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0 }}
-                        className="mt-6 p-4 bg-green-500/10 border border-green-500/20 rounded-2xl"
-                      >
-                        <p className="text-green-400 font-bold text-xs text-center">
-                          🎉 Awesome! You're on the list.
-                        </p>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+              <div id="contact-form">
+                <ContactForm />
               </div>
             </div>
           </div>
         </section>
+              <section className="py-20 bg-white dark:bg-gray-950">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                  <div className="relative bg-gray-900 dark:bg-blue-900/20 rounded-[3rem] p-8 lg:p-20 overflow-hidden border border-gray-800 dark:border-blue-500/20">
+                    {/* Abstract Background Elements */}
+                    <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-blue-600/20 to-transparent pointer-events-none" />
+                    <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-blue-600/20 rounded-full blur-[100px] pointer-events-none" />
+                    
+                    <div className="relative z-10 text-center max-w-3xl mx-auto">
+                      <div className="inline-flex items-center gap-2 bg-blue-600/20 text-blue-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 border border-blue-500/20">
+                        <Bell className="h-4 w-4" />
+                        Join 8,000+ Students
+                      </div>
+                      <h2 className="text-3xl lg:text-5xl font-black text-white mb-6 tracking-tight leading-tight">
+                        Ready to Start Your <span className="text-blue-500">Professional</span> Journey?
+                      </h2>
+                      <p className="text-lg text-gray-400 mb-10 font-medium leading-relaxed">
+                        Get the latest study materials, exam notifications, and expert tips directly in your social feeds.
+                      </p>
+                      
+                      <div className="flex flex-wrap justify-center gap-6">
+                        {[
+                          { name: 'YouTube', icon: Youtube, color: 'bg-red-600', href: 'https://www.youtube.com/@NursingOdyssey' },
+                          { name: 'Telegram', icon: Send, color: 'bg-blue-500', href: 'https://t.me/Nursing_Odyssey' },
+                          { name: 'Instagram', icon: Instagram, color: 'bg-pink-600', href: 'https://www.instagram.com/nursing_odyssey?igsh=MTBpZWh2OHFweTRpbw%3D%3D&utm_source=qr' }
+                        ].map((social) => (
+                          <a 
+                            key={social.name}
+                            href={social.href}
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className={`${social.color} text-white p-5 rounded-2xl hover:scale-110 transition-all shadow-lg active:scale-95 flex items-center gap-3 font-black uppercase tracking-widest text-xs`}
+                          >
+                            <social.icon className="h-6 w-6" />
+                            {social.name}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
       </main>
 
       {/* Floating Action Button */}
@@ -284,6 +259,7 @@ export default function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={
             <Layout theme={theme} toggleTheme={toggleTheme} visibility={visibility}>
