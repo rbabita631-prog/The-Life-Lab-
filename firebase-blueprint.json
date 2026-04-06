@@ -127,7 +127,28 @@
             "test": { "type": "boolean" },
             "dailyQuiz": { "type": "boolean" },
             "notes": { "type": "boolean" },
-            "previousPaper": { "type": "boolean" }
+            "previousPaper": { "type": "boolean" },
+            "personalizedLearning": { "type": "boolean" }
+          }
+        },
+        "hero": {
+          "type": "object",
+          "properties": {
+            "announcements": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "badge": { "type": "string" },
+                  "title": { "type": "string" },
+                  "subtitle": { "type": "string" },
+                  "launchDate": { "type": "string" },
+                  "price": { "type": "string" },
+                  "isActive": { "type": "boolean" }
+                }
+              }
+            }
           }
         }
       }

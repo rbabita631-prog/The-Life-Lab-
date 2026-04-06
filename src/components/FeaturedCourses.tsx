@@ -215,7 +215,7 @@ export default function FeaturedCourses() {
                   <h2 className="text-3xl font-black text-white mb-4 leading-tight">
                     {selectedCourse.title}
                   </h2>
-                  <div className="flex items-center gap-6 text-white/90">
+                  <div className="flex items-center gap-6 text-white/90 mb-8">
                     <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-blue-400" />
                       <span className="text-sm font-bold">{selectedCourse.duration}</span>
@@ -225,76 +225,87 @@ export default function FeaturedCourses() {
                       <span className="text-sm font-bold">{selectedCourse.students}</span>
                     </div>
                   </div>
+
+                  <button 
+                    onClick={() => handlePayment(selectedCourse)}
+                    className="w-full bg-white text-blue-600 py-4 rounded-2xl font-black text-lg hover:bg-blue-50 transition-all shadow-xl active:scale-95 flex items-center justify-center gap-3"
+                  >
+                    Buy Now
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
                 </div>
               </div>
 
               {/* Modal Right: Details */}
-              <div className="lg:w-3/5 p-8 lg:p-12 overflow-y-auto custom-scrollbar">
-                <div className="space-y-10">
-                  {/* Instructor */}
-                  <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700">
-                    <img src={selectedCourse.instructor.image} alt={selectedCourse.instructor.name} className="h-16 w-16 rounded-2xl object-cover" referrerPolicy="no-referrer" loading="lazy" />
-                    <div>
-                      <p className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Your Instructor</p>
-                      <p className="text-xl font-black text-gray-900 dark:text-white">{selectedCourse.instructor.name}</p>
-                      <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedCourse.instructor.role}</p>
-                    </div>
-                  </div>
-
-                  {/* Learning Outcomes */}
-                  <div>
-                    <h4 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                      <Award className="h-5 w-5 text-blue-600" />
-                      What you'll learn
-                    </h4>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      {selectedCourse.learningOutcomes.map((outcome: string, i: number) => (
-                        <div key={i} className="flex gap-3">
-                          <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{outcome}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Curriculum */}
-                  <div>
-                    <h4 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                      <BookOpen className="h-5 w-5 text-blue-600" />
-                      Course Curriculum
-                    </h4>
-                    <div className="space-y-3">
-                      {selectedCourse.curriculum.map((module: any, i: number) => (
-                        <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
-                          <p className="font-black text-gray-900 dark:text-white text-sm mb-2">{module.title}</p>
-                          <div className="flex flex-wrap gap-2">
-                            {module.topics.map((topic: string, j: number) => (
-                              <span key={j} className="text-[10px] font-bold bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-100 dark:border-gray-600">
-                                {topic}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Footer Action */}
-                  <div className="pt-8 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <div>
-                      <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-1">Course Price</p>
-                      <div className="flex items-baseline gap-3">
-                        <span className="text-4xl font-black text-gray-900 dark:text-white">{selectedCourse.price}</span>
-                        <span className="text-lg text-gray-400 line-through font-bold">{selectedCourse.originalPrice}</span>
+              <div className="lg:w-3/5 flex flex-col max-h-full">
+                <div className="flex-1 p-8 lg:p-12 overflow-y-auto custom-scrollbar">
+                  <div className="space-y-10">
+                    {/* Instructor */}
+                    <div className="flex items-center gap-4 p-6 bg-gray-50 dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700">
+                      <img src={selectedCourse.instructor.image} alt={selectedCourse.instructor.name} className="h-16 w-16 rounded-2xl object-cover" referrerPolicy="no-referrer" loading="lazy" />
+                      <div>
+                        <p className="text-xs font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest mb-1">Your Instructor</p>
+                        <p className="text-xl font-black text-gray-900 dark:text-white">{selectedCourse.instructor.name}</p>
+                        <p className="text-sm font-bold text-gray-500 dark:text-gray-400">{selectedCourse.instructor.role}</p>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => handlePayment(selectedCourse)}
-                      className="w-full sm:w-auto bg-blue-600 text-white px-12 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 active:scale-95"
-                    >
-                      Buy Now
-                    </button>
+
+                    {/* Learning Outcomes */}
+                    <div>
+                      <h4 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                        <Award className="h-5 w-5 text-blue-600" />
+                        What you'll learn
+                      </h4>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {selectedCourse.learningOutcomes.map((outcome: string, i: number) => (
+                          <div key={i} className="flex gap-3">
+                            <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
+                            <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{outcome}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Curriculum */}
+                    <div>
+                      <h4 className="text-lg font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+                        <BookOpen className="h-5 w-5 text-blue-600" />
+                        Course Curriculum
+                      </h4>
+                      <div className="space-y-3">
+                        {selectedCourse.curriculum.map((module: any, i: number) => (
+                          <div key={i} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700">
+                            <p className="font-black text-gray-900 dark:text-white text-sm mb-2">{module.title}</p>
+                            <div className="flex flex-wrap gap-2">
+                              {module.topics.map((topic: string, j: number) => (
+                                <span key={j} className="text-[10px] font-bold bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-100 dark:border-gray-600">
+                                  {topic}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
+                </div>
+
+                {/* Sticky Footer Action */}
+                <div className="p-8 lg:px-12 py-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                  <div>
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Course Price</p>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-black text-gray-900 dark:text-white">{selectedCourse.price}</span>
+                      <span className="text-lg text-gray-400 line-through font-bold">{selectedCourse.originalPrice}</span>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => handlePayment(selectedCourse)}
+                    className="w-full sm:w-auto bg-blue-600 text-white px-12 py-5 rounded-2xl text-lg font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3"
+                  >
+                    Buy Now
+                    <ArrowRight className="h-5 w-5" />
+                  </button>
                 </div>
               </div>
             </motion.div>

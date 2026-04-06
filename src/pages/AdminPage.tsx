@@ -236,17 +236,73 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
       });
       
       await setDoc(doc(db, 'settings', 'hero'), {
-        badge: 'New Batch Starting Soon',
-        title: 'Your Nursing Odyssey',
-        subtitle: 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.',
-        launchDate: '2026-05-01',
-        price: '₹4999'
+        announcements: [
+          {
+            id: '1',
+            badge: 'Admissions Open',
+            title: 'Your Nursing Odyssey',
+            subtitle: 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.',
+            launchDate: '2026-05-01',
+            price: '₹4999',
+            isActive: true
+          },
+          {
+            id: '2',
+            badge: 'New Course',
+            title: 'NORCET 7.0 Special Batch',
+            subtitle: 'Targeted preparation for NORCET 7.0 with expert faculty and comprehensive study material.',
+            launchDate: '2026-06-15',
+            price: '₹3499',
+            isActive: true
+          },
+          {
+            id: '3',
+            badge: 'Free Workshop',
+            title: 'NCLEX Success Strategy',
+            subtitle: 'Join our free masterclass on how to crack NCLEX in your first attempt.',
+            launchDate: '2026-04-20',
+            price: 'FREE',
+            isActive: true
+          }
+        ]
       });
 
       setStatus({ type: 'success', message: 'Settings initialized with defaults' });
     } catch (error) {
       handleFirestoreError(error, OperationType.WRITE, 'settings');
     }
+  };
+
+  const handleAddAnnouncement = () => {
+    const newAnnouncement = {
+      id: Math.random().toString(36).substr(2, 9),
+      badge: 'New Announcement',
+      title: 'New Title',
+      subtitle: 'New Subtitle',
+      launchDate: '',
+      price: '',
+      isActive: true
+    };
+    setHeroSettings({
+      ...heroSettings,
+      announcements: [...(heroSettings?.announcements || []), newAnnouncement]
+    });
+  };
+
+  const handleRemoveAnnouncement = (id: string) => {
+    setHeroSettings({
+      ...heroSettings,
+      announcements: heroSettings.announcements.filter((a: any) => a.id !== id)
+    });
+  };
+
+  const handleUpdateAnnouncement = (id: string, field: string, value: any) => {
+    setHeroSettings({
+      ...heroSettings,
+      announcements: heroSettings.announcements.map((a: any) => 
+        a.id === id ? { ...a, [field]: value } : a
+      )
+    });
   };
 
   const handleSaveHero = async (e: React.FormEvent) => {
@@ -943,68 +999,115 @@ export default function AdminPage({ theme, toggleTheme }: { theme: 'light' | 'da
 
               {/* Hero & Announcement Settings */}
               <div className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl p-8 rounded-[2.5rem] border border-white/50 dark:border-gray-800/50 shadow-xl">
-                <h3 className="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                  <Sun className="h-5 w-5 text-blue-600" />
-                  Hero & Announcements
-                </h3>
-                {heroSettings ? (
-                  <form onSubmit={handleSaveHero} className="space-y-4">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Badge Text (e.g. New Batch)</label>
-                      <input
-                        type="text"
-                        value={heroSettings.badge}
-                        onChange={(e) => setHeroSettings({ ...heroSettings, badge: e.target.value })}
-                        className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hero Title</label>
-                      <input
-                        type="text"
-                        value={heroSettings.title}
-                        onChange={(e) => setHeroSettings({ ...heroSettings, title: e.target.value })}
-                        className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Hero Subtitle</label>
-                      <textarea
-                        rows={3}
-                        value={heroSettings.subtitle}
-                        onChange={(e) => setHeroSettings({ ...heroSettings, subtitle: e.target.value })}
-                        className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all resize-none"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
-                        <input
-                          type="text"
-                          value={heroSettings.launchDate}
-                          onChange={(e) => setHeroSettings({ ...heroSettings, launchDate: e.target.value })}
-                          className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                        />
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white flex items-center gap-2">
+                    <Sun className="h-5 w-5 text-blue-600" />
+                    Hero & Announcements
+                  </h3>
+                  {heroSettings?.announcements && (
+                    <button
+                      onClick={handleAddAnnouncement}
+                      className="bg-blue-600/10 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all flex items-center gap-2"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add Announcement
+                    </button>
+                  )}
+                </div>
+
+                {heroSettings?.announcements ? (
+                  <div className="space-y-8">
+                    {heroSettings.announcements.map((announcement: any, index: number) => (
+                      <div key={announcement.id} className="p-6 bg-gray-50/50 dark:bg-gray-800/30 rounded-3xl border border-gray-100 dark:border-gray-800 relative group">
+                        <div className="absolute -top-3 -left-3 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-black shadow-lg">
+                          {index + 1}
+                        </div>
+                        <button
+                          onClick={() => handleRemoveAnnouncement(announcement.id)}
+                          className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+
+                        <div className="grid gap-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-4">
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={announcement.isActive}
+                                  onChange={(e) => handleUpdateAnnouncement(announcement.id, 'isActive', e.target.checked)}
+                                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
+                                />
+                                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Active</span>
+                              </label>
+                            </div>
+                          </div>
+
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Badge Text</label>
+                              <input
+                                type="text"
+                                value={announcement.badge}
+                                onChange={(e) => handleUpdateAnnouncement(announcement.id, 'badge', e.target.value)}
+                                className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Title</label>
+                              <input
+                                type="text"
+                                value={announcement.title}
+                                onChange={(e) => handleUpdateAnnouncement(announcement.id, 'title', e.target.value)}
+                                className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Subtitle</label>
+                            <textarea
+                              rows={2}
+                              value={announcement.subtitle}
+                              onChange={(e) => handleUpdateAnnouncement(announcement.id, 'subtitle', e.target.value)}
+                              className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all resize-none"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
+                              <input
+                                type="text"
+                                value={announcement.launchDate}
+                                onChange={(e) => handleUpdateAnnouncement(announcement.id, 'launchDate', e.target.value)}
+                                className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price Info</label>
+                              <input
+                                type="text"
+                                value={announcement.price}
+                                onChange={(e) => handleUpdateAnnouncement(announcement.id, 'price', e.target.value)}
+                                className="w-full bg-white dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
+                              />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Price Info</label>
-                        <input
-                          type="text"
-                          value={heroSettings.price}
-                          onChange={(e) => setHeroSettings({ ...heroSettings, price: e.target.value })}
-                          className="w-full bg-gray-50 dark:bg-gray-800 border-none rounded-xl px-4 py-3 text-sm font-bold text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-600 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
+                    ))}
+
                     <button
                       disabled={isSavingHero}
-                      type="submit"
+                      onClick={handleSaveHero}
                       className="w-full bg-blue-600 text-white py-3 rounded-xl text-sm font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 dark:shadow-none flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       {isSavingHero ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-                      Save Hero Settings
+                      Save All Announcements
                     </button>
-                  </form>
+                  </div>
                 ) : (
                   <div className="text-center py-10 bg-blue-50/50 dark:bg-blue-900/10 rounded-3xl border-2 border-dashed border-blue-200 dark:border-blue-800">
                     <Sun className="h-10 w-10 text-blue-400 mx-auto mb-4" />

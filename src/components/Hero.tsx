@@ -1,9 +1,29 @@
+import React, { useState, useEffect } from 'react';
 import { Play, ArrowRight, Star, Users, Award, GraduationCap } from 'lucide-react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 
 export default function Hero({ visibility, heroSettings }: { visibility?: any, heroSettings?: any }) {
   const navigate = useNavigate();
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const announcements = heroSettings?.announcements?.filter((a: any) => a.isActive) || [
+    {
+      badge: 'Admissions Open',
+      title: 'Your Nursing Odyssey',
+      subtitle: 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.',
+      launchDate: '2026-05-01',
+      price: '₹4999'
+    }
+  ];
+
+  useEffect(() => {
+    if (announcements.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % announcements.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [announcements.length]);
 
   const scrollToCourses = () => {
     const element = document.getElementById('courses');
@@ -16,10 +36,6 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
 
   const showCourses = !visibility || visibility.courses;
 
-  const badgeText = heroSettings?.badge || 'New Batch Starting Soon';
-  const titleText = heroSettings?.title || 'Your Nursing Odyssey';
-  const subtitleText = heroSettings?.subtitle || 'Your Voyage from Aspirant to Officer. Join the most comprehensive platform for NORCET, NCLEX, and Nursing Officer exams.';
-
   return (
     <div className="relative min-h-[80vh] flex items-center overflow-hidden bg-white dark:bg-gray-950 transition-colors duration-300">
       {/* Background Elements */}
@@ -30,86 +46,82 @@ export default function Hero({ visibility, heroSettings }: { visibility?: any, h
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 py-12 lg:py-16">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8 border border-blue-100 dark:border-blue-800">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-              {badgeText}
-            </div>
-            
-            <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
-              {titleText.split(' ').slice(0, -1).join(' ')} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
-                {titleText.split(' ').slice(-1)}
-              </span>
-            </h1>
-            
-            <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium max-w-lg">
-              {subtitleText}
-            </p>
+          <div className="relative min-h-[400px] flex flex-col justify-center">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentSlide}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                className="absolute inset-0 flex flex-col justify-center"
+              >
+                <div className="inline-flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-4 py-2 rounded-full text-blue-700 dark:text-blue-400 text-[10px] font-black uppercase tracking-widest mb-8 border border-blue-100 dark:border-blue-800 w-fit">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                  </span>
+                  {announcements[currentSlide].badge}
+                </div>
+                
+                <h1 className="text-4xl lg:text-6xl font-black text-gray-900 dark:text-white leading-[1.1] mb-6 tracking-tight">
+                  {announcements[currentSlide].title.split(' ').slice(0, -1).join(' ')} <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">
+                    {announcements[currentSlide].title.split(' ').slice(-1)}
+                  </span>
+                </h1>
+                
+                <p className="text-base lg:text-lg text-gray-500 dark:text-gray-400 mb-10 leading-relaxed font-medium max-w-lg">
+                  {announcements[currentSlide].subtitle}
+                </p>
 
-            <div className="flex flex-wrap gap-4 items-center">
-              {showCourses && (
-                <button 
-                  onClick={scrollToCourses}
-                  className="group bg-blue-600 text-white px-8 py-4 rounded-2xl text-base font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 flex items-center gap-3 active:scale-95"
-                >
-                  Explore Courses
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </button>
-              )}
-              
-              {(heroSettings?.launchDate || heroSettings?.price) && (
-                <div className="flex items-center gap-4 px-6 py-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-                  {heroSettings.launchDate && (
-                    <div>
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Starts</p>
-                      <p className="text-sm font-black text-blue-600 dark:text-blue-400">{heroSettings.launchDate}</p>
-                    </div>
+                <div className="flex flex-wrap gap-4 items-center">
+                  {showCourses && (
+                    <button 
+                      onClick={scrollToCourses}
+                      className="group bg-blue-600 text-white px-8 py-4 rounded-2xl text-base font-black hover:bg-blue-700 transition-all shadow-xl shadow-blue-200 dark:shadow-none hover:-translate-y-1 flex items-center gap-3 active:scale-95"
+                    >
+                      Explore Courses
+                      <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
                   )}
-                  {heroSettings.launchDate && heroSettings.price && (
-                    <div className="h-8 w-px bg-gray-200 dark:bg-gray-800" />
-                  )}
-                  {heroSettings.price && (
-                    <div>
-                      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Price</p>
-                      <p className="text-sm font-black text-gray-900 dark:text-white">{heroSettings.price}</p>
+                  
+                  {(announcements[currentSlide].launchDate || announcements[currentSlide].price) && (
+                    <div className="flex items-center gap-4 px-6 py-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
+                      {announcements[currentSlide].launchDate && (
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Starts</p>
+                          <p className="text-sm font-black text-blue-600 dark:text-blue-400">{announcements[currentSlide].launchDate}</p>
+                        </div>
+                      )}
+                      {announcements[currentSlide].launchDate && announcements[currentSlide].price && (
+                        <div className="h-8 w-px bg-gray-200 dark:bg-gray-800" />
+                      )}
+                      {announcements[currentSlide].price && (
+                        <div>
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none mb-1">Price</p>
+                          <p className="text-sm font-black text-gray-900 dark:text-white">{announcements[currentSlide].price}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              </motion.div>
+            </AnimatePresence>
 
-            <div className="mt-12 flex items-center gap-6 border-t border-gray-100 dark:border-gray-800 pt-8">
-              <div className="flex -space-x-3">
-                {[1, 2, 3].map((i) => (
-                  <img
+            {/* Slider Indicators */}
+            {announcements.length > 1 && (
+              <div className="absolute bottom-0 left-0 flex gap-2">
+                {announcements.map((_, i) => (
+                  <button
                     key={i}
-                    className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-950 object-cover"
-                    src={`https://picsum.photos/seed/user${i}/100/100`}
-                    alt="Student"
-                    referrerPolicy="no-referrer"
-                    loading="lazy"
+                    onClick={() => setCurrentSlide(i)}
+                    className={`h-1.5 rounded-full transition-all ${currentSlide === i ? 'w-8 bg-blue-600' : 'w-2 bg-gray-200 dark:bg-gray-800'}`}
                   />
                 ))}
-                <div className="h-10 w-10 rounded-full border-2 border-white dark:border-gray-950 bg-blue-600 flex items-center justify-center text-[10px] font-bold text-white">
-                  +8k
-                </div>
               </div>
-              <div>
-                <div className="flex items-center gap-1 text-yellow-400 mb-0.5">
-                  {[1, 2, 3, 4, 5].map((i) => <Star key={i} className="h-3 w-3 fill-current" />)}
-                </div>
-                <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">Trusted by 8,000+ Students</p>
-              </div>
-            </div>
-          </motion.div>
+            )}
+          </div>
 
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
